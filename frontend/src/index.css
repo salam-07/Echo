@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,10 +8,14 @@
 	outline: none !important;
 }
 
-      .no-scrollbar::-webkit-scrollbar {
-        display: none; /* For WebKit browsers (Chrome, Safari, Edge, Opera) */
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none; /* For IE and Edge */
-        scrollbar-width: none; /* For Firefox */
-      }
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* For WebKit browsers (Chrome, Safari, Edge, Opera) */
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* For IE and Edge */
+  scrollbar-width: none; /* For Firefox */
+}
+
+* {
+  font-family: 'Figtree', Arial, sans-serif;
+}
