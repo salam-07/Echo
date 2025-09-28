@@ -7,7 +7,8 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+    },
   },
   plugins: [
     daisyui,
@@ -15,7 +16,7 @@ export default {
   daisyui: {
     themes: [
       {
-        mytheme: {
+        echo: {
 
           "primary": "#cacaca",
 
