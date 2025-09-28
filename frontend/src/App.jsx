@@ -6,6 +6,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect, useState } from "react";
 
+import { Toaster } from "react-hot-toast";
+
 import { Loader } from "lucide-react";
 
 import SplashScreen from "./components/SplashScreen";
@@ -20,7 +22,7 @@ const App = () => {
 
   useEffect(() => {
     checkAuth();
-    const timer = setTimeout(() => setShowSplash(false), 2000);
+    const timer = setTimeout(() => setShowSplash(false), 1500);
     return () => clearTimeout(timer);
   }, [checkAuth]);
 
@@ -33,23 +35,16 @@ const App = () => {
     );
   }
 
-  const user = authUser;
-
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
       <div className="relative z-10 h-full overflow-y-auto">
         <Routes>
-
-          <Route path="/" element={
-            !authUser ? <Navigate to="/login" /> : <Navigate to="/home" />
-          } />
+          <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-
-          <Route path="/home" element={!authUser ? <HomePage /> : <Navigate to="/" />} />
-
         </Routes>
       </div>
+      <Toaster />
     </div >
   );
 };
