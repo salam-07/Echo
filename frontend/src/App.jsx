@@ -43,8 +43,23 @@ const App = () => {
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         </Routes>
+        <Toaster
+          toastOptions={{
+            success: {
+              style: {
+                background: 'black',
+                color: '#cacaca',
+              },
+            },
+            error: {
+              style: {
+                background: 'black',
+                color: '#cacaca',
+              },
+            },
+          }}
+        />
       </div>
-      <Toaster />
     </div >
   );
 };
