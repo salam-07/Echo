@@ -1,11 +1,13 @@
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect, useState } from "react";
 
 import { Loader } from "lucide-react";
+
 import SplashScreen from "./components/SplashScreen";
 
 
@@ -36,7 +38,17 @@ const App = () => {
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
       <div className="relative z-10 h-full overflow-y-auto">
-        App
+        <Routes>
+
+          <Route path="/" element={
+            !authUser ? <Navigate to="/login" /> : <Navigate to="/home" />
+          } />
+          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+          <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+
+          <Route path="/home" element={!authUser ? <HomePage /> : <Navigate to="/" />} />
+
+        </Routes>
       </div>
     </div >
   );
