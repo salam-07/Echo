@@ -5,9 +5,9 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import path from "path";
 
-import { connectDB } from "./config/db.js";
+import { connectDB } from "./lib/db.js";
 
-import adminRoutes from "./routes/admin.route.js";
+import authRoutes from "./routes/auth.route.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
@@ -27,18 +27,6 @@ app.use(cors(
 
 // routes
 app.use("/api/auth", authRoutes); // routes for auth
-
-app.use(express.json());
-app.use(rateLimiter);
-
-
-
-// app.use((req, res, next) => {
-//   console.log("We just got a new request: ", req.method);
-//   next();
-// });
-
-app.use("/api/notes", notesRoutes);
 
 
 if (process.env.NODE_ENV === "production") {

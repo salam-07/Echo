@@ -13,6 +13,6 @@ router.post("/login", login);
 router.post("/logout", logout);
 
 // if authenticated, then calls next function
-router.get("/check", protectRoute, checkAuth);
+router.get("/me", protectRoute, checkAuth);
 
 export default router;
