@@ -1,4 +1,5 @@
-import daisyui from "daisyui";
+import daisyui from 'daisyui';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -12,6 +13,29 @@ export default {
     daisyui,
   ],
   daisyui: {
-    themes: ["black"]
-  }
+    themes: [
+      {
+        mytheme: {
+
+          "primary": "#cacaca",
+
+          "secondary": "#cacaca",
+
+          "accent": "#adb5bd",
+
+          "neutral": "#020205",
+
+          "base-100": "#020205",
+
+          "info": "#cacaca",
+
+          "success": "#cacaca",
+
+          "warning": "#cacaca",
+
+          "error": "#cacaca",
+        },
+      },
+    ],
+  },
 };
