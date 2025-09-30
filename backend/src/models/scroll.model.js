@@ -11,7 +11,9 @@ const scrollSchema = new mongoose.Schema(
             ref: 'User',
             required: true
         },
-
+        description: {
+            type: String,
+        },
         criteria: {
             creators: [{
                 type: mongoose.Schema.Types.ObjectId,
