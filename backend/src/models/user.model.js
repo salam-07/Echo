@@ -14,6 +14,26 @@ const userSchema = new mongoose.Schema(
             required: true,
             minlength: 4
         },
+        bio: {
+            type: String,
+        },
+        followers: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+        following: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+
+        savedScrolls: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Scroll'
+        }],
+        createdScrolls: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Scroll'
+        }]
     },
     { timestamps: true }
 );
