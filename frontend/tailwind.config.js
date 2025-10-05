@@ -11,32 +11,5 @@ export default {
     },
   },
   plugins: [
-    daisyui,
   ],
-  daisyui: {
-    themes: [
-      {
-        echo: {
-
-          "primary": "#cacaca",
-
-          "secondary": "#cacaca",
-
-          "accent": "#adb5bd",
-
-          "neutral": "#020205",
-
-          "base-100": "#020205",
-
-          "info": "#cacaca",
-
-          "success": "#cacaca",
-
-          "warning": "#cacaca",
-
-          "error": "#cacaca",
-        },
-      },
-    ],
-  },
 };
