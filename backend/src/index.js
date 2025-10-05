@@ -8,6 +8,7 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 
 import authRoutes from "./routes/auth.route.js";
+import echoRoutes from "./routes/echo.route.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
@@ -27,6 +28,7 @@ app.use(cors(
 
 // routes
 app.use("/api/auth", authRoutes); // routes for auth
+app.use("/api/echo", echoRoutes); // routes for posting
 
 
 if (process.env.NODE_ENV === "production") {
