@@ -1,6 +1,6 @@
 const Footer = () => {
     return (
-        <footer className="footer footer-center bg-base-200 text-base-content rounded-sm p-10">
+        <footer className="footer footer-center bg-base-200 text-base-content rounded p-10">
             <nav className="flex flex-wrap justify-center gap-2 sm:gap-4">
                 <a href="#" className="link link-hover">Mission</a>
                 <a href="#" className="link link-hover">Developers</a>
