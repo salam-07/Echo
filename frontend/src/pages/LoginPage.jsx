@@ -4,6 +4,7 @@ import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-re
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import toast from "react-hot-toast";
+import React from 'react';
 
 const LoginPage = () => {
 
@@ -39,7 +40,7 @@ const LoginPage = () => {
                     <img
                         src="/logo_white.png"
                         alt="Logo"
-                        className="size-36 lg:size-[28rem] drop-shadow-xl"
+                        className="size-36 lg:size-112 drop-shadow-xl"
                     />
                 </div>
                 {/* Right: Form */}
@@ -65,7 +66,7 @@ const LoginPage = () => {
                                         </div>
                                         <input
                                             type="text"
-                                            className="input input-bordered w-full pl-10 text-base bg-base-200/60 focus:bg-base-100 focus:ring-2 focus:ring-primary focus:outline-none transition"
+                                            className="input input-bordered w-full pl-10 text-base bg-base-200/60 focus:bg-base-100 focus:ring-2 focus:ring-primary focus:outline-hidden transition"
                                             placeholder="Username"
                                             value={formData.userName}
                                             onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
@@ -82,7 +83,7 @@ const LoginPage = () => {
                                         </div>
                                         <input
                                             type={showPassword ? "text" : "password"}
-                                            className="input input-bordered w-full pl-10 text-base bg-base-200/60 focus:bg-base-100 focus:ring-2 focus:ring-primary focus:outline-none transition"
+                                            className="input input-bordered w-full pl-10 text-base bg-base-200/60 focus:bg-base-100 focus:ring-2 focus:ring-primary focus:outline-hidden transition"
                                             placeholder="••••••••"
                                             value={formData.password}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}

@@ -1,3 +1,4 @@
+import React from "react";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
@@ -29,14 +30,14 @@ const App = () => {
   // Show splash for at least 2 seconds, regardless of loading state
   if ((isCheckingAuth && !authUser) || showSplash) {
     return (
-      <div className="bg-black flex items-center justify-center h-screen">
+      <div className="bg-base-100 flex items-center justify-center h-screen">
         <SplashScreen />
       </div>
     );
   }
 
   return (
-    <div className="relative h-screen w-full bg-black overflow-hidden">
+    <div className="relative h-screen w-full bg-base-100 overflow-hidden">
       <div className="relative z-10 h-full overflow-y-auto">
         <Routes>
           <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />

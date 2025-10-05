@@ -1,4 +1,5 @@
 import { PanelLeft, Search } from "lucide-react";
+import React from 'react';
 
 const Navbar = () => {
     return (

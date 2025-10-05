@@ -1,3 +1,4 @@
+import React from 'react';
 
 const SplashScreen = () => {
     return (
@@ -5,7 +6,7 @@ const SplashScreen = () => {
             <img
                 src="/logo_white.png"
                 alt="Logo"
-                className="size-[16rem] lg:size-[24rem] animate-pulse mb-4"
+                className="size-64 lg:size-96 animate-pulse mb-4"
             />
         </div>
     );
