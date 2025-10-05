@@ -1,5 +1,6 @@
 import { PanelLeft, Search } from "lucide-react";
 import React from 'react';
+import { ReactSVG } from "react-svg";
 
 const Navbar = () => {
     return (
@@ -12,10 +13,7 @@ const Navbar = () => {
                 </div>
             </div>
             <div className="navbar-center">
-                <img
-                    src="/logo_only.png"
-                    alt="Logo"
-                    className="h-6 w-auto"
+                <ReactSVG src="/logo.svg" className="h-6 w-auto"
                 />
             </div>
             <div className="navbar-end">
