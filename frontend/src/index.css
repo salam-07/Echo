@@ -87,3 +87,27 @@ layer(base);
 * {
   font-family: 'Figtree', Arial, sans-serif;
 }
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-400, #a3a3a3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-base-500, #737373);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-base-400, #a3a3a3) transparent;
+}
