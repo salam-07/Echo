@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
+import EchoCard from '../components/EchoCard';
 import {
     User,
-    Calendar,
-    Users,
+    MessageCircle,
     Scroll,
-    Edit3
+    Edit3,
+    Calendar
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useProfileStore } from '../store/useProfileStore';
 
 const ProfilePage = () => {
-    const [activeTab, setActiveTab] = useState('scrolls');
+    const [activeTab, setActiveTab] = useState('echos');
     const { authUser } = useAuthStore();
+    const {
+        myProfile,
+        userEchos,
+        userScrolls,
+        isLoadingMyProfile,
+        isLoadingUserEchos,
+        isLoadingUserScrolls,
+        getMyProfile,
+        getUserEchos,
+        getUserScrolls
+    } = useProfileStore();
+
+    useEffect(() => {
+        if (authUser?._id) {
+            getMyProfile();
+            getUserEchos(authUser._id);
+            getUserScrolls(authUser._id, 'created');
+        }
+    }, [authUser?._id]);
 
     // Handle loading state
     if (!authUser) {
@@ -28,82 +50,112 @@ const ProfilePage = () => {
     }
 
     const tabs = [
-        { id: 'scrolls', label: 'Scrolls', icon: Scroll },
-        { id: 'connections', label: 'Connections', icon: Users }
+        { id: 'echos', label: 'Echos', icon: MessageCircle },
+        { id: 'scrolls', label: 'Scrolls', icon: Scroll }
     ];
 
     const renderTabContent = () => {
         switch (activeTab) {
+            case 'echos':
+                return (
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-semibold">My Echos</h3>
+                            <Link to="/create-echo" className="btn btn-primary btn-sm">
+                                <Edit3 className="w-4 h-4 mr-2" />
+                                New Echo
+                            </Link>
+                        </div>
+
+                        {isLoadingUserEchos ? (
+                            <div className="space-y-3">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="bg-base-200 rounded-box p-4 animate-pulse">
+                                        <div className="h-4 bg-base-300 rounded w-3/4 mb-2"></div>
+                                        <div className="h-3 bg-base-300 rounded w-1/2"></div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : userEchos?.length > 0 ? (
+                            <div className="space-y-0">
+                                {userEchos.map((echo) => (
+                                    <EchoCard key={echo._id} echo={echo} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <MessageCircle className="w-12 h-12 mx-auto text-base-content/30 mb-4" />
+                                <p className="text-base-content/60 mb-4">No echos yet</p>
+                                <Link to="/create-echo" className="btn btn-primary btn-sm">
+                                    Create your first echo
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                );
+
+            case 'scrolls':
             case 'scrolls':
                 return (
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-lg font-semibold">My Scrolls</h3>
-                            <button className="btn btn-primary btn-sm">
+                            <Link to="/create-scroll" className="btn btn-primary btn-sm">
                                 <Edit3 className="w-4 h-4 mr-2" />
                                 New Scroll
-                            </button>
+                            </Link>
                         </div>
-                        <div className="grid gap-4">
-                            {[1, 2, 3].map((scroll) => (
-                                <div key={scroll} className="bg-base-200 rounded-box p-4 border border-base-300">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-medium">Sample Scroll {scroll}</h4>
-                                        <span className="text-xs text-base-content/60">2 days ago</span>
-                                    </div>
-                                    <p className="text-base-content/70 text-sm mb-3">
-                                        This is a sample scroll description that shows what the content might look like...
-                                    </p>
-                                    <div className="flex justify-between items-center text-sm text-base-content/60">
-                                        <span>12 echoes</span>
-                                        <span>45 views</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
 
-            case 'connections':
-                return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-lg font-semibold mb-4">Followers ({authUser.followers?.length?.toLocaleString() || 0})</h3>
-                                <div className="space-y-3">
-                                    {[1, 2, 3].map((follower) => (
-                                        <div key={follower} className="flex items-center gap-3 p-3 bg-base-200 rounded-box">
-                                            <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                                                <User className="w-5 h-5 text-primary" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="font-medium">user{follower}</div>
-                                                <div className="text-sm text-base-content/60">Joined recently</div>
-                                            </div>
-                                            <button className="btn btn-outline btn-sm">Follow</button>
-                                        </div>
-                                    ))}
-                                </div>
+                        {isLoadingUserScrolls ? (
+                            <div className="space-y-4">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="bg-base-200 rounded-box p-4 animate-pulse">
+                                        <div className="h-5 bg-base-300 rounded w-1/2 mb-2"></div>
+                                        <div className="h-4 bg-base-300 rounded w-3/4 mb-3"></div>
+                                        <div className="h-3 bg-base-300 rounded w-1/4"></div>
+                                    </div>
+                                ))}
                             </div>
+                        ) : userScrolls?.length > 0 ? (
+                            <div className="space-y-4">
+                                {userScrolls.map((scroll) => (
+                                    <Link
+                                        key={scroll._id}
+                                        to={`/scroll/${scroll._id}`}
+                                        className="block bg-base-200 rounded-box p-4 border border-base-300 hover:bg-base-300 transition-colors"
+                                    >
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h4 className="font-medium text-base-content">{scroll.name}</h4>
+                                            <span className="text-xs text-base-content/60">
+                                                {new Date(scroll.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
 
-                            <div>
-                                <h3 className="text-lg font-semibold mb-4">Following ({authUser.following?.length || 0})</h3>
-                                <div className="space-y-3">
-                                    {[1, 2, 3].map((following) => (
-                                        <div key={following} className="flex items-center gap-3 p-3 bg-base-200 rounded-box">
-                                            <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                                                <User className="w-5 h-5 text-primary" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="font-medium">following{following}</div>
-                                                <div className="text-sm text-base-content/60">Active user</div>
-                                            </div>
-                                            <button className="btn btn-outline btn-sm">Unfollow</button>
+                                        {scroll.description && (
+                                            <p className="text-base-content/70 text-sm mb-3 line-clamp-2">
+                                                {scroll.description}
+                                            </p>
+                                        )}
+
+                                        <div className="flex justify-between items-center text-sm text-base-content/60">
+                                            <span>Created by you</span>
+                                            <span className="flex items-center gap-1">
+                                                <Calendar className="w-4 h-4" />
+                                                {new Date(scroll.createdAt).toLocaleDateString()}
+                                            </span>
                                         </div>
-                                    ))}
-                                </div>
+                                    </Link>
+                                ))}
                             </div>
-                        </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <Scroll className="w-12 h-12 mx-auto text-base-content/30 mb-4" />
+                                <p className="text-base-content/60 mb-4">No scrolls yet</p>
+                                <Link to="/create-scroll" className="btn btn-primary btn-sm">
+                                    Create your first scroll
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 );
 
@@ -111,6 +163,9 @@ const ProfilePage = () => {
                 return null;
         }
     };
+
+    // Use myProfile data if available, fallback to authUser
+    const profileData = myProfile || authUser;
 
     return (
         <Layout>
@@ -121,19 +176,22 @@ const ProfilePage = () => {
 
                         {/* Profile Info */}
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-base-content mb-2">@{authUser.userName}</h1>
-                            <p className="text-base-content/80 mb-4 max-w-2xl">{authUser.bio || "No bio available"}</p>
+                            <h1 className="text-4xl font-bold text-base-content mb-2">@{profileData?.userName}</h1>
+                            <p className="text-base-content/80 mb-4 max-w-2xl">{profileData?.bio || "No bio available"}</p>
 
                             {/* Quick Stats */}
                             <div className="flex flex-wrap gap-6 text-sm">
                                 <span className="text-base-content/70">
-                                    <span className="font-semibold text-base-content">{authUser.createdScrolls?.length || 0}</span> scrolls
+                                    <span className="font-semibold text-base-content">{userEchos?.length || 0}</span> echos
                                 </span>
                                 <span className="text-base-content/70">
-                                    <span className="font-semibold text-base-content">{authUser.followers?.length || 0}</span> followers
+                                    <span className="font-semibold text-base-content">{userScrolls?.length || 0}</span> scrolls
                                 </span>
                                 <span className="text-base-content/70">
-                                    <span className="font-semibold text-base-content">{authUser.following?.length || 0}</span> following
+                                    <span className="font-semibold text-base-content">{profileData?.followers?.length || 0}</span> followers
+                                </span>
+                                <span className="text-base-content/70">
+                                    <span className="font-semibold text-base-content">{profileData?.following?.length || 0}</span> following
                                 </span>
                             </div>
                         </div>
