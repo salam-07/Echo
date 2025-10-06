@@ -13,6 +13,7 @@ import { Toaster } from "react-hot-toast";
 import { Loader } from "lucide-react";
 
 import SplashScreen from "./components/SplashScreen";
+import UserPage from "./pages/UserPage";
 
 
 
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 
           <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+          <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/login" />} />
 
         </Routes>
 
