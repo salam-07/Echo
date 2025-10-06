@@ -10,7 +10,7 @@ const Layout = ({ children }) => {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+                    className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-50 z-30 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
@@ -27,9 +27,25 @@ const Layout = ({ children }) => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <main className="flex-1 overflow-y-auto">
-                    {children}
-                </main>
+                <div className="flex flex-1 overflow-hidden">
+                    <main className="flex-1 overflow-y-auto">
+                        {children}
+                    </main>
+
+                    {/* Right Fixed Column - Desktop Only */}
+                    <aside className="hidden lg:block w-64 p-4">
+                        <ul className="menu bg-base-200 rounded-box w-full mb-4">
+                            <li><a>Item 1</a></li>
+                            <li><a>Item 2</a></li>
+                            <li><a>Item 3</a></li>
+                        </ul>
+                        <ul className="menu bg-base-200 rounded-box w-full mb-2">
+                            <li><a>Item 1</a></li>
+                            <li><a>Item 2</a></li>
+                            <li><a>Item 3</a></li>
+                        </ul>
+                    </aside>
+                </div>
             </div>
         </div>
     );
