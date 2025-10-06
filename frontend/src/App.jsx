@@ -2,6 +2,7 @@ import React from "react";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -41,9 +42,14 @@ const App = () => {
       <div className="relative z-10 h-full overflow-y-auto">
         <Routes>
           <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+
+          <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+
         </Routes>
+
         <Toaster
           toastOptions={{
             success: {

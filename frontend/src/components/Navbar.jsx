@@ -14,7 +14,7 @@ const Navbar = ({ onToggleSidebar }) => {
                     <PanelLeft />
                 </button>
             </div>
-            <div className="navbar-center">
+            <div className="navbar-center lg:relative lg:right-30">
                 <ReactSVG src="/logo.svg" className="h-6 w-auto"
                 />
             </div>
