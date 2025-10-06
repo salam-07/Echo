@@ -22,9 +22,10 @@ const EchoCard = ({ echo }) => {
                 <div className="p-4">
                     {/* Header: Username and Date */}
                     <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm font-medium text-base-content">
-                            @{echo.author?.userName || 'Anonymous'}
-                        </span>
+                        <Link to={`/user/${echo.author._id}`}>
+                            <span className="text-sm font-medium text-base-content underline underline-offset-2">
+                                @{echo.author?.userName || 'Anonymous'}
+                            </span></Link>
                         <span className="text-xs text-base-content/50">
                             {formatDate(echo.createdAt)}
                         </span>
