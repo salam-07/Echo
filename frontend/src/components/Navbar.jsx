@@ -4,7 +4,7 @@ import { ReactSVG } from "react-svg";
 
 const Navbar = ({ onToggleSidebar }) => {
     return (
-        <div className="navbar bg-transparent">
+        <div className="navbar bg-transparent ">
             <div className="navbar-start mt-0 pt-0">
                 <button
                     className="btn btn-ghost btn-circle lg:hidden"
@@ -15,7 +15,7 @@ const Navbar = ({ onToggleSidebar }) => {
                 </button>
             </div>
             <div className="navbar-center">
-                <ReactSVG src="/logo.svg" className="h-6 w-auto text-primary"
+                <ReactSVG src="/logo.svg" className="h-6 w-auto"
                 />
             </div>
             <div className="navbar-end">
