@@ -2,18 +2,20 @@ import { PanelLeft, Search } from "lucide-react";
 import React from 'react';
 import { ReactSVG } from "react-svg";
 
-const Navbar = () => {
+const Navbar = ({ onToggleSidebar }) => {
     return (
         <div className="navbar bg-transparent">
             <div className="navbar-start mt-0 pt-0">
-                <div className="dropdown">
-                    <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-                        <PanelLeft />
-                    </div>
-                </div>
+                <button
+                    className="btn btn-ghost btn-circle lg:hidden"
+                    onClick={onToggleSidebar}
+                    aria-label="Toggle sidebar"
+                >
+                    <PanelLeft />
+                </button>
             </div>
             <div className="navbar-center">
-                <ReactSVG src="/logo.svg" className="h-6 w-auto"
+                <ReactSVG src="/logo.svg" className="h-6 w-auto text-primary"
                 />
             </div>
             <div className="navbar-end">
