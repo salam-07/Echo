@@ -52,7 +52,7 @@ const SignUpPage = () => {
                             <img
                                 src="/logo_white.png"
                                 alt="Echo Logo"
-                                className="w-48 h-48 mx-auto mb-6 drop-shadow-lg"
+                                className="w-56 h-56 mx-auto mb-4 drop-shadow-lg"
                             />
                             <h1 className="text-3xl font-light text-base-content mb-2">
                                 Welcome to <span className="font-medium">Echo</span>
