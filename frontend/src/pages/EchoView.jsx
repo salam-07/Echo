@@ -2,14 +2,13 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, Share, Calendar } from 'lucide-react';
 import { useEchoStore } from '../store/useEchoStore';
-import { useAuthStore } from '../store/useAuthStore';
 import Layout from '../layouts/Layout';
 
 const EchoView = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { getEcho, echo, isLoadingEcho } = useEchoStore();
-    const { authUser } = useAuthStore();
+    const { getEcho, echo, isLoadingEcho, toggleLike } = useEchoStore();
+    const isLiked = echo?.isLiked;
 
     useEffect(() => {
         if (id) {
@@ -30,6 +29,8 @@ const EchoView = () => {
     const handleBack = () => {
         navigate(-1);
     };
+
+    const handleLike = () => toggleLike(echo._id);
 
     if (isLoadingEcho) {
         return (
@@ -135,13 +136,11 @@ const EchoView = () => {
                         {/* Actions: Like and Share */}
                         <div className="flex items-center gap-6 pt-4 border-t border-base-300">
                             <button
-                                className="flex items-center gap-2 text-base-content/60 hover:text-base-content transition-colors"
-                                onClick={() => {
-                                    // Handle like action
-                                    console.log('Like echo:', echo._id);
-                                }}
+                                className={`flex items-center gap-2 transition-all ${isLiked ? 'text-red-500' : 'text-base-content/60 hover:text-red-500'
+                                    }`}
+                                onClick={handleLike}
                             >
-                                <Heart className="w-5 h-5" />
+                                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                                 <span className="text-sm">Like</span>
                                 {echo.likes > 0 && (
                                     <span className="text-xs text-base-content/50">({echo.likes})</span>
