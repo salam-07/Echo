@@ -29,7 +29,7 @@ const EchoCard = ({ echo }) => {
 
     return (
         <article className="group">
-            <div className="bg-base-100 border-b border-base-300/30 hover:bg-base-200/30 transition-all duration-200">
+            <div className="bg-base-100 border-b border-base-300/30 transition-all duration-200">
                 <div className="p-5">
                     {/* Header: Username, Date, and Actions */}
                     <header className="flex items-center justify-between mb-4">
@@ -124,7 +124,7 @@ const EchoCard = ({ echo }) => {
                         </div>
 
                         {/* Echo ID or metadata could go here */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="">
                             <span className="text-xs text-base-content/30">
                                 #{echo._id?.slice(-6)}
                             </span>

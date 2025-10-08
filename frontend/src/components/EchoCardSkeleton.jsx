@@ -2,7 +2,7 @@ import React from 'react';
 
 const EchoCardSkeleton = () => {
     return (
-        <div className="card bg-base-100 border border-base-300">
+        <div className="card bg-base-100 border border-base-300 mb-6">
             <div className="card-body p-6">
                 {/* Header Skeleton: Username and Date */}
                 <div className="flex justify-between items-start mb-4">
