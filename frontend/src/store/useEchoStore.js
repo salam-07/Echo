@@ -12,6 +12,7 @@ export const useEchoStore = create((set, get) => ({
     isLoadingEcho: false,
     isPostingEcho: false,
     isDeletingEcho: false,
+    isLikingEcho: false,
 
     // Get all echos
     getAllEchos: async (filters = {}) => {
@@ -83,6 +84,33 @@ export const useEchoStore = create((set, get) => ({
             throw error;
         } finally {
             set({ isDeletingEcho: false });
+        }
+    },
+
+    // Toggle like/unlike echo
+    toggleLike: async (echoId) => {
+        const { echos, echo } = get();
+        const currentEcho = echos.find(e => e._id === echoId) || echo;
+        const isCurrentlyLiked = currentEcho?.isLiked;
+
+        try {
+            const res = isCurrentlyLiked
+                ? await axiosInstance.delete(`/echo/like/${echoId}`)
+                : await axiosInstance.post(`/echo/like/${echoId}`);
+
+            // Update both echos array and single echo
+            const updateEcho = (e) => e._id === echoId
+                ? { ...e, likes: res.data.likes, isLiked: res.data.isLiked }
+                : e;
+
+            set({
+                echos: echos.map(updateEcho),
+                echo: echo && echo._id === echoId
+                    ? { ...echo, likes: res.data.likes, isLiked: res.data.isLiked }
+                    : echo
+            });
+        } catch (error) {
+            toast.error("Failed to update like");
         }
     },
 
