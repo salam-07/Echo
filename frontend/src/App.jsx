@@ -14,6 +14,7 @@ import { Loader } from "lucide-react";
 
 import SplashScreen from "./components/SplashScreen";
 import UserPage from "./pages/UserPage";
+import EchoView from "./pages/EchoView";
 
 
 
@@ -49,6 +50,8 @@ const App = () => {
 
           <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
           <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/login" />} />
+
+          <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/login" />} />
 
         </Routes>
 
