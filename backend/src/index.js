@@ -20,9 +20,10 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(cookieParser());
+// cors policy for dev - allow local network access  
 app.use(cors(
     {
-        origin: "http://localhost:5173",
+        origin: ["http://localhost:5173", /^http:\/\/192\.(16|168)\.10\.\d+:5173$/],
         credentials: true
     }
 ));
@@ -40,7 +41,8 @@ if (process.env.NODE_ENV === "production") {
     });
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log("Server running on port", PORT);
+    console.log("Network access enabled for 192.168.10.x");
     connectDB();
 });
