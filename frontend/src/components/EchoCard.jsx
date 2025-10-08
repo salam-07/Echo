@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Share, MoreHorizontal } from 'lucide-react';
+import { useEchoStore } from '../store/useEchoStore';
 
 const EchoCard = ({ echo }) => {
+    const { toggleLike } = useEchoStore();
+    const isLiked = echo.isLiked;
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -16,6 +19,12 @@ const EchoCard = ({ echo }) => {
             month: 'short',
             day: 'numeric'
         });
+    };
+
+    const handleLike = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleLike(echo._id);
     };
 
     return (
@@ -80,16 +89,11 @@ const EchoCard = ({ echo }) => {
                     <footer className="flex items-center justify-between pt-2">
                         <div className="flex items-center gap-6">
                             <button
-                                className="group/like flex items-center gap-1.5 text-base-content/50 hover:text-base-content/70 transition-all duration-200"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    // Handle like action
-                                }}
+                                className={`flex items-center gap-1.5 transition-all ${isLiked ? 'text-red-500' : 'text-base-content/50 hover:text-red-500'
+                                    }`}
+                                onClick={handleLike}
                             >
-                                <div className="p-1.5 rounded-full group-hover/like:bg-red-50 group-hover/like:text-red-500 transition-all duration-200">
-                                    <Heart className="w-4 h-4" />
-                                </div>
+                                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
                                 <span className="text-xs font-medium">
                                     {echo.likes > 0 ? echo.likes : 'Like'}
                                 </span>
@@ -112,7 +116,7 @@ const EchoCard = ({ echo }) => {
                                     }
                                 }}
                             >
-                                <div className="p-1.5 rounded-full group-hover/share:bg-blue-50 group-hover/share:text-blue-500 transition-all duration-200">
+                                <div className="p-1.5 rounded-full  group-hover/share:text-blue-500 transition-all duration-200">
                                     <Share className="w-4 h-4" />
                                 </div>
                                 <span className="text-xs font-medium">Share</span>
