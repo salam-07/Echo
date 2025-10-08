@@ -50,7 +50,7 @@ const ScrollSelector = () => {
     };
 
     return (
-        <div className="relative w-full rounded-box overflow-hidden">
+        <div className="relative w-full h-44 rounded-box overflow-hidden">
             {/* Top shadow gradient */}
             <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent to-base-100 z-10 pointer-events-none"></div>
 
@@ -80,7 +80,7 @@ const ScrollSelector = () => {
                                 className={`
                                     text-center px-3 py-2 rounded-md transition-all duration-300 w-full max-w-[200px]
                                     ${item.isSelected
-                                        ? 'bg-base-300 text-base-content font-medium'
+                                        ? 'bg-base-200/70 text-base-content font-medium'
                                         : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
                                     }
                                 `}
