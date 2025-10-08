@@ -18,6 +18,11 @@ const echoSchema = new mongoose.Schema(
             ref: 'Tag',
             index: true
         }],
+        likedBy: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            index: true
+        }],
         likes: {
             type: Number,
             default: 0,
