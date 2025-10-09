@@ -123,12 +123,14 @@ const EchoView = () => {
                         {echo.tags && echo.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {echo.tags.map((tag) => (
-                                    <span
+                                    <Link
                                         key={tag._id}
-                                        className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                                        to={`/tag/${tag.name}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex items-center px-2 py-0.5 text-xs text-base-content/60 bg-base-200/50 rounded-full hover:bg-base-200/80 hover:text-primary transition-colors"
                                     >
                                         #{tag.name}
-                                    </span>
+                                    </Link>
                                 ))}
                             </div>
                         )}

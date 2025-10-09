@@ -74,12 +74,14 @@ const EchoCard = ({ echo }) => {
                         {echo.tags && echo.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mb-4">
                                 {echo.tags.map((tag) => (
-                                    <span
+                                    <Link
                                         key={tag._id}
-                                        className="inline-flex items-center px-2 py-0.5 text-xs text-base-content/60 bg-base-200/50 rounded-full hover:bg-base-200/80 transition-colors"
+                                        to={`/tag/${tag.name}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex items-center px-2 py-0.5 text-xs text-base-content/60 bg-base-200/50 rounded-full hover:bg-base-200/80 hover:text-primary transition-colors"
                                     >
                                         #{tag.name}
-                                    </span>
+                                    </Link>
                                 ))}
                             </div>
                         )}

@@ -3,6 +3,7 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
+import TagsPage from "./pages/TagsPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -53,6 +54,7 @@ const App = () => {
           <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/login" />} />
 
           <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/login" />} />
+          <Route path="/tag/:tagName" element={authUser ? <TagsPage /> : <Navigate to="/login" />} />
           <Route path="/new" element={authUser ? <NewEcho /> : <Navigate to="/login" />} />
 
         </Routes>
