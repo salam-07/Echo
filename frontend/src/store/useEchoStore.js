@@ -114,6 +114,21 @@ export const useEchoStore = create((set, get) => ({
         }
     },
 
+    // Get echos by tag
+    getEchosByTag: async (tagName) => {
+        set({ isLoadingEchos: true });
+        try {
+            const res = await axiosInstance.get(`/echo/tag/${tagName}`);
+            set({ echos: res.data.echos });
+            return res.data;
+        } catch (error) {
+            console.log("Error fetching echos by tag:", error);
+            toast.error(error.response?.data?.error || "Failed to fetch echos");
+        } finally {
+            set({ isLoadingEchos: false });
+        }
+    },
+
     // Clear echo data
     clearEcho: () => set({ echo: null }),
 
