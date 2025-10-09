@@ -39,7 +39,7 @@ const ProfilePage = () => {
     if (!authUser) {
         return (
             <Layout>
-                <div className="max-w-4xl mx-auto p-6">
+                <div className="max-w-4xl mx-auto p-3 sm:p-6">
                     <div className="bg-base-100 rounded-box p-8 text-center">
                         <div className="loading loading-spinner loading-lg mx-auto mb-4"></div>
                         <p className="text-base-content/60">Loading profile...</p>
@@ -168,7 +168,7 @@ const ProfilePage = () => {
 
     return (
         <Layout>
-            <div className="max-w-4xl mx-auto p-6">
+            <div className="max-w-4xl mx-auto p-3 sm:p-6">
                 {/* Profile Header */}
                 <div className="bg-base-100 rounded-box p-8 mb-6 border border-base-300">
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-6">

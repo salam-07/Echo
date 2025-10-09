@@ -13,7 +13,7 @@ const HomePage = () => {
 
     return (
         <Layout>
-            <div className="max-w-full space-y-2 mx-7">
+            <div className="max-w-full space-y-2 mx-3 sm:mx-7">
                 {/* Loading State */}
                 {isLoadingEchos && echos.length === 0 && (
                     <div className="space-y-0">

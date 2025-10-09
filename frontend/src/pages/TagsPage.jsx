@@ -22,7 +22,7 @@ const TagsPage = () => {
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto p-6">
+            <div className="max-w-2xl mx-auto p-3 sm:p-6">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-6">
                     <button

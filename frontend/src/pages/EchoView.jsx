@@ -35,7 +35,7 @@ const EchoView = () => {
     if (isLoadingEcho) {
         return (
             <Layout>
-                <div className="max-w-2xl mx-auto p-6">
+                <div className="max-w-2xl mx-auto p-3 sm:p-6">
                     <div className="bg-base-100 rounded-box p-6 border border-base-300">
                         <div className="animate-pulse">
                             <div className="flex items-center gap-3 mb-4">
@@ -54,7 +54,7 @@ const EchoView = () => {
     if (!echo) {
         return (
             <Layout>
-                <div className="max-w-2xl mx-auto p-6">
+                <div className="max-w-2xl mx-auto p-3 sm:p-6">
                     <div className="text-center py-8">
                         <h2 className="text-xl font-semibold text-base-content mb-2">Echo not found</h2>
                         <p className="text-base-content/60 mb-4">This echo may have been deleted or doesn't exist.</p>
@@ -72,7 +72,7 @@ const EchoView = () => {
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto p-6">
+            <div className="w-full max-w-2xl mx-auto px-3 py-6 sm:px-6">
                 {/* Header with Back Arrow and Username */}
                 <div className="flex items-center gap-4 mb-6">
                     <button
