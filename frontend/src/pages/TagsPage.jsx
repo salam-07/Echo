@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Hash } from 'lucide-react';
 import Layout from '../layouts/Layout';
@@ -10,14 +10,25 @@ const TagsPage = () => {
     const navigate = useNavigate();
     const { echos, isLoadingEchos, getEchosByTag } = useEchoStore();
 
+    const [orderBy, setOrderBy] = useState('newest');
+    const [timeframe, setTimeframe] = useState('all');
+
     useEffect(() => {
         if (tagName) {
-            getEchosByTag(tagName);
+            getEchosByTag(tagName, orderBy, timeframe);
         }
-    }, [tagName, getEchosByTag]);
+    }, [tagName, orderBy, timeframe, getEchosByTag]);
 
     const handleBack = () => {
         navigate(-1);
+    };
+
+    const handleOrderChange = (newOrder) => {
+        setOrderBy(newOrder);
+    };
+
+    const handleTimeframeChange = (newTimeframe) => {
+        setTimeframe(newTimeframe);
     };
 
     return (
@@ -37,6 +48,38 @@ const TagsPage = () => {
                         <h1 className="text-xl font-semibold text-base-content">
                             {tagName}
                         </h1>
+                    </div>
+                </div>
+
+                {/* Sorting Controls */}
+                <div className="flex flex-wrap gap-3 mb-6 p-3 rounded-lg">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-base-content/70">Sort:</span>
+                        <select
+                            value={orderBy}
+                            onChange={(e) => handleOrderChange(e.target.value)}
+                            className="select select-sm select-bordered bg-base-100 focus:outline-none"
+                        >
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="likes">Most Liked</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-base-content/70">Time:</span>
+                        <select
+                            value={timeframe}
+                            onChange={(e) => handleTimeframeChange(e.target.value)}
+                            className="select select-sm select-bordered bg-base-100"
+                        >
+                            <option value="all">All Time</option>
+                            <option value="1hour">Last Hour</option>
+                            <option value="1day">Last Day</option>
+                            <option value="1week">Last Week</option>
+                            <option value="1month">Last Month</option>
+                            <option value="1year">Last Year</option>
+                        </select>
                     </div>
                 </div>
 

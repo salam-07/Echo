@@ -115,10 +115,19 @@ export const useEchoStore = create((set, get) => ({
     },
 
     // Get echos by tag
-    getEchosByTag: async (tagName) => {
+    getEchosByTag: async (tagName, orderBy = 'newest', timeframe = 'all', startDate = null, endDate = null) => {
         set({ isLoadingEchos: true });
         try {
-            const res = await axiosInstance.get(`/echo/tag/${tagName}`);
+            const params = new URLSearchParams();
+            if (orderBy && orderBy !== 'newest') params.append('orderBy', orderBy);
+            if (timeframe && timeframe !== 'all') params.append('timeframe', timeframe);
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+
+            const queryString = params.toString();
+            const url = `/echo/tag/${tagName}${queryString ? `?${queryString}` : ''}`;
+
+            const res = await axiosInstance.get(url);
             set({ echos: res.data.echos });
             return res.data;
         } catch (error) {
