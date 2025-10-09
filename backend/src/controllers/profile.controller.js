@@ -2,13 +2,13 @@ import User from "../models/user.model.js";
 import Echo from "../models/echo.model.js";
 import Scroll from "../models/scroll.model.js";
 
-// Get any user's profile by ID
+// GET /profile/user/:id - get user profile
 export const getProfile = async (req, res) => {
     try {
         const { id } = req.params;
 
         const user = await User.findById(id)
-            .select("-password") // Exclude password
+            .select("-password")
             .populate("followers", "userName")
             .populate("following", "userName")
             .populate("createdScrolls", "name description createdAt")
@@ -20,12 +20,12 @@ export const getProfile = async (req, res) => {
 
         res.status(200).json(user);
     } catch (error) {
-        console.log("Error in getProfile controller: ", error);
+        console.log("Error in getProfile controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
-// Get current user's profile
+// GET /profile/me - get my profile
 export const getMyProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
@@ -41,12 +41,12 @@ export const getMyProfile = async (req, res) => {
 
         res.status(200).json(user);
     } catch (error) {
-        console.log("Error in getMyProfile controller: ", error);
+        console.log("Error in getMyProfile controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
-// Get user's followers
+// GET /profile/user/:id/followers - get followers
 export const getFollowers = async (req, res) => {
     try {
         const { id } = req.params;
@@ -81,12 +81,12 @@ export const getFollowers = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log("Error in getFollowers controller: ", error);
+        console.log("Error in getFollowers controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
-// Get user's following
+// GET /profile/user/:id/following - get following
 export const getFollowing = async (req, res) => {
     try {
         const { id } = req.params;
@@ -121,17 +121,17 @@ export const getFollowing = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log("Error in getFollowing controller: ", error);
+        console.log("Error in getFollowing controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
-// Get user's echos
+// GET /profile/user/:id/echos - get user echos
 export const getEchos = async (req, res) => {
     try {
         const { id } = req.params;
         const { page = 1, limit = 10 } = req.query;
-        const currentUserId = req.user._id;
+        const userId = req.user._id;
 
         const user = await User.findById(id);
         if (!user) {
@@ -141,21 +141,21 @@ export const getEchos = async (req, res) => {
         const echos = await Echo.find({ author: id })
             .populate("author", "userName")
             .populate("tags", "name")
-            .sort({ createdAt: -1 }) // Most recent first
+            .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(parseInt(limit));
 
-        // Add isLiked field for current user
-        const echosWithLikeStatus = echos.map(echo => ({
+        // add like status
+        const echosWithLikes = echos.map(echo => ({
             ...echo.toObject(),
-            isLiked: echo.likedBy.includes(currentUserId)
+            isLiked: echo.likedBy.includes(userId)
         }));
 
         const totalEchos = await Echo.countDocuments({ author: id });
         const totalPages = Math.ceil(totalEchos / limit);
 
         res.status(200).json({
-            echos: echosWithLikeStatus,
+            echos: echosWithLikes,
             pagination: {
                 currentPage: parseInt(page),
                 totalPages,
@@ -165,12 +165,12 @@ export const getEchos = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log("Error in getEchos controller: ", error);
+        console.log("Error in getEchos controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
-// Get user's scrolls (both created and saved)
+// GET /profile/user/:id/scrolls - get user scrolls
 export const getScrolls = async (req, res) => {
     try {
         const { id } = req.params;
@@ -185,7 +185,6 @@ export const getScrolls = async (req, res) => {
         let totalScrolls;
 
         if (type === "created") {
-            // Get user's created scrolls
             scrolls = await Scroll.find({ creator: id })
                 .populate("creator", "userName")
                 .populate("savedBy", "userName")
@@ -195,7 +194,6 @@ export const getScrolls = async (req, res) => {
 
             totalScrolls = await Scroll.countDocuments({ creator: id });
         } else if (type === "saved") {
-            // Get user's saved scrolls
             scrolls = await Scroll.find({ savedBy: id })
                 .populate("creator", "userName")
                 .populate("savedBy", "userName")
@@ -205,7 +203,7 @@ export const getScrolls = async (req, res) => {
 
             totalScrolls = await Scroll.countDocuments({ savedBy: id });
         } else {
-            return res.status(400).json({ error: "Invalid scroll type. Use 'created' or 'saved'" });
+            return res.status(400).json({ error: "Use 'created' or 'saved'" });
         }
 
         const totalPages = Math.ceil(totalScrolls / limit);
@@ -222,7 +220,7 @@ export const getScrolls = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log("Error in getScrolls controller: ", error);
+        console.log("Error in getScrolls controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
