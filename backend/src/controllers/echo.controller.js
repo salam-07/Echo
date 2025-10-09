@@ -1,5 +1,6 @@
 import Echo from "../models/echo.model.js";
 import Tag from "../models/tag.model.js";
+import { getEchoSortingOptions } from "../lib/sorting.js";
 
 // POST /echo - create a new echo
 export const postEcho = async (req, res) => {
@@ -179,6 +180,7 @@ export const unlikeEcho = async (req, res) => {
 export const getEchosByTag = async (req, res) => {
     try {
         const { tagName } = req.params;
+        const { orderBy, timeframe, startDate, endDate } = req.query;
         const userId = req.user._id;
 
         const tag = await Tag.findOne({ name: tagName });
@@ -186,10 +188,13 @@ export const getEchosByTag = async (req, res) => {
             return res.status(404).json({ error: "Tag not found" });
         }
 
-        const echos = await Echo.find({ tags: tag._id })
+        const baseQuery = { tags: tag._id };
+        const { query, sort } = getEchoSortingOptions(baseQuery, orderBy, timeframe, startDate, endDate);
+
+        const echos = await Echo.find(query)
             .populate('author', 'userName')
             .populate('tags', 'name')
-            .sort({ createdAt: -1 });
+            .sort(sort);
 
         // add like status
         const echosWithLikes = echos.map(echo => ({
