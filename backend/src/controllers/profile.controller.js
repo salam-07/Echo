@@ -131,6 +131,7 @@ export const getEchos = async (req, res) => {
     try {
         const { id } = req.params;
         const { page = 1, limit = 10 } = req.query;
+        const currentUserId = req.user._id;
 
         const user = await User.findById(id);
         if (!user) {
@@ -144,11 +145,17 @@ export const getEchos = async (req, res) => {
             .skip((page - 1) * limit)
             .limit(parseInt(limit));
 
+        // Add isLiked field for current user
+        const echosWithLikeStatus = echos.map(echo => ({
+            ...echo.toObject(),
+            isLiked: echo.likedBy.includes(currentUserId)
+        }));
+
         const totalEchos = await Echo.countDocuments({ author: id });
         const totalPages = Math.ceil(totalEchos / limit);
 
         res.status(200).json({
-            echos,
+            echos: echosWithLikeStatus,
             pagination: {
                 currentPage: parseInt(page),
                 totalPages,
