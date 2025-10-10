@@ -14,36 +14,67 @@ const scrollSchema = new mongoose.Schema(
         description: {
             type: String,
         },
-        criteria: {
-            creators: [{
+        type: {
+            type: String,
+            enum: ['curation', 'feed'],
+            required: true
+        },
+
+        // For CURATION type: manually added echos
+        echos: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Echo'
+        }],
+
+        // For FEED type: configuration options
+        feedConfig: {
+            // Tag filtering
+            tagMatchType: {
+                type: String,
+                enum: ['all', 'any', 'none'],
+                default: 'any'
+            },
+            includedTags: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Tag'
+            }],
+            excludedTags: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Tag'
+            }],
+
+            // Author filtering
+            authors: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
-            }], // follow specific people
-            tags: [{
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Tag',
-            }], // topic filters
-            timeFrame: {
-                from: { type: Date },
-                to: { type: Date }
+            }],
+
+            // Date range filtering
+            dateRange: {
+                startDate: { type: Date },
+                endDate: { type: Date }
+            },
+
+            // Sorting options
+            sortBy: {
+                type: String,
+                enum: ['mostLiked', 'newestFirst', 'oldestFirst'],
+                default: 'newestFirst'
+            },
+
+            // Time range for sorting (used with mostLiked)
+            sortTimeRange: {
+                type: String,
+                enum: ['1day', '1month', '1year', 'allTime'],
+                default: 'allTime'
+            },
+
+            // Additional filters
+            excludeLikedEchos: {
+                type: Boolean,
+                default: false
             }
         },
-
-        sortType: {
-            type: String,
-            enum: ['random', 'time', 'custom'],
-            default: 'random'
-        },
-
-        customOrder: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Echo'
-        }], // only if custom sort
-
-        hiddenPosts: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Echo'
-        }], // “hide viewed posts”
 
         savedBy: [{
             type: mongoose.Schema.Types.ObjectId,

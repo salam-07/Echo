@@ -10,6 +10,7 @@ import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import echoRoutes from "./routes/echo.route.js";
 import profileRoutes from "./routes/profile.route.js";
+import scrollRoutes from "./routes/scroll.route.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
@@ -32,6 +33,7 @@ app.use(cors(
 app.use("/api/auth", authRoutes); // routes for auth
 app.use("/api/echo", echoRoutes); // routes for posting
 app.use("/api/profile", profileRoutes); // routes for posting
+app.use("/api/scroll", scrollRoutes); // routes for scrolls
 
 
 if (process.env.NODE_ENV === "production") {
