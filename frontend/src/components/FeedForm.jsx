@@ -6,6 +6,7 @@ import { X, Hash } from 'lucide-react';
 const FeedForm = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [isPrivate, setIsPrivate] = useState(false);
 
     // Tag filtering
     const [tagMatchType, setTagMatchType] = useState('any');
@@ -108,7 +109,8 @@ const FeedForm = () => {
                 name: name.trim(),
                 description: description.trim(),
                 type: 'feed',
-                feedConfig
+                feedConfig,
+                isPrivate
             });
 
             navigate('/scrolls');
@@ -225,8 +227,8 @@ const FeedForm = () => {
                                 type="button"
                                 onClick={() => setTagMatchType('all')}
                                 className={`flex-1 px-3 py-2 text-xs rounded-lg transition-colors ${tagMatchType === 'all'
-                                        ? 'bg-primary text-primary-content'
-                                        : 'bg-base-100 text-base-content/70 hover:bg-base-300/50'
+                                    ? 'bg-primary text-primary-content'
+                                    : 'bg-base-100 text-base-content/70 hover:bg-base-300/50'
                                     }`}
                             >
                                 All Tags
@@ -235,8 +237,8 @@ const FeedForm = () => {
                                 type="button"
                                 onClick={() => setTagMatchType('any')}
                                 className={`flex-1 px-3 py-2 text-xs rounded-lg transition-colors ${tagMatchType === 'any'
-                                        ? 'bg-primary text-primary-content'
-                                        : 'bg-base-100 text-base-content/70 hover:bg-base-300/50'
+                                    ? 'bg-primary text-primary-content'
+                                    : 'bg-base-100 text-base-content/70 hover:bg-base-300/50'
                                     }`}
                             >
                                 Any Tag
@@ -380,6 +382,21 @@ const FeedForm = () => {
                         className="w-4 h-4 rounded border-base-300"
                     />
                     <span className="text-sm text-base-content/80">Exclude Liked Echos</span>
+                </label>
+            </div>
+
+            {/* Privacy Setting */}
+            <div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        checked={isPrivate}
+                        onChange={(e) => setIsPrivate(e.target.checked)}
+                        className="toggle toggle-sm"
+                    />
+                    <span className="text-sm font-medium text-base-content/80">
+                        Private Feed
+                    </span>
                 </label>
             </div>
 

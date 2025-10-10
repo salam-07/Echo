@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { useScrollStore } from '../store/useScrollStore';
-import { Scroll, Plus, Trash2, Settings } from 'lucide-react';
+import { Scroll, Plus, Trash2, Settings, Lock } from 'lucide-react';
 
 const FeedScrollsPage = () => {
     const { scrolls, isLoadingScrolls, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();
@@ -32,6 +32,8 @@ const FeedScrollsPage = () => {
                         className="block hover:text-primary transition-colors group"
                     >
                         <div className="flex items-center gap-2 mb-2">
+                            <Scroll className="w-5 h-5 text-primary" />
+                            {scroll.isPrivate && <Lock className="w-4 h-4 text-base-content/60" />}
                             <h3 className="font-semibold text-base-content group-hover:text-primary transition-colors">
                                 {scroll.name}
                             </h3>

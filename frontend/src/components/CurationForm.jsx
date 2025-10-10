@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const CurationForm = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [isPrivate, setIsPrivate] = useState(false);
     const { createScroll, isCreatingScroll } = useScrollStore();
     const navigate = useNavigate();
 
@@ -19,7 +20,8 @@ const CurationForm = () => {
             await createScroll({
                 name: name.trim(),
                 description: description.trim(),
-                type: 'curation'
+                type: 'curation',
+                isPrivate
             });
 
             navigate('/scrolls');
@@ -56,6 +58,23 @@ const CurationForm = () => {
                     rows={3}
                     maxLength={200}
                 />
+            </div>
+
+            <div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        checked={isPrivate}
+                        onChange={(e) => setIsPrivate(e.target.checked)}
+                        className="toggle toggle-sm"
+                    />
+                    <span className="text-sm font-medium text-base-content/80">
+                        Private Curation
+                    </span>
+                </label>
+                <p className="text-xs text-base-content/50 mt-1 ml-8">
+                    Only you can view this curation
+                </p>
             </div>
 
             <div className="pt-4">

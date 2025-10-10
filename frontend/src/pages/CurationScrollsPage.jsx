@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { useScrollStore } from '../store/useScrollStore';
-import { Bookmark, Plus, Trash2, Settings, FileText } from 'lucide-react';
+import { Bookmark, Plus, Trash2, Settings, FileText, Lock } from 'lucide-react';
 
 const CurationScrollsPage = () => {
     const { scrolls, isLoadingScrolls, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();
@@ -33,6 +33,7 @@ const CurationScrollsPage = () => {
                     >
                         <div className="flex items-center gap-2 mb-2">
                             <Bookmark className="w-5 h-5 text-secondary" />
+                            {scroll.isPrivate && <Lock className="w-4 h-4 text-base-content/60" />}
                             <h3 className="font-semibold text-base-content group-hover:text-secondary transition-colors">
                                 {scroll.name}
                             </h3>

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { useScrollStore } from '../store/useScrollStore';
-import { Scroll, List, Plus, Trash2 } from 'lucide-react';
+import { Scroll, List, Plus, Trash2, Lock } from 'lucide-react';
 
 const ScrollsPage = () => {
     const { scrolls, isLoadingScrolls, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();
@@ -32,7 +32,8 @@ const ScrollsPage = () => {
                         to={`/scroll/${scroll._id}`}
                         className="block hover:text-primary transition-colors"
                     >
-                        <h3 className="font-semibold text-base-content truncate">
+                        <h3 className="font-semibold text-base-content truncate flex items-center gap-2">
+                            {scroll.isPrivate && <Lock className="w-4 h-4 text-base-content/60" />}
                             {scroll.name}
                         </h3>
                         {scroll.description && (
@@ -42,8 +43,8 @@ const ScrollsPage = () => {
                         )}
                         <div className="flex items-center gap-2 mt-2">
                             <span className={`text-xs px-2 py-1 rounded-full ${scroll.type === 'feed'
-                                    ? 'bg-primary/10 text-primary'
-                                    : 'bg-secondary/10 text-secondary'
+                                ? 'bg-primary/10 text-primary'
+                                : 'bg-secondary/10 text-secondary'
                                 }`}>
                                 {scroll.type === 'feed' ? 'Feed' : 'Curation'}
                             </span>
