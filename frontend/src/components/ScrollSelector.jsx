@@ -73,13 +73,45 @@ const ScrollSelector = () => {
 
     if (isLoadingScrolls) {
         return (
-            <div className="w-full h-44 flex items-center justify-center">
-                <p className="text-sm text-base-content/60">Loading...</p>
+            <div className="relative w-full h-44 rounded-box overflow-hidden bg-base-100">
+                {/* Top gradient */}
+                <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent to-base-100 z-10 pointer-events-none" />
+
+                {/* Navigation up skeleton */}
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full">
+                    <div className="skeleton w-4 h-4 rounded" />
+                </div>
+
+                {/* Scroll items skeleton container */}
+                <div className="py-8 px-4 h-full flex items-center">
+                    <div className="space-y-1 w-full">
+                        {/* Center item (selected) */}
+                        <div className="flex items-center justify-center">
+                            <div className="skeleton h-8 w-24 rounded-md"></div>
+                        </div>
+
+                        {/* Top item */}
+                        <div className="flex items-center justify-center opacity-60 scale-90">
+                            <div className="skeleton h-7 w-20 rounded-md"></div>
+                        </div>
+
+                        {/* Bottom item */}
+                        <div className="flex items-center justify-center opacity-60 scale-90">
+                            <div className="skeleton h-7 w-16 rounded-md"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Navigation down skeleton */}
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full">
+                    <div className="skeleton w-4 h-4 rounded" />
+                </div>
+
+                {/* Bottom gradient */}
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-transparent to-base-100 z-10 pointer-events-none" />
             </div>
         );
-    }
-
-    const visibleScrolls = getVisibleScrolls();
+    } const visibleScrolls = getVisibleScrolls();
     const canScrollUp = selectedIndex > 0;
     const canScrollDown = selectedIndex < allScrollOptions.length - 1;
 
@@ -112,8 +144,8 @@ const ScrollSelector = () => {
                             <button
                                 onClick={() => handleSelection(item.index)}
                                 className={`text-center px-3 py-2 rounded-md transition-all duration-300 w-full max-w-[200px] ${item.isSelected
-                                        ? 'bg-base-200/70 text-base-content font-medium'
-                                        : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
+                                    ? 'bg-base-200/70 text-base-content font-medium'
+                                    : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
                                     }`}
                             >
                                 <span className="text-sm block truncate">
