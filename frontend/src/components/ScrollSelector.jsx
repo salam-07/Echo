@@ -1,36 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { useScrollStore } from '../store/useScrollStore';
 
 const ScrollSelector = () => {
-    const [selectedIndex, setSelectedIndex] = useState(2); // Start with middle item selected
+    const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } = useScrollStore();
 
-    // Sample scrolls data - replace with your actual data
-    const scrolls = [
-        { id: 1, name: "Daily Thoughts" },
-        { id: 2, name: "Tech Updates" },
-        { id: 3, name: "Personal Journal" },
-        { id: 4, name: "Book Reviews" },
-        { id: 5, name: "Travel Logs" },
-        { id: 6, name: "Recipe Collection" },
-        { id: 7, name: "Workout Plans" },
+    // Filter only feed type scrolls
+    const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
+
+    // Add "All Echos" as default option
+    const allScrollOptions = [
+        { _id: 'all', name: 'All Echos', type: 'feed' },
+        ...feedScrolls
     ];
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+    // Load scrolls on mount
+    useEffect(() => {
+        getScrolls();
+    }, [getScrolls]);
+
+    // Update selected index when selected scroll changes
+    useEffect(() => {
+        if (selectedScroll) {
+            const index = allScrollOptions.findIndex(s => s._id === selectedScroll._id);
+            if (index !== -1) {
+                setSelectedIndex(index);
+            }
+        } else {
+            setSelectedIndex(0);
+        }
+    }, [selectedScroll]);
+
+    const handleScrollChange = (index) => {
+        setSelectedIndex(index);
+        const scroll = allScrollOptions[index];
+
+        if (scroll._id === 'all') {
+            setSelectedScroll(null);
+        } else {
+            setSelectedScroll(scroll);
+        }
+    };
 
     const scrollUp = () => {
         if (selectedIndex > 0) {
-            setSelectedIndex(selectedIndex - 1);
+            handleScrollChange(selectedIndex - 1);
         }
     };
 
     const scrollDown = () => {
-        if (selectedIndex < scrolls.length - 1) {
-            setSelectedIndex(selectedIndex + 1);
+        if (selectedIndex < allScrollOptions.length - 1) {
+            handleScrollChange(selectedIndex + 1);
         }
     };
 
     const getVisibleItems = () => {
         const items = [];
         const start = Math.max(0, selectedIndex - 1);
-        const end = Math.min(scrolls.length - 1, selectedIndex + 1);
+        const end = Math.min(allScrollOptions.length - 1, selectedIndex + 1);
 
         for (let i = start; i <= end; i++) {
             const distance = Math.abs(i - selectedIndex);
@@ -38,7 +67,7 @@ const ScrollSelector = () => {
             const scale = distance === 0 ? 1 : distance === 1 ? 0.85 : 0.7;
 
             items.push({
-                ...scrolls[i],
+                ...allScrollOptions[i],
                 index: i,
                 distance,
                 opacity,
@@ -48,6 +77,14 @@ const ScrollSelector = () => {
         }
         return items;
     };
+
+    if (isLoadingScrolls) {
+        return (
+            <div className="w-full h-44 flex items-center justify-center">
+                <p className="text-sm text-base-content/60">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="relative w-full h-44 rounded-box overflow-hidden">
@@ -68,7 +105,7 @@ const ScrollSelector = () => {
                 <div className="space-y-1">
                     {getVisibleItems().map((item) => (
                         <div
-                            key={item.id}
+                            key={item._id}
                             className="flex items-center justify-center transition-all duration-300 ease-out"
                             style={{
                                 opacity: item.opacity,
@@ -76,7 +113,7 @@ const ScrollSelector = () => {
                             }}
                         >
                             <button
-                                onClick={() => setSelectedIndex(item.index)}
+                                onClick={() => handleScrollChange(item.index)}
                                 className={`
                                     text-center px-3 py-2 rounded-md transition-all duration-300 w-full max-w-[200px]
                                     ${item.isSelected
@@ -97,7 +134,7 @@ const ScrollSelector = () => {
             {/* Bottom chevron */}
             <button
                 onClick={scrollDown}
-                disabled={selectedIndex === scrolls.length - 1}
+                disabled={selectedIndex === allScrollOptions.length - 1}
                 className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full hover:bg-base-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
                 <ChevronDown className="w-4 h-4 text-base-content/60" />
