@@ -61,50 +61,27 @@ const Sidebar = () => {
                 {/* Scrolls Section */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-sm font-semibold text-base-content/60 uppercase tracking-wide">
+                        <Link
+                            to="/scrolls"
+                            className="text-sm font-semibold text-base-content/60 uppercase tracking-wide hover:text-base-content transition-colors"
+                        >
                             Scrolls
-                        </h3>
-                        <button className="p-1 rounded hover:bg-base-200 transition-colors">
-                            <div className="w-4 h-4 rounded-full bg-base-content/20 flex items-center justify-center">
-                                <span className="text-xs text-base-content/60">+</span>
-                            </div>
-                        </button>
+                        </Link>
+                        <Link
+                            to="/scroll/new"
+                            className="p-1 rounded hover:bg-base-200 transition-colors"
+                        >
+                            <Plus className="w-4 h-4 text-base-content/60" />
+                        </Link>
                     </div>
                     <div className="space-y-1">
                         <Link
-                            to="/scrolls/my"
-                            className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content group"
+                            to="/scrolls"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
                         >
-                            <div className="flex items-center gap-3">
-                                <Scroll className="w-4 h-4" />
-                                <span className="text-sm">My Scrolls</span>
-                            </div>
-                            <span className="text-xs bg-base-content/10 text-base-content/60 px-1.5 py-0.5 rounded">4</span>
-                        </Link>
-                        <Link
-                            to="/scrolls/saved"
-                            className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <Bookmark className="w-4 h-4" />
-                                <span className="text-sm">Saved Scrolls</span>
-                            </div>
-                            <span className="text-xs bg-base-content/10 text-base-content/60 px-1.5 py-0.5 rounded">12</span>
-                        </Link>
-                        <Link
-                            to="/scrolls/archive"
-                            className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <Archive className="w-4 h-4" />
-                                <span className="text-sm">Archive Scrolls</span>
-                            </div>
-                            <span className="text-xs bg-base-content/10 text-base-content/60 px-1.5 py-0.5 rounded">8</span>
-                        </Link>
-                        <button className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content">
                             <Eye className="w-4 h-4" />
                             <span className="text-sm">View All</span>
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </nav>

@@ -77,6 +77,13 @@ export const useEchoStore = create((set, get) => ({
             const { echos } = get();
             set({ echos: echos.filter(echo => echo._id !== echoId) });
 
+            // Also remove from scrollEchos if viewing a scroll
+            const { useScrollStore } = await import('./useScrollStore.js');
+            const { scrollEchos } = useScrollStore.getState();
+            useScrollStore.setState({
+                scrollEchos: scrollEchos.filter(echo => echo._id !== echoId)
+            });
+
             toast.success("Echo deleted successfully");
         } catch (error) {
             console.log("Error deleting echo:", error);
@@ -90,7 +97,12 @@ export const useEchoStore = create((set, get) => ({
     // Toggle like/unlike echo
     toggleLike: async (echoId) => {
         const { echos, echo } = get();
-        const currentEcho = echos.find(e => e._id === echoId) || echo;
+        // Also check scrollEchos for the current echo
+        const { useScrollStore } = await import('./useScrollStore.js');
+        const { scrollEchos } = useScrollStore.getState();
+        const currentEcho = echos.find(e => e._id === echoId) ||
+            scrollEchos.find(e => e._id === echoId) ||
+            echo;
         const isCurrentlyLiked = currentEcho?.isLiked;
 
         try {
@@ -108,6 +120,13 @@ export const useEchoStore = create((set, get) => ({
                 echo: echo && echo._id === echoId
                     ? { ...echo, likes: res.data.likes, isLiked: res.data.isLiked }
                     : echo
+            });
+
+            // Also update scrollEchos if they exist (for custom scrolls)
+            const { useScrollStore } = await import('./useScrollStore.js');
+            useScrollStore.getState().updateScrollEcho(echoId, {
+                likes: res.data.likes,
+                isLiked: res.data.isLiked
             });
         } catch (error) {
             toast.error("Failed to update like");
