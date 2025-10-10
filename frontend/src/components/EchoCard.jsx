@@ -81,7 +81,7 @@ const EchoCard = ({ echo }) => {
                                     e.stopPropagation();
                                     setShowMenu(!showMenu);
                                 }}
-                                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-base-300/50 transition-all duration-200"
+                                className=" p-1.5 rounded-full hover:bg-base-300/50 transition-all duration-200"
                                 aria-label="More options"
                             >
                                 <MoreHorizontal className="w-4 h-4 text-base-content/40" />
