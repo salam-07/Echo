@@ -4,6 +4,9 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import TagsPage from "./pages/TagsPage";
+import ScrollsPage from "./pages/ScrollsPage";
+import NewScrollPage from "./pages/NewScrollPage";
+import ScrollViewPage from "./pages/ScrollViewPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -56,6 +59,10 @@ const App = () => {
           <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/login" />} />
           <Route path="/tag/:tagName" element={authUser ? <TagsPage /> : <Navigate to="/login" />} />
           <Route path="/new" element={authUser ? <NewEcho /> : <Navigate to="/login" />} />
+
+          <Route path="/scrolls" element={authUser ? <ScrollsPage /> : <Navigate to="/login" />} />
+          <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/login" />} />
+          <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/login" />} />
 
         </Routes>
 
