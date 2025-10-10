@@ -76,6 +76,20 @@ const Sidebar = () => {
                     </div>
                     <div className="space-y-1">
                         <Link
+                            to="/scrolls/feeds"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
+                        >
+                            <Scroll className="w-4 h-4" />
+                            <span className="text-sm">Feed Scrolls</span>
+                        </Link>
+                        <Link
+                            to="/scrolls/curations"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
+                        >
+                            <Bookmark className="w-4 h-4" />
+                            <span className="text-sm">Curation Scrolls</span>
+                        </Link>
+                        <Link
                             to="/scrolls"
                             className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
                         >

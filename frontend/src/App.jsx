@@ -5,6 +5,8 @@ import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import TagsPage from "./pages/TagsPage";
 import ScrollsPage from "./pages/ScrollsPage";
+import FeedScrollsPage from "./pages/FeedScrollsPage";
+import CurationScrollsPage from "./pages/CurationScrollsPage";
 import NewScrollPage from "./pages/NewScrollPage";
 import ScrollViewPage from "./pages/ScrollViewPage";
 
@@ -61,6 +63,8 @@ const App = () => {
           <Route path="/new" element={authUser ? <NewEcho /> : <Navigate to="/login" />} />
 
           <Route path="/scrolls" element={authUser ? <ScrollsPage /> : <Navigate to="/login" />} />
+          <Route path="/scrolls/feeds" element={authUser ? <FeedScrollsPage /> : <Navigate to="/login" />} />
+          <Route path="/scrolls/curations" element={authUser ? <CurationScrollsPage /> : <Navigate to="/login" />} />
           <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/login" />} />
           <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/login" />} />
 
