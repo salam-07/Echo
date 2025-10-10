@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import RightSidebar from "../components/RightSidebar";
 
 const Layout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -32,20 +33,8 @@ const Layout = ({ children }) => {
                         {children}
                     </main>
 
-                    {/* Right Fixed Column - Desktop Only */}
-                    <aside className="hidden lg:block w-64 p-4">
-                        <h1 className="text-primary text-lg m-2">Trending Tags</h1>
-                        <ul className="menu bg-base-200/30 rounded-box w-full mb-4">
-                            <li><a>Item 1</a></li>
-                            <li><a>Item 2</a></li>
-                            <li><a>Item 3</a></li>
-                        </ul>
-                        <ul className="menu bg-base-200/30 rounded-box w-full mb-2">
-                            <li><a>Item 1</a></li>
-                            <li><a>Item 2</a></li>
-                            <li><a>Item 3</a></li>
-                        </ul>
-                    </aside>
+                    {/* Right Sidebar */}
+                    <RightSidebar />
                 </div>
             </div>
         </div>
