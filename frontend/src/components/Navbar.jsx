@@ -1,5 +1,6 @@
 import { PanelLeft, Search } from "lucide-react";
 import React from 'react';
+import { Link } from "react-router-dom";
 import { ReactSVG } from "react-svg";
 
 const Navbar = ({ onToggleSidebar }) => {
@@ -14,10 +15,12 @@ const Navbar = ({ onToggleSidebar }) => {
                     <PanelLeft />
                 </button>
             </div>
-            <div className="navbar-center lg:relative lg:right-30">
-                <ReactSVG src="/logo.svg" className="h-6 w-auto"
-                />
-            </div>
+            <Link to="/">
+                <div className="navbar-center lg:relative lg:right-30">
+                    <ReactSVG src="/logo.svg" className="h-6 w-auto"
+                    />
+                </div>
+            </Link>
             <div className="navbar-end">
                 <button className="btn btn-ghost btn-circle">
                     <Search />
