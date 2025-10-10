@@ -72,8 +72,28 @@ layer(base);
   }
 }
 
-*:focus {
+/* Remove all focus outlines and rings */
+*:focus,
+*:focus-visible {
 	outline: none !important;
+	box-shadow: none !important;
+	border-color: inherit !important;
+}
+
+/* Remove focus ring from inputs, textareas, selects */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+/* Remove focus ring from checkboxes and radio buttons */
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+	outline: none !important;
+	box-shadow: none !important;
 }
 
 .no-scrollbar::-webkit-scrollbar {
