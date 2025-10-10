@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Hash } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Hash } from 'lucide-react';
 import Layout from '../layouts/Layout';
 import EchoCard from '../components/EchoCard';
 import { useEchoStore } from '../store/useEchoStore';
@@ -52,35 +52,45 @@ const TagsPage = () => {
                 </div>
 
                 {/* Sorting Controls */}
-                <div className="flex flex-wrap gap-3 mb-6 p-3 rounded-lg">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-base-content/70">Sort:</span>
-                        <select
-                            value={orderBy}
-                            onChange={(e) => handleOrderChange(e.target.value)}
-                            className="select select-sm select-bordered bg-base-100 focus:outline-none"
-                        >
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="likes">Most Liked</option>
-                        </select>
-                    </div>
+                <div className="flex gap-3 mb-6">
+                    <button className="btn btn-sm btn-ghost"
+                        popoverTarget="order-popover"
+                        style={{ anchorName: "--order-anchor" }}>
+                        {orderBy === 'newest' ? 'Newest First' : orderBy === 'oldest' ? 'Oldest First' : 'Most Liked'}
+                        <ChevronDown />
+                    </button>
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-base-content/70">Time:</span>
-                        <select
-                            value={timeframe}
-                            onChange={(e) => handleTimeframeChange(e.target.value)}
-                            className="select select-sm select-bordered bg-base-100"
-                        >
-                            <option value="all">All Time</option>
-                            <option value="1hour">Last Hour</option>
-                            <option value="1day">Last Day</option>
-                            <option value="1week">Last Week</option>
-                            <option value="1month">Last Month</option>
-                            <option value="1year">Last Year</option>
-                        </select>
-                    </div>
+                    <ul className="dropdown menu w-44 rounded-box bg-base-100 shadow-sm"
+                        popover="auto"
+                        id="order-popover"
+                        style={{ positionAnchor: "--order-anchor" }}>
+                        <li><a onClick={() => handleOrderChange('newest')}>Newest First</a></li>
+                        <li><a onClick={() => handleOrderChange('oldest')}>Oldest First</a></li>
+                        <li><a onClick={() => handleOrderChange('likes')}>Most Liked</a></li>
+                    </ul>
+
+                    <button className="btn btn-sm btn-ghost"
+                        popoverTarget="time-popover"
+                        style={{ anchorName: "--time-anchor" }}>
+                        {timeframe === 'all' ? 'All Time' :
+                            timeframe === '1hour' ? 'Last Hour' :
+                                timeframe === '1day' ? 'Last Day' :
+                                    timeframe === '1week' ? 'Last Week' :
+                                        timeframe === '1month' ? 'Last Month' : 'Last Year'}
+                        <ChevronDown />
+                    </button>
+
+                    <ul className="dropdown menu w-44 rounded-box bg-base-100 shadow-sm"
+                        popover="auto"
+                        id="time-popover"
+                        style={{ positionAnchor: "--time-anchor" }}>
+                        <li><a onClick={() => handleTimeframeChange('all')}>All Time</a></li>
+                        <li><a onClick={() => handleTimeframeChange('1hour')}>Last Hour</a></li>
+                        <li><a onClick={() => handleTimeframeChange('1day')}>Last Day</a></li>
+                        <li><a onClick={() => handleTimeframeChange('1week')}>Last Week</a></li>
+                        <li><a onClick={() => handleTimeframeChange('1month')}>Last Month</a></li>
+                        <li><a onClick={() => handleTimeframeChange('1year')}>Last Year</a></li>
+                    </ul>
                 </div>
 
                 {/* Content */}
