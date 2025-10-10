@@ -3,6 +3,7 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import TagsPage from "./pages/TagsPage";
 import ScrollsPage from "./pages/ScrollsPage";
 import FeedScrollsPage from "./pages/FeedScrollsPage";
@@ -56,6 +57,7 @@ const App = () => {
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 
           <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+          <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
           <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/login" />} />
 
           <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/login" />} />
