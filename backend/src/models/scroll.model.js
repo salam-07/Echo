@@ -19,6 +19,10 @@ const scrollSchema = new mongoose.Schema(
             enum: ['curation', 'feed'],
             required: true
         },
+        isPrivate: {
+            type: Boolean,
+            default: false
+        },
 
         // For CURATION type: manually added echos
         echos: [{

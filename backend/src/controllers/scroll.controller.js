@@ -6,7 +6,7 @@ import User from "../models/user.model.js";
 // POST /scroll/create - create a new scroll (curation or feed)
 export const createScroll = async (req, res) => {
     try {
-        const { name, description, type, feedConfig } = req.body;
+        const { name, description, type, feedConfig, isPrivate } = req.body;
         const userId = req.user._id;
 
         // Validate required fields
@@ -24,6 +24,7 @@ export const createScroll = async (req, res) => {
             description: description ? description.trim() : '',
             type: type,
             creator: userId,
+            isPrivate: isPrivate || false,
         };
 
         // If it's a feed type, process the feed configuration
@@ -137,8 +138,11 @@ export const getScrollById = async (req, res) => {
         }
 
         // Check if user has access to this scroll
-        if (scroll.creator._id.toString() !== userId.toString() &&
-            !scroll.savedBy.includes(userId)) {
+        const isCreator = scroll.creator._id.toString() === userId.toString();
+        const hasSaved = scroll.savedBy.includes(userId);
+        const isPublic = !scroll.isPrivate;
+
+        if (!isCreator && (!hasSaved || !isPublic)) {
             return res.status(403).json({ error: "Access denied" });
         }
 
@@ -282,8 +286,11 @@ export const getScrollEchos = async (req, res) => {
         }
 
         // Check if user has access to this scroll
-        if (scroll.creator.toString() !== userId.toString() &&
-            !scroll.savedBy.includes(userId)) {
+        const isCreator = scroll.creator.toString() === userId.toString();
+        const hasSaved = scroll.savedBy.includes(userId);
+        const isPublic = !scroll.isPrivate;
+
+        if (!isCreator && (!hasSaved || !isPublic)) {
             return res.status(403).json({ error: "Access denied" });
         }
 
