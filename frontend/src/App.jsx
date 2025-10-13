@@ -11,6 +11,10 @@ import CurationScrollsPage from "./pages/CurationScrollsPage";
 import NewScrollPage from "./pages/NewScrollPage";
 import ScrollViewPage from "./pages/ScrollViewPage";
 import BrowseCommunityPage from "./pages/BrowseCommunityPage";
+import BrowseScrollsPage from "./pages/BrowseScrollsPage";
+import BrowseCurationPage from "./pages/BrowseCurationPage";
+import BrowseTagsPage from "./pages/BrowseTagsPage";
+import PopularEchosPage from "./pages/PopularEchosPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -70,6 +74,12 @@ const App = () => {
           <Route path="/scrolls/curations" element={authUser ? <CurationScrollsPage /> : <Navigate to="/login" />} />
           <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/login" />} />
           <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/login" />} />
+
+          <Route path="/community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/login" />} />
+          <Route path="/browse/scrolls" element={authUser ? <BrowseScrollsPage /> : <Navigate to="/login" />} />
+          <Route path="/browse/curation" element={authUser ? <BrowseCurationPage /> : <Navigate to="/login" />} />
+          <Route path="/browse/tags" element={authUser ? <BrowseTagsPage /> : <Navigate to="/login" />} />
+          <Route path="/browse/popular" element={authUser ? <PopularEchosPage /> : <Navigate to="/login" />} />
           <Route path="/browse-community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/login" />} />
 
         </Routes>

@@ -10,7 +10,10 @@ import {
     Eye,
     User,
     Settings,
-    Plus
+    Plus,
+    Hash,
+    TrendingUp,
+    BookOpen
 } from 'lucide-react';
 import ScrollSelector from './ScrollSelector';
 import useAuthStore from '../store/useAuthStore';
@@ -40,21 +43,7 @@ const Sidebar = () => {
                         className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content"
                     >
                         <Home className="w-5 h-5" />
-                        <span className="font-medium">Home</span>
-                    </Link>
-                    <Link
-                        to="/community"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content"
-                    >
-                        <Users className="w-5 h-5" />
-                        <span className="font-medium">Community</span>
-                    </Link>
-                    <Link
-                        to="/explore"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content"
-                    >
-                        <Compass className="w-5 h-5" />
-                        <span className="font-medium">Explore</span>
+                        <span className="font-medium">Feed</span>
                     </Link>
                 </div>
 
@@ -95,6 +84,46 @@ const Sidebar = () => {
                         >
                             <Eye className="w-4 h-4" />
                             <span className="text-sm">View All</span>
+                        </Link>
+                    </div>
+                </div>
+
+
+                {/* Discover Section */}
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-semibold text-base-content/60 uppercase tracking-wide">
+                            Discover
+                        </span>
+                    </div>
+                    <div className="space-y-1">
+                        <Link
+                            to="/browse/scrolls"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
+                        >
+                            <Users className="w-4 h-4" />
+                            <span className="text-sm">Feed Scrolls</span>
+                        </Link>
+                        <Link
+                            to="/browse/curation"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
+                        >
+                            <BookOpen className="w-4 h-4" />
+                            <span className="text-sm">Collections</span>
+                        </Link>
+                        <Link
+                            to="/browse/tags"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
+                        >
+                            <Hash className="w-4 h-4" />
+                            <span className="text-sm">Tags</span>
+                        </Link>
+                        <Link
+                            to="/browse/popular"
+                            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-base-200 transition-colors text-base-content/60 hover:text-base-content"
+                        >
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="text-sm">Popular</span>
                         </Link>
                     </div>
                 </div>

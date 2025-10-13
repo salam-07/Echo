@@ -6,11 +6,9 @@ const ScrollSelector = () => {
     const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } = useScrollStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    // Filter only feed type scrolls and conditionally add "All Echos" option
+    // Filter only feed type scrolls
     const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
-    const allScrollOptions = feedScrolls.length > 0
-        ? [{ _id: 'all', name: 'All Echos', type: 'feed' }, ...feedScrolls]
-        : feedScrolls;
+    const allScrollOptions = feedScrolls;
 
     useEffect(() => {
         getScrolls();
@@ -20,15 +18,17 @@ const ScrollSelector = () => {
         if (selectedScroll) {
             const index = allScrollOptions.findIndex(s => s._id === selectedScroll._id);
             setSelectedIndex(index !== -1 ? index : 0);
-        } else {
+        } else if (allScrollOptions.length > 0) {
+            // If no scroll is selected, select the first available scroll
             setSelectedIndex(0);
+            setSelectedScroll(allScrollOptions[0]);
         }
     }, [selectedScroll, allScrollOptions]);
 
     const handleSelection = (index) => {
         setSelectedIndex(index);
         const scroll = allScrollOptions[index];
-        setSelectedScroll(scroll._id === 'all' ? null : scroll);
+        setSelectedScroll(scroll);
     };
 
     const navigateUp = () => {
