@@ -127,8 +127,14 @@ export const likeEcho = async (req, res) => {
             return res.status(404).json({ error: "Echo not found" });
         }
 
+        // Check if already liked
         if (echo.likedBy.includes(userId)) {
-            return res.status(400).json({ error: "Already liked" });
+            // Already liked - return current state instead of error
+            return res.status(200).json({
+                message: "Echo already liked",
+                likes: echo.likes,
+                isLiked: true
+            });
         }
 
         echo.likedBy.push(userId);
@@ -157,8 +163,14 @@ export const unlikeEcho = async (req, res) => {
             return res.status(404).json({ error: "Echo not found" });
         }
 
+        // Check if not liked yet
         if (!echo.likedBy.includes(userId)) {
-            return res.status(400).json({ error: "Not liked yet" });
+            // Not liked yet - return current state instead of error
+            return res.status(200).json({
+                message: "Echo not liked yet",
+                likes: echo.likes,
+                isLiked: false
+            });
         }
 
         echo.likedBy = echo.likedBy.filter(id => id.toString() !== userId.toString());

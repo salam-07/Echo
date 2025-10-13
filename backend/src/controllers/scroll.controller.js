@@ -110,8 +110,15 @@ export const getScrolls = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        const scrolls = await Scroll.find({ creator: userId })
+        // Get both created scrolls and followed scrolls
+        const scrolls = await Scroll.find({
+            $or: [
+                { creator: userId },        // Scrolls created by user
+                { savedBy: userId }         // Scrolls followed by user
+            ]
+        })
             .populate('creator', 'userName')
+            .populate('savedBy', 'userName')
             .sort({ createdAt: -1 });
 
         res.status(200).json({ scrolls });
@@ -142,7 +149,8 @@ export const getScrollById = async (req, res) => {
         const hasSaved = scroll.savedBy.includes(userId);
         const isPublic = !scroll.isPrivate;
 
-        if (!isCreator && (!hasSaved || !isPublic)) {
+        // Allow access if: user is creator OR scroll is public OR user has saved it
+        if (!isCreator && !isPublic && !hasSaved) {
             return res.status(403).json({ error: "Access denied" });
         }
 
@@ -290,7 +298,8 @@ export const getScrollEchos = async (req, res) => {
         const hasSaved = scroll.savedBy.includes(userId);
         const isPublic = !scroll.isPrivate;
 
-        if (!isCreator && (!hasSaved || !isPublic)) {
+        // Allow access if: user is creator OR scroll is public OR user has saved it
+        if (!isCreator && !isPublic && !hasSaved) {
             return res.status(403).json({ error: "Access denied" });
         }
 
@@ -404,5 +413,83 @@ export const getScrollEchos = async (req, res) => {
         console.log("Error details:", error.message);
         console.log("Error stack:", error.stack);
         res.status(500).json({ error: "Failed to get scroll echos" });
+    }
+};
+
+// POST /scroll/:id/follow - follow a scroll
+export const followScroll = async (req, res) => {
+    try {
+        const scrollId = req.params.id;
+        const userId = req.user._id;
+
+        const scroll = await Scroll.findById(scrollId);
+        if (!scroll) {
+            return res.status(404).json({ error: "Scroll not found" });
+        }
+
+        // Can't follow private scrolls unless you're the creator
+        if (scroll.isPrivate && scroll.creator.toString() !== userId.toString()) {
+            return res.status(403).json({ error: "Cannot follow private scroll" });
+        }
+
+        // Can't follow your own scroll
+        if (scroll.creator.toString() === userId.toString()) {
+            return res.status(400).json({ error: "Cannot follow your own scroll" });
+        }
+
+        // Check if already following
+        if (scroll.savedBy.includes(userId)) {
+            return res.status(200).json({
+                message: "Already following scroll",
+                isFollowing: true,
+                followersCount: scroll.savedBy.length
+            });
+        }
+
+        scroll.savedBy.push(userId);
+        await scroll.save();
+
+        res.status(200).json({
+            message: "Scroll followed",
+            isFollowing: true,
+            followersCount: scroll.savedBy.length
+        });
+    } catch (error) {
+        console.log("Error in followScroll controller", error);
+        res.status(500).json({ error: "Failed to follow scroll" });
+    }
+};
+
+// DELETE /scroll/:id/follow - unfollow a scroll
+export const unfollowScroll = async (req, res) => {
+    try {
+        const scrollId = req.params.id;
+        const userId = req.user._id;
+
+        const scroll = await Scroll.findById(scrollId);
+        if (!scroll) {
+            return res.status(404).json({ error: "Scroll not found" });
+        }
+
+        // Check if not following
+        if (!scroll.savedBy.includes(userId)) {
+            return res.status(200).json({
+                message: "Not following scroll",
+                isFollowing: false,
+                followersCount: scroll.savedBy.length
+            });
+        }
+
+        scroll.savedBy = scroll.savedBy.filter(id => id.toString() !== userId.toString());
+        await scroll.save();
+
+        res.status(200).json({
+            message: "Scroll unfollowed",
+            isFollowing: false,
+            followersCount: scroll.savedBy.length
+        });
+    } catch (error) {
+        console.log("Error in unfollowScroll controller", error);
+        res.status(500).json({ error: "Failed to unfollow scroll" });
     }
 };
