@@ -6,11 +6,11 @@ const ScrollSelector = () => {
     const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } = useScrollStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    // Filter only feed type scrolls and add "All Echos" option
-    const allScrollOptions = [
-        { _id: 'all', name: 'All Echos', type: 'feed' },
-        ...scrolls.filter(scroll => scroll.type === 'feed')
-    ];
+    // Filter only feed type scrolls and conditionally add "All Echos" option
+    const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
+    const allScrollOptions = feedScrolls.length > 0
+        ? [{ _id: 'all', name: 'All Echos', type: 'feed' }, ...feedScrolls]
+        : feedScrolls;
 
     useEffect(() => {
         getScrolls();
@@ -111,7 +111,21 @@ const ScrollSelector = () => {
                 <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-transparent to-base-100 z-10 pointer-events-none" />
             </div>
         );
-    } const visibleScrolls = getVisibleScrolls();
+    }
+
+    // Handle empty state when no scrolls exist
+    if (allScrollOptions.length === 0) {
+        return (
+            <div className="relative w-full h-44 rounded-box overflow-hidden bg-base-100 flex items-center justify-center">
+                <div className="text-center text-base-content/60">
+                    <div className="text-sm font-medium mb-1">No Scrolls</div>
+                    <div className="text-xs">Create your first scroll to get started</div>
+                </div>
+            </div>
+        );
+    }
+
+    const visibleScrolls = getVisibleScrolls();
     const canScrollUp = selectedIndex > 0;
     const canScrollDown = selectedIndex < allScrollOptions.length - 1;
 

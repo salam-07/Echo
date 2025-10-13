@@ -10,6 +10,7 @@ import FeedScrollsPage from "./pages/FeedScrollsPage";
 import CurationScrollsPage from "./pages/CurationScrollsPage";
 import NewScrollPage from "./pages/NewScrollPage";
 import ScrollViewPage from "./pages/ScrollViewPage";
+import BrowseCommunityPage from "./pages/BrowseCommunityPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -69,6 +70,7 @@ const App = () => {
           <Route path="/scrolls/curations" element={authUser ? <CurationScrollsPage /> : <Navigate to="/login" />} />
           <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/login" />} />
           <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/login" />} />
+          <Route path="/browse-community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/login" />} />
 
         </Routes>
 
