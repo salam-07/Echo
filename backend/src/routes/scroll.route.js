@@ -8,7 +8,9 @@ import {
     deleteScroll,
     addEchoToCuration,
     removeEchoFromCuration,
-    getScrollEchos
+    getScrollEchos,
+    followScroll,
+    unfollowScroll
 } from "../controllers/scroll.controller.js";
 
 // protected route checking
@@ -28,5 +30,9 @@ router.delete("/:id/remove-echo/:echoId", protectRoute, removeEchoFromCuration);
 
 // Get echos from a scroll (works for both curation and feed)
 router.get("/:id/echos", protectRoute, getScrollEchos);
+
+// Follow/unfollow routes
+router.post("/:id/follow", protectRoute, followScroll);
+router.delete("/:id/follow", protectRoute, unfollowScroll);
 
 export default router;
