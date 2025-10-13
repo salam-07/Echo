@@ -157,4 +157,38 @@ export const useScrollStore = create((set, get) => ({
             )
         });
     },
+
+    // Follow a scroll
+    followScroll: async (scrollId) => {
+        try {
+            const res = await axiosInstance.post(`/scroll/${scrollId}/follow`);
+
+            // Refresh scrolls list to include the new followed scroll
+            get().getScrolls();
+
+            toast.success("Scroll followed!");
+            return res.data;
+        } catch (error) {
+            console.log("Error following scroll:", error);
+            toast.error(error.response?.data?.error || "Failed to follow scroll");
+            throw error;
+        }
+    },
+
+    // Unfollow a scroll
+    unfollowScroll: async (scrollId) => {
+        try {
+            const res = await axiosInstance.delete(`/scroll/${scrollId}/follow`);
+
+            // Refresh scrolls list to reflect changes
+            get().getScrolls();
+
+            toast.success("Scroll unfollowed!");
+            return res.data;
+        } catch (error) {
+            console.log("Error unfollowing scroll:", error);
+            toast.error(error.response?.data?.error || "Failed to unfollow scroll");
+            throw error;
+        }
+    },
 }));
