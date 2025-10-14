@@ -71,8 +71,8 @@ const ScrollViewPage = () => {
                                     {scroll.name}
                                 </h1>
                                 <span className={`text-xs px-2 py-1 rounded-full ${scroll.type === 'feed'
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'bg-secondary/10 text-secondary'
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'bg-secondary/10 text-secondary'
                                     }`}>
                                     {scroll.type === 'feed' ? 'Feed' : 'Curation'}
                                 </span>
@@ -81,6 +81,33 @@ const ScrollViewPage = () => {
                                 <p className="text-sm text-base-content/60 mt-1">
                                     {scroll.description}
                                 </p>
+                            )}
+                            {scroll.type === 'feed' && scroll.feedConfig && (
+                                <div className="mt-2">
+                                    {scroll.feedConfig.includedTags && scroll.feedConfig.includedTags.length > 0 && (
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="text-xs text-base-content/50 font-medium">Includes:</span>
+                                            {scroll.feedConfig.includedTags.map((tag, index) => (
+                                                <span key={tag._id || index} className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+                                                    #{tag.name}
+                                                </span>
+                                            ))}
+                                            {scroll.feedConfig.tagMatchType === 'all' && (
+                                                <span className="text-xs text-base-content/40">(all required)</span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {scroll.feedConfig.excludedTags && scroll.feedConfig.excludedTags.length > 0 && (
+                                        <div className="flex items-center gap-2 flex-wrap mt-1">
+                                            <span className="text-xs text-base-content/50 font-medium">Excludes:</span>
+                                            {scroll.feedConfig.excludedTags.map((tag, index) => (
+                                                <span key={tag._id || index} className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full">
+                                                    #{tag.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                         <button
