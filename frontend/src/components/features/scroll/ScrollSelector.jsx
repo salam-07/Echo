@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { useScrollStore } from '../store/useScrollStore';
+import { useScrollStore } from '../../../store/useScrollStore';
 
 const ScrollSelector = () => {
     const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } = useScrollStore();

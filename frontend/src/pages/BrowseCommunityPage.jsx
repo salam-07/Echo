@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Hash, Heart, Users } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
 import Layout from '../layouts/Layout';
-import FeedScrollCard from '../components/FeedScrollCard';
-import CurationScrollCard from '../components/CurationScrollCard';
+import { FeedScrollCard, CurationScrollCard } from '../components/features/scroll';
 
 const BrowseCommunityPage = () => {
     const {

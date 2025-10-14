@@ -4,8 +4,7 @@ import Layout from '../layouts/Layout';
 import { useScrollStore } from '../store/useScrollStore';
 import useAuthStore from '../store/useAuthStore';
 import { Scroll, List, Plus, Trash2, Lock, Users } from 'lucide-react';
-import FeedScrollCard from '../components/FeedScrollCard';
-import CurationScrollCard from '../components/CurationScrollCard';
+import { FeedScrollCard, CurationScrollCard } from '../components/features/scroll';
 
 const ScrollsPage = () => {
     const { scrolls, isLoadingScrolls, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();

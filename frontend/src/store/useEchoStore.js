@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
+import { createAsyncAction, createLoadingStates } from "./utils.js";
 import toast from "react-hot-toast";
 
 export const useEchoStore = create((set, get) => ({
@@ -7,29 +8,44 @@ export const useEchoStore = create((set, get) => ({
     echos: [],
     echo: null,
 
-    // Loading states
-    isLoadingEchos: false,
-    isLoadingEcho: false,
-    isPostingEcho: false,
-    isDeletingEcho: false,
-    isLikingEcho: false,
+    // Loading states - using utility
+    ...createLoadingStates('echo', ['Loading', 'Posting', 'Deleting', 'Liking']),
 
-    // Get all echos
-    getAllEchos: async (filters = {}) => {
-        set({ isLoadingEchos: true });
-        try {
+    // Get all echos - using utility
+    getAllEchos: createAsyncAction(
+        set,
+        get,
+        'isLoadingEchos',
+        async (filters = {}) => {
             const params = new URLSearchParams();
             if (filters.tag) params.append('tag', filters.tag);
             if (filters.user) params.append('user', filters.user);
 
             const res = await axiosInstance.get(`/echo/all?${params.toString()}`);
-            set({ echos: res.data.echos });
-        } catch (error) {
-            console.log("Error fetching echos:", error);
-            toast.error(error.response?.data?.error || "Failed to fetch echos");
-        } finally {
-            set({ isLoadingEchos: false });
+            return res.data;
+        },
+        {
+            onSuccess: (result, set) => {
+                set({ echos: result.echos });
+            },
+            errorMessage: "Failed to fetch echos"
         }
+    ),
+
+    // Get paginated echos
+    getPaginatedEchos: async (page = 1, limit = 10, filters = {}) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        if (filters.tag) params.append('tag', filters.tag);
+        if (filters.user) params.append('user', filters.user);
+
+        const res = await axiosInstance.get(`/echo/all?${params.toString()}`);
+        return {
+            echos: res.data.echos,
+            hasMore: res.data.hasMore || res.data.echos.length === limit,
+            total: res.data.total
+        };
     },
 
     // Get single echo by ID

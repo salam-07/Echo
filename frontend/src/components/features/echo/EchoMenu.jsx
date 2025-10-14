@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Trash2, Bookmark, Copy, Flag } from 'lucide-react';
-import useAuthStore from '../store/useAuthStore';
+import useAuthStore from '../../../store/useAuthStore';
 
 const EchoMenu = ({
     showMenu,
@@ -27,8 +27,8 @@ const EchoMenu = ({
         };
     }, [showMenu, setShowMenu]);
 
-    return showMenu ? (
-        <div ref={menuRef} className="absolute right-0 top-full mt-1 w-48 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 py-1">
+    return (
+        <div ref={menuRef} className="absolute right-5 top-16 w-48 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 py-1">
             <button
                 onClick={(e) => {
                     e.preventDefault();
@@ -79,7 +79,7 @@ const EchoMenu = ({
                 </button>
             )}
         </div>
-    ) : null;
+    );
 };
 
 export default EchoMenu;

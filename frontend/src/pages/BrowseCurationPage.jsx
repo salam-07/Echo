@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Search, Filter, BookOpen } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
 import Layout from '../layouts/Layout';
-import CurationScrollCard from '../components/CurationScrollCard';
+import CurationScrollCard from '../components/features/scroll/CurationScrollCard';
 
 const BrowseCurationPage = () => {
     const {

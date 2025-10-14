@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useScrollStore } from '../store/useScrollStore';
+import { useScrollStore } from '../../store/useScrollStore';
 import { Scroll, Bookmark, Plus } from 'lucide-react';
 
 const RightSidebar = () => {

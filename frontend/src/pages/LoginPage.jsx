@@ -2,9 +2,10 @@ import { useState } from "react";
 import useAuthStore from "../store/useAuthStore.js";
 import { Eye, EyeOff, Loader2, Lock, User, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import Footer from "../components/Footer.jsx";
+import Footer from "../components/layout/Footer";
 import toast from "react-hot-toast";
 import React from 'react';
+import { Input, Button } from "../components/ui";
 
 const LoginPage = () => {
 

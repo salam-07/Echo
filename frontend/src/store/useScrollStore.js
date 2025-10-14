@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
+import { createAsyncAction, createLoadingStates } from "./utils.js";
 import toast from "react-hot-toast";
 
 export const useScrollStore = create((set, get) => ({
@@ -9,11 +10,8 @@ export const useScrollStore = create((set, get) => ({
     scrollEchos: [],
     selectedScroll: null,
 
-    // Loading states
-    isLoadingScrolls: false,
-    isLoadingScroll: false,
-    isCreatingScroll: false,
-    isDeletingScroll: false,
+    // Loading states - using utility
+    ...createLoadingStates('scroll', ['Loading', 'Creating', 'Deleting']),
     isLoadingScrollEchos: false,
 
     // Set selected scroll
@@ -146,6 +144,20 @@ export const useScrollStore = create((set, get) => ({
         } finally {
             set({ isLoadingScrollEchos: false });
         }
+    },
+
+    // Get paginated scroll echos
+    getPaginatedScrollEchos: async (scrollId, page = 1, limit = 10) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+
+        const res = await axiosInstance.get(`/scroll/${scrollId}/echos?${params.toString()}`);
+        return {
+            echos: res.data.echos,
+            hasMore: res.data.hasMore || res.data.echos.length === limit,
+            total: res.data.total
+        };
     },
 
     // Update a specific echo in scrollEchos (for likes, etc.)

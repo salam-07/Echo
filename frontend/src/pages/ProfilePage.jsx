@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
-import EchoCard from '../components/EchoCard';
+import EchoCard from '../components/features/echo/EchoCard';
+import { Button, Card } from '../components/ui';
 import {
     User,
     MessageCircle,
@@ -61,9 +62,11 @@ const ProfilePage = () => {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-lg font-semibold">My Echos</h3>
-                            <Link to="/create-echo" className="btn btn-primary btn-sm">
-                                <Edit3 className="w-4 h-4 mr-2" />
-                                New Echo
+                            <Link to="/create-echo">
+                                <Button variant="primary" size="sm" className="flex items-center gap-2">
+                                    <Edit3 className="w-4 h-4" />
+                                    New Echo
+                                </Button>
                             </Link>
                         </div>
 

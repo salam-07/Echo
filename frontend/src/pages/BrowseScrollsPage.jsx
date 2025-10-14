@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Search, Filter, Users } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
 import Layout from '../layouts/Layout';
-import FeedScrollCard from '../components/FeedScrollCard';
+import FeedScrollCard from '../components/features/scroll/FeedScrollCard';
 
 const BrowseScrollsPage = () => {
     const {

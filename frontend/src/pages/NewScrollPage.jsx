@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../layouts/Layout';
-import CurationForm from '../components/CurationForm';
-import FeedForm from '../components/FeedForm';
+import { CurationForm, FeedForm } from '../components/forms';
 
 const NewScrollPage = () => {
     const [scrollType, setScrollType] = useState('feed');
@@ -26,8 +25,8 @@ const NewScrollPage = () => {
                             type="button"
                             onClick={() => setScrollType('feed')}
                             className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${scrollType === 'feed'
-                                    ? 'bg-primary text-primary-content shadow-sm'
-                                    : 'text-base-content/70 hover:text-base-content'
+                                ? 'bg-primary text-primary-content shadow-sm'
+                                : 'text-base-content/70 hover:text-base-content'
                                 }`}
                         >
                             <div className="text-center">
@@ -39,8 +38,8 @@ const NewScrollPage = () => {
                             type="button"
                             onClick={() => setScrollType('curation')}
                             className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${scrollType === 'curation'
-                                    ? 'bg-primary text-primary-content shadow-sm'
-                                    : 'text-base-content/70 hover:text-base-content'
+                                ? 'bg-primary text-primary-content shadow-sm'
+                                : 'text-base-content/70 hover:text-base-content'
                                 }`}
                         >
                             <div className="text-center">

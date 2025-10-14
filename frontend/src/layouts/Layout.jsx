@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
-import RightSidebar from "../components/RightSidebar";
+import React, { useState } from 'react';
+import { Sidebar, Navbar, RightSidebar } from "../components/layout";
 
 const Layout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);

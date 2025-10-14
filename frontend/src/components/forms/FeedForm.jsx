@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useScrollStore } from '../store/useScrollStore';
+import { useScrollStore } from '../../store/useScrollStore';
 import { useNavigate } from 'react-router-dom';
 import { X, Hash } from 'lucide-react';
+import { Input, Textarea, Button, Card, Badge, IconButton } from '../ui';
 
 const FeedForm = () => {
     const [name, setName] = useState('');

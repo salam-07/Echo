@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useScrollStore } from '../store/useScrollStore';
+import { useScrollStore } from '../../store/useScrollStore';
 import { useNavigate } from 'react-router-dom';
+import { Input, Textarea, Button, Card } from '../ui';
 
 const CurationForm = () => {
     const [name, setName] = useState('');

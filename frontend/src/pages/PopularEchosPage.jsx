@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Heart, MessageCircle, Share, Calendar, TrendingUp, Filter } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
-import EchoCard from '../components/EchoCard';
+import EchoCard from '../components/features/echo/EchoCard';
 import Layout from '../layouts/Layout';
 
 const PopularEchosPage = () => {

@@ -292,7 +292,13 @@ export const removeEchoFromCuration = async (req, res) => {
 export const getScrollEchos = async (req, res) => {
     try {
         const scrollId = req.params.id;
+        const { page = 1, limit = 10 } = req.query;
         const userId = req.user._id;
+
+        // Convert to numbers and validate
+        const pageNum = Math.max(1, parseInt(page));
+        const limitNum = Math.min(50, Math.max(1, parseInt(limit))); // Max 50 items per page
+        const skip = (pageNum - 1) * limitNum;
 
         const scroll = await Scroll.findById(scrollId);
 
@@ -311,13 +317,17 @@ export const getScrollEchos = async (req, res) => {
         }
 
         let echos = [];
+        let total = 0;
 
         // For CURATION type: return manually added echos
         if (scroll.type === 'curation') {
+            total = scroll.echos.length;
             echos = await Echo.find({ _id: { $in: scroll.echos } })
                 .populate('author', 'userName')
                 .populate('tags', 'name')
-                .sort({ createdAt: -1 });
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limitNum);
         }
         // For FEED type: build query based on feed config
         else if (scroll.type === 'feed') {
@@ -390,12 +400,17 @@ export const getScrollEchos = async (req, res) => {
                 query.createdAt.$gte = timeRangeDate;
             }
 
+            // Get total count for pagination
+            total = await Echo.countDocuments(query);
+
             // Execute query
             console.log("Feed configuration:", JSON.stringify(config, null, 2));
             console.log("Generated query:", JSON.stringify(query, null, 2));
             let echoQuery = Echo.find(query)
                 .populate('author', 'userName')
-                .populate('tags', 'name');
+                .populate('tags', 'name')
+                .skip(skip)
+                .limit(limitNum);
 
             // Apply sorting
             if (config.sortBy === 'mostLiked') {
@@ -415,7 +430,18 @@ export const getScrollEchos = async (req, res) => {
             isLiked: echo.likedBy.includes(userId)
         }));
 
-        res.status(200).json({ echos: echosWithLikes });
+        const hasMore = skip + limitNum < total;
+
+        res.status(200).json({
+            echos: echosWithLikes,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total,
+                hasMore
+            },
+            hasMore // For backwards compatibility
+        });
     } catch (error) {
         console.log("Error in getScrollEchos controller", error);
         console.log("Error details:", error.message);

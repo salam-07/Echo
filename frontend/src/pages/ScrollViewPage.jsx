@@ -1,21 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
-import EchoCard from '../components/EchoCard';
-import EchoCardSkeleton from '../components/EchoCardSkeleton';
+import { EchoCard, EchoCardSkeleton } from '../components/features/echo';
 import { useScrollStore } from '../store/useScrollStore';
+import useInfiniteScroll from '../hooks/useInfiniteScrollNew';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 
 const ScrollViewPage = () => {
     const { id } = useParams();
-    const { scroll, scrollEchos, isLoadingScroll, isLoadingScrollEchos, getScrollById, getScrollEchos, deleteScroll, isDeletingScroll } = useScrollStore();
+    const { scroll, isLoadingScroll, getScrollById, deleteScroll, isDeletingScroll, getPaginatedScrollEchos } = useScrollStore();
 
     useEffect(() => {
         if (id) {
             getScrollById(id);
-            getScrollEchos(id);
         }
-    }, [id, getScrollById, getScrollEchos]);
+    }, [id, getScrollById]);
+
+    // Create fetch function for infinite scroll
+    const fetchFunction = useMemo(() => {
+        return (page, limit) => getPaginatedScrollEchos(id, page, limit);
+    }, [id, getPaginatedScrollEchos]);
+
+    // Use infinite scroll hook
+    const {
+        items: scrollEchos,
+        loading,
+        hasMore,
+        error,
+        initialLoad
+    } = useInfiniteScroll(fetchFunction, {
+        limit: 10,
+        threshold: 200,
+        dependencies: [id],
+        enabled: !!id && !isLoadingScroll
+    });
 
     const handleDelete = async () => {
         if (window.confirm(`Are you sure you want to delete "${scroll?.name}"?`)) {
@@ -27,6 +45,13 @@ const ScrollViewPage = () => {
             }
         }
     };
+
+    // Loading indicator component
+    const LoadingIndicator = () => (
+        <div className="flex justify-center py-4">
+            <div className="loading loading-spinner loading-md"></div>
+        </div>
+    );
 
     if (isLoadingScroll) {
         return (
@@ -123,7 +148,8 @@ const ScrollViewPage = () => {
 
                 {/* Echos */}
                 <div>
-                    {isLoadingScrollEchos && scrollEchos.length === 0 && (
+                    {/* Initial Loading State */}
+                    {initialLoad && (
                         <div className="space-y-0">
                             {Array.from({ length: 5 }).map((_, index) => (
                                 <EchoCardSkeleton key={index} />
@@ -131,7 +157,17 @@ const ScrollViewPage = () => {
                         </div>
                     )}
 
-                    {!isLoadingScrollEchos && scrollEchos.length === 0 && (
+                    {/* Error State */}
+                    {error && (
+                        <div className="text-center py-12">
+                            <div className="alert alert-error max-w-md mx-auto">
+                                <span>Failed to load echos. Please try again.</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Empty State */}
+                    {!initialLoad && !loading && scrollEchos.length === 0 && !error && (
                         <div className="text-center py-12">
                             <h3 className="text-lg font-semibold text-base-content mb-2">
                                 {scroll.type === 'feed' ? 'No echos match your filters' : 'No echos in this curation'}
@@ -144,11 +180,24 @@ const ScrollViewPage = () => {
                         </div>
                     )}
 
+                    {/* Echos List */}
                     {scrollEchos.length > 0 && (
                         <div className="space-y-4">
                             {scrollEchos.map((echo) => (
                                 <EchoCard key={echo._id} echo={echo} />
                             ))}
+
+                            {/* Load More Indicator */}
+                            {loading && <LoadingIndicator />}
+
+                            {/* End of Content Indicator */}
+                            {!hasMore && scrollEchos.length > 0 && (
+                                <div className="text-center py-8">
+                                    <p className="text-sm text-base-content/50">
+                                        You've reached the end of the scroll
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -65,17 +65,27 @@ export const deleteEcho = async (req, res) => {
 // GET /echo - get all echos
 export const getAllEcho = async (req, res) => {
     try {
-        const { tag, user } = req.query;
+        const { tag, user, page = 1, limit = 10 } = req.query;
         const userId = req.user._id;
 
         const filter = {};
         if (tag) filter.tags = tag;
         if (user) filter.author = user;
 
+        // Convert to numbers and validate
+        const pageNum = Math.max(1, parseInt(page));
+        const limitNum = Math.min(50, Math.max(1, parseInt(limit))); // Max 50 items per page
+        const skip = (pageNum - 1) * limitNum;
+
+        // Get total count for pagination info
+        const total = await Echo.countDocuments(filter);
+
         const echos = await Echo.find(filter)
             .populate('author', 'userName')
             .populate('tags', 'name')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum);
 
         // add like status
         const echosWithLikes = echos.map(echo => ({
@@ -83,7 +93,18 @@ export const getAllEcho = async (req, res) => {
             isLiked: echo.likedBy.includes(userId)
         }));
 
-        res.status(200).json({ echos: echosWithLikes });
+        const hasMore = skip + limitNum < total;
+
+        res.status(200).json({
+            echos: echosWithLikes,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total,
+                hasMore
+            },
+            hasMore // For backwards compatibility
+        });
     } catch (error) {
         console.log("Error in getAllEcho controller", error);
         res.status(500).json({ error: "Failed to fetch echos" });

@@ -24,7 +24,7 @@ import { Toaster } from "react-hot-toast";
 
 import { Loader } from "lucide-react";
 
-import SplashScreen from "./components/SplashScreen";
+import SplashScreen from "./components/ui/SplashScreen";
 import UserPage from "./pages/UserPage";
 import EchoView from "./pages/EchoView";
 import NewEcho from "./pages/NewEcho";

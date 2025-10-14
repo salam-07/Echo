@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, Hash } from 'lucide-react';
 import Layout from '../layouts/Layout';
-import EchoCard from '../components/EchoCard';
+import EchoCard from '../components/features/echo/EchoCard';
 import { useEchoStore } from '../store/useEchoStore';
 
 const TagsPage = () => {

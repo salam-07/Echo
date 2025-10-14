@@ -1,37 +1,54 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../layouts/Layout';
-import EchoCard from '../components/EchoCard';
-import EchoCardSkeleton from '../components/EchoCardSkeleton';
+import { EchoCard, EchoCardSkeleton } from '../components/features/echo';
 import { useEchoStore } from '../store/useEchoStore';
 import { useScrollStore } from '../store/useScrollStore';
+import useInfiniteScroll from '../hooks/useInfiniteScrollNew';
 
 const HomePage = () => {
     const navigate = useNavigate();
-    const { echos, isLoadingEchos, getAllEchos } = useEchoStore();
-    const { selectedScroll, scrollEchos, isLoadingScrollEchos, getScrollEchos, scrolls, isLoadingScrolls, getScrolls } = useScrollStore();
+    const { getPaginatedEchos } = useEchoStore();
+    const { selectedScroll, getPaginatedScrollEchos, scrolls, isLoadingScrolls, getScrolls } = useScrollStore();
 
-    // Load scrolls and echos
+    // Load scrolls
     useEffect(() => {
         getScrolls();
     }, [getScrolls]);
 
-    // Load echos based on selected scroll
-    useEffect(() => {
+    // Create fetch function for infinite scroll
+    const fetchFunction = useMemo(() => {
         if (selectedScroll) {
-            getScrollEchos(selectedScroll._id);
+            return (page, limit) => getPaginatedScrollEchos(selectedScroll._id, page, limit);
         } else {
-            getAllEchos();
+            return (page, limit) => getPaginatedEchos(page, limit);
         }
-    }, [selectedScroll, getAllEchos, getScrollEchos]);
+    }, [selectedScroll, getPaginatedEchos, getPaginatedScrollEchos]);
 
-    // Determine which echos to display
-    const displayEchos = selectedScroll ? scrollEchos : echos;
-    const isLoading = selectedScroll ? isLoadingScrollEchos : isLoadingEchos;
+    // Use infinite scroll hook
+    const {
+        items: displayEchos,
+        loading,
+        hasMore,
+        error,
+        initialLoad
+    } = useInfiniteScroll(fetchFunction, {
+        limit: 10,
+        threshold: 200,
+        dependencies: [selectedScroll?._id],
+        enabled: !isLoadingScrolls
+    });
 
     // Check if user has any scrolls
     const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
     const hasNoScrolls = !isLoadingScrolls && feedScrolls.length === 0;
+
+    // Loading indicator component
+    const LoadingIndicator = () => (
+        <div className="flex justify-center py-4">
+            <div className="loading loading-spinner loading-md"></div>
+        </div>
+    );
 
     return (
         <Layout>
@@ -73,8 +90,8 @@ const HomePage = () => {
                             </div>
                         )}
 
-                        {/* Loading State */}
-                        {isLoading && displayEchos.length === 0 && (
+                        {/* Initial Loading State */}
+                        {initialLoad && (
                             <div className="space-y-0">
                                 {Array.from({ length: 5 }).map((_, index) => (
                                     <EchoCardSkeleton key={index} />
@@ -82,8 +99,17 @@ const HomePage = () => {
                             </div>
                         )}
 
+                        {/* Error State */}
+                        {error && (
+                            <div className="text-center py-12">
+                                <div className="alert alert-error max-w-md mx-auto">
+                                    <span>Failed to load echos. Please try again.</span>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Empty State */}
-                        {!isLoading && displayEchos.length === 0 && (
+                        {!initialLoad && !loading && displayEchos.length === 0 && !error && (
                             <div className="text-center py-12">
                                 <h3 className="text-lg font-semibold text-base-content mb-2">
                                     {selectedScroll ? 'No echos match your filters' : 'No echoes yet'}
@@ -102,6 +128,18 @@ const HomePage = () => {
                                 {displayEchos.map((echo) => (
                                     <EchoCard key={echo._id} echo={echo} />
                                 ))}
+
+                                {/* Load More Indicator */}
+                                {loading && <LoadingIndicator />}
+
+                                {/* End of Content Indicator */}
+                                {!hasMore && displayEchos.length > 0 && (
+                                    <div className="text-center py-8">
+                                        <p className="text-sm text-base-content/50">
+                                            You've reached the end of the scroll
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>

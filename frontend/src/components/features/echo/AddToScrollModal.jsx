@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { useScrollStore } from '../store/useScrollStore';
+import { useScrollStore } from '../../../store/useScrollStore';
+import useAuthStore from '../../../store/useAuthStore';
 
 const AddToScrollModal = ({ echoId, onClose }) => {
     const { scrolls, getScrolls, addEchoToCuration } = useScrollStore();
+    const { authUser } = useAuthStore();
     const [selectedScrollId, setSelectedScrollId] = useState('');
     const [isAdding, setIsAdding] = useState(false);
 
-    // Filter only curation type scrolls
-    const curationScrolls = scrolls.filter(scroll => scroll.type === 'curation');
+    // Filter only curation type scrolls that the current user owns
+    const curationScrolls = scrolls.filter(scroll =>
+        scroll.type === 'curation' && scroll.creator._id === authUser?._id
+    );
 
     useEffect(() => {
         getScrolls();
@@ -68,8 +72,8 @@ const AddToScrollModal = ({ echoId, onClose }) => {
                                     key={scroll._id}
                                     onClick={() => setSelectedScrollId(scroll._id)}
                                     className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedScrollId === scroll._id
-                                            ? 'border-primary bg-primary/10'
-                                            : 'border-base-300 hover:border-base-400 hover:bg-base-200/50'
+                                        ? 'border-primary bg-primary/10'
+                                        : 'border-base-300 hover:border-base-400 hover:bg-base-200/50'
                                         }`}
                                 >
                                     <div className="font-medium text-base-content">

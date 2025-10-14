@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../layouts/Layout';
-import EchoCard from '../components/EchoCard';
+import EchoCard from '../components/features/echo/EchoCard';
 import {
     User,
     MessageCircle,

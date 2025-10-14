@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { UserPlus, UserMinus } from 'lucide-react';
-import { useScrollStore } from '../store/useScrollStore';
-import useAuthStore from '../store/useAuthStore';
+import { useScrollStore } from '../../../store/useScrollStore';
+import useAuthStore from '../../../store/useAuthStore';
+import { Button } from '../../ui';
 
 const FollowButton = ({ scroll, size = 'sm' }) => {
     const { followScroll, unfollowScroll } = useScrollStore();
@@ -38,8 +39,8 @@ const FollowButton = ({ scroll, size = 'sm' }) => {
             onClick={handleFollow}
             disabled={isLoading}
             className={`btn btn-sm border-0 ${isFollowing
-                    ? 'bg-base-300/50 text-base-content/70 hover:bg-red-100 hover:text-red-600'
-                    : 'bg-primary/10 text-primary hover:bg-primary hover:text-primary-content'
+                ? 'bg-base-300/50 text-base-content/70 hover:bg-red-100 hover:text-red-600'
+                : 'bg-primary/10 text-primary hover:bg-primary hover:text-primary-content'
                 } transition-all duration-200 ${isLoading ? 'loading' : ''}`}
         >
             {isFollowing ? (
