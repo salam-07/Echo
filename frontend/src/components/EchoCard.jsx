@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Share, MoreHorizontal } from 'lucide-react';
+import { Heart, Share, MoreHorizontal, Bookmark } from 'lucide-react';
 import { useEchoStore } from '../store/useEchoStore';
 import useAuthStore from '../store/useAuthStore';
 import AddToScrollModal from './AddToScrollModal';
@@ -123,8 +123,7 @@ const EchoCard = ({ echo }) => {
                     <footer className="flex items-center justify-between pt-2">
                         <div className="flex items-center gap-6">
                             <button
-                                className={`flex items-center gap-1.5 transition-all ${isLiked ? 'text-red-500' : 'text-base-content/50 hover:text-red-500'
-                                    }`}
+                                className={`flex items-center gap-1.5 transition-all ${isLiked ? 'text-red-500' : 'text-base-content/50 hover:text-red-500'}`}
                                 onClick={handleLike}
                             >
                                 <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
@@ -134,26 +133,18 @@ const EchoCard = ({ echo }) => {
                             </button>
 
                             <button
-                                className="group/share flex items-center gap-1.5 text-base-content/50 hover:text-base-content/70 transition-all duration-200"
-                                onClick={(e) => {
+                                className="flex items-center gap-1.5 text-base-content/50 hover:text-primary transition-all duration-200"
+                                onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    // Handle share action
-                                    if (navigator.share) {
-                                        navigator.share({
-                                            title: `Echo by @${echo.author?.userName}`,
-                                            text: echo.content,
-                                            url: `${window.location.origin}/echo/${echo._id}`
-                                        });
-                                    } else {
-                                        navigator.clipboard.writeText(`${window.location.origin}/echo/${echo._id}`);
-                                    }
+                                    setShowAddToScroll(true);
                                 }}
                             >
-                                <div className="p-1.5 rounded-full  group-hover/share:text-blue-500 transition-all duration-200">
-                                    <Share className="w-4 h-4" />
+                                <div className=" rounded-full group-hover:text-primary transition-all duration-200">
+                                    {/* You can use a bookmark icon here if you want, or keep text only */}
+                                    <Bookmark className='w-4 h-4 text-base-content/50' />
                                 </div>
-                                <span className="text-xs font-medium">Share</span>
+                                <span className="text-xs font-medium">Save</span>
                             </button>
                         </div>
 
