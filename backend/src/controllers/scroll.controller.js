@@ -292,13 +292,7 @@ export const removeEchoFromCuration = async (req, res) => {
 export const getScrollEchos = async (req, res) => {
     try {
         const scrollId = req.params.id;
-        const { page = 1, limit = 10 } = req.query;
         const userId = req.user._id;
-
-        // Convert to numbers and validate
-        const pageNum = Math.max(1, parseInt(page));
-        const limitNum = Math.min(50, Math.max(1, parseInt(limit))); // Max 50 items per page
-        const skip = (pageNum - 1) * limitNum;
 
         const scroll = await Scroll.findById(scrollId);
 
@@ -317,17 +311,13 @@ export const getScrollEchos = async (req, res) => {
         }
 
         let echos = [];
-        let total = 0;
 
         // For CURATION type: return manually added echos
         if (scroll.type === 'curation') {
-            total = scroll.echos.length;
             echos = await Echo.find({ _id: { $in: scroll.echos } })
                 .populate('author', 'userName')
                 .populate('tags', 'name')
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limitNum);
+                .sort({ createdAt: -1 });
         }
         // For FEED type: build query based on feed config
         else if (scroll.type === 'feed') {
@@ -400,17 +390,23 @@ export const getScrollEchos = async (req, res) => {
                 query.createdAt.$gte = timeRangeDate;
             }
 
-            // Get total count for pagination
-            total = await Echo.countDocuments(query);
-
             // Execute query
             console.log("Feed configuration:", JSON.stringify(config, null, 2));
             console.log("Generated query:", JSON.stringify(query, null, 2));
+
+            // Pagination
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 20;
+            const skip = (page - 1) * limit;
+
+            // Get total count for pagination metadata
+            const total = await Echo.countDocuments(query);
+
             let echoQuery = Echo.find(query)
                 .populate('author', 'userName')
                 .populate('tags', 'name')
                 .skip(skip)
-                .limit(limitNum);
+                .limit(limit);
 
             // Apply sorting
             if (config.sortBy === 'mostLiked') {
@@ -422,7 +418,30 @@ export const getScrollEchos = async (req, res) => {
             }
 
             echos = await echoQuery;
+
+            // Add isLiked status to each echo
+            const echosWithLikes = echos.map(echo => ({
+                ...echo.toObject(),
+                isLiked: echo.likedBy.includes(userId)
+            }));
+
+            return res.status(200).json({
+                echos: echosWithLikes,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit),
+                    hasMore: skip + echos.length < total
+                }
+            });
         }
+
+        // For curation scrolls, also apply pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+        const total = echos.length;
 
         // Add isLiked status to each echo
         const echosWithLikes = echos.map(echo => ({
@@ -430,17 +449,18 @@ export const getScrollEchos = async (req, res) => {
             isLiked: echo.likedBy.includes(userId)
         }));
 
-        const hasMore = skip + limitNum < total;
+        // Apply pagination to curation echos
+        const paginatedEchos = echosWithLikes.slice(skip, skip + limit);
 
         res.status(200).json({
-            echos: echosWithLikes,
+            echos: paginatedEchos,
             pagination: {
-                page: pageNum,
-                limit: limitNum,
+                page,
+                limit,
                 total,
-                hasMore
-            },
-            hasMore // For backwards compatibility
+                totalPages: Math.ceil(total / limit),
+                hasMore: skip + paginatedEchos.length < total
+            }
         });
     } catch (error) {
         console.log("Error in getScrollEchos controller", error);

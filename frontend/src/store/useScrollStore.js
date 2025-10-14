@@ -10,6 +10,15 @@ export const useScrollStore = create((set, get) => ({
     scrollEchos: [],
     selectedScroll: null,
 
+    // Pagination state for scroll echos
+    scrollEchoPagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+        hasMore: false
+    },
+
     // Loading states - using utility
     ...createLoadingStates('scroll', ['Loading', 'Creating', 'Deleting']),
     isLoadingScrollEchos: false,
@@ -131,11 +140,23 @@ export const useScrollStore = create((set, get) => ({
     },
 
     // Get echos from a scroll (works for both curation and feed)
-    getScrollEchos: async (scrollId) => {
+    getScrollEchos: async (scrollId, reset = true) => {
         set({ isLoadingScrollEchos: true });
         try {
-            const res = await axiosInstance.get(`/scroll/${scrollId}/echos`);
-            set({ scrollEchos: res.data.echos });
+            const { scrollEchoPagination, scrollEchos } = get();
+            const page = reset ? 1 : scrollEchoPagination.page;
+
+            const params = new URLSearchParams();
+            params.append('page', page.toString());
+            params.append('limit', scrollEchoPagination.limit.toString());
+
+            const res = await axiosInstance.get(`/scroll/${scrollId}/echos?${params.toString()}`);
+
+            set({
+                scrollEchos: reset ? res.data.echos : [...scrollEchos, ...res.data.echos],
+                scrollEchoPagination: res.data.pagination
+            });
+
             return res.data.echos;
         } catch (error) {
             console.log("Error fetching scroll echos:", error);
@@ -146,18 +167,24 @@ export const useScrollStore = create((set, get) => ({
         }
     },
 
-    // Get paginated scroll echos
-    getPaginatedScrollEchos: async (scrollId, page = 1, limit = 10) => {
-        const params = new URLSearchParams();
-        params.append('page', page.toString());
-        params.append('limit', limit.toString());
+    // Load more scroll echos (for infinite scrolling)
+    loadMoreScrollEchos: async (scrollId) => {
+        const { scrollEchoPagination, isLoadingScrollEchos } = get();
 
-        const res = await axiosInstance.get(`/scroll/${scrollId}/echos?${params.toString()}`);
-        return {
-            echos: res.data.echos,
-            hasMore: res.data.hasMore || res.data.echos.length === limit,
-            total: res.data.total
-        };
+        // Don't load if already loading or no more items
+        if (isLoadingScrollEchos || !scrollEchoPagination.hasMore) {
+            return;
+        }
+
+        // Increment page and fetch
+        set({
+            scrollEchoPagination: {
+                ...scrollEchoPagination,
+                page: scrollEchoPagination.page + 1
+            }
+        });
+
+        await get().getScrollEchos(scrollId, false);
     },
 
     // Update a specific echo in scrollEchos (for likes, etc.)

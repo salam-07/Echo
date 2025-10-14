@@ -8,44 +8,66 @@ export const useEchoStore = create((set, get) => ({
     echos: [],
     echo: null,
 
+    // Pagination state
+    echoPagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+        hasMore: false
+    },
+
     // Loading states - using utility
     ...createLoadingStates('echo', ['Loading', 'Posting', 'Deleting', 'Liking']),
 
-    // Get all echos - using utility
+    // Get all echos - using utility (with reset flag)
     getAllEchos: createAsyncAction(
         set,
         get,
         'isLoadingEchos',
-        async (filters = {}) => {
+        async (filters = {}, reset = true) => {
+            const { echoPagination } = get();
+            const page = reset ? 1 : echoPagination.page;
+
             const params = new URLSearchParams();
             if (filters.tag) params.append('tag', filters.tag);
             if (filters.user) params.append('user', filters.user);
+            params.append('page', page.toString());
+            params.append('limit', echoPagination.limit.toString());
 
             const res = await axiosInstance.get(`/echo/all?${params.toString()}`);
-            return res.data;
+            return { ...res.data, reset };
         },
         {
-            onSuccess: (result, set) => {
-                set({ echos: result.echos });
+            onSuccess: (result, set, get) => {
+                const { echos } = get();
+                set({
+                    echos: result.reset ? result.echos : [...echos, ...result.echos],
+                    echoPagination: result.pagination
+                });
             },
             errorMessage: "Failed to fetch echos"
         }
     ),
 
-    // Get paginated echos
-    getPaginatedEchos: async (page = 1, limit = 10, filters = {}) => {
-        const params = new URLSearchParams();
-        params.append('page', page.toString());
-        params.append('limit', limit.toString());
-        if (filters.tag) params.append('tag', filters.tag);
-        if (filters.user) params.append('user', filters.user);
+    // Load more echos (for infinite scrolling)
+    loadMoreEchos: async (filters = {}) => {
+        const { echoPagination, isLoadingEchos } = get();
 
-        const res = await axiosInstance.get(`/echo/all?${params.toString()}`);
-        return {
-            echos: res.data.echos,
-            hasMore: res.data.hasMore || res.data.echos.length === limit,
-            total: res.data.total
-        };
+        // Don't load if already loading or no more items
+        if (isLoadingEchos || !echoPagination.hasMore) {
+            return;
+        }
+
+        // Increment page and fetch
+        set({
+            echoPagination: {
+                ...echoPagination,
+                page: echoPagination.page + 1
+            }
+        });
+
+        await get().getAllEchos(filters, false);
     },
 
     // Get single echo by ID
