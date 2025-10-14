@@ -2,17 +2,30 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { useScrollStore } from '../store/useScrollStore';
-import { Scroll, List, Plus, Trash2, Lock } from 'lucide-react';
+import useAuthStore from '../store/useAuthStore';
+import { Scroll, List, Plus, Trash2, Lock, Users } from 'lucide-react';
+import FeedScrollCard from '../components/FeedScrollCard';
+import CurationScrollCard from '../components/CurationScrollCard';
 
 const ScrollsPage = () => {
     const { scrolls, isLoadingScrolls, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();
+    const { authUser } = useAuthStore();
 
     useEffect(() => {
         getScrolls();
     }, [getScrolls]);
 
-    const curationScrolls = scrolls.filter(scroll => scroll.type === 'curation');
-    const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
+    // Separate scrolls into owned and followed
+    const ownedScrolls = scrolls.filter(scroll => scroll.creator._id === authUser?._id);
+    const followedScrolls = scrolls.filter(scroll => scroll.creator._id !== authUser?._id);
+
+    // Further categorize owned scrolls
+    const ownedCurationScrolls = ownedScrolls.filter(scroll => scroll.type === 'curation');
+    const ownedFeedScrolls = ownedScrolls.filter(scroll => scroll.type === 'feed');
+
+    // Categorize followed scrolls
+    const followedCurationScrolls = followedScrolls.filter(scroll => scroll.type === 'curation');
+    const followedFeedScrolls = followedScrolls.filter(scroll => scroll.type === 'feed');
 
     const handleDelete = async (scrollId, scrollName) => {
         if (window.confirm(`Are you sure you want to delete "${scrollName}"?`)) {
@@ -74,9 +87,9 @@ const ScrollsPage = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-base-content">My Scrolls</h1>
+                        <h1 className="text-2xl font-bold text-base-content">Scrolls</h1>
                         <p className="text-sm text-base-content/60 mt-1">
-                            Manage your curations and feeds
+                            Manage your scrolls and discover followed content
                         </p>
                     </div>
                     <Link
@@ -118,43 +131,103 @@ const ScrollsPage = () => {
                 {/* Scrolls List */}
                 {!isLoadingScrolls && scrolls.length > 0 && (
                     <div className="space-y-8">
-                        {/* Feed Scrolls */}
-                        {feedScrolls.length > 0 && (
+                        {/* Followed Scrolls Section */}
+                        {followedScrolls.length > 0 && (
                             <div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <List className="w-5 h-5 text-base-content/70" />
+                                <div className="flex items-center gap-2 mb-6">
+                                    <Users className="w-5 h-5 text-base-content/70" />
                                     <h2 className="text-lg font-semibold text-base-content">
-                                        Feeds
+                                        Followed Scrolls
                                     </h2>
                                     <span className="text-sm text-base-content/50">
-                                        ({feedScrolls.length})
+                                        ({followedScrolls.length})
                                     </span>
                                 </div>
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    {feedScrolls.map(scroll => (
-                                        <ScrollCard key={scroll._id} scroll={scroll} />
-                                    ))}
-                                </div>
+
+                                {/* Followed Feed Scrolls */}
+                                {followedFeedScrolls.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-md font-medium text-base-content/80 mb-3 flex items-center gap-2">
+                                            <List className="w-4 h-4" />
+                                            Feed Scrolls ({followedFeedScrolls.length})
+                                        </h3>
+                                        <div className="grid gap-4 sm:grid-cols-2">
+                                            {followedFeedScrolls.map(scroll => (
+                                                <FeedScrollCard key={scroll._id} scroll={scroll} compact />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Followed Curation Scrolls */}
+                                {followedCurationScrolls.length > 0 && (
+                                    <div>
+                                        <h3 className="text-md font-medium text-base-content/80 mb-3 flex items-center gap-2">
+                                            <Scroll className="w-4 h-4" />
+                                            Curation Scrolls ({followedCurationScrolls.length})
+                                        </h3>
+                                        <div className="grid gap-4 sm:grid-cols-2">
+                                            {followedCurationScrolls.map(scroll => (
+                                                <CurationScrollCard key={scroll._id} scroll={scroll} compact />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {/* Curation Scrolls */}
-                        {curationScrolls.length > 0 && (
+                        {/* My Scrolls Section */}
+                        {ownedScrolls.length > 0 && (
                             <div>
-                                <div className="flex items-center gap-2 mb-4">
+                                <div className="flex items-center gap-2 mb-6">
                                     <Scroll className="w-5 h-5 text-base-content/70" />
                                     <h2 className="text-lg font-semibold text-base-content">
-                                        Curations
+                                        My Scrolls
                                     </h2>
                                     <span className="text-sm text-base-content/50">
-                                        ({curationScrolls.length})
+                                        ({ownedScrolls.length})
                                     </span>
                                 </div>
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    {curationScrolls.map(scroll => (
-                                        <ScrollCard key={scroll._id} scroll={scroll} />
-                                    ))}
-                                </div>
+
+                                {/* Feed Scrolls */}
+                                {ownedFeedScrolls.length > 0 && (
+                                    <div className="mb-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <List className="w-5 h-5 text-base-content/70" />
+                                            <h3 className="text-lg font-semibold text-base-content">
+                                                Feeds
+                                            </h3>
+                                            <span className="text-sm text-base-content/50">
+                                                ({ownedFeedScrolls.length})
+                                            </span>
+                                        </div>
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            {ownedFeedScrolls.map(scroll => (
+                                                <ScrollCard key={scroll._id} scroll={scroll} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Curation Scrolls */}
+                                {ownedCurationScrolls.length > 0 && (
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Scroll className="w-5 h-5 text-base-content/70" />
+                                            <h3 className="text-lg font-semibold text-base-content">
+                                                Curations
+                                            </h3>
+                                            <span className="text-sm text-base-content/50">
+                                                ({ownedCurationScrolls.length})
+                                            </span>
+                                        </div>
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            {ownedCurationScrolls.map(scroll => (
+                                                <ScrollCard key={scroll._id} scroll={scroll} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -13,7 +13,8 @@ import {
     Plus,
     Hash,
     TrendingUp,
-    BookOpen
+    BookOpen,
+    CompassIcon
 } from 'lucide-react';
 import ScrollSelector from './ScrollSelector';
 import useAuthStore from '../store/useAuthStore';
@@ -44,6 +45,20 @@ const Sidebar = () => {
                     >
                         <Home className="w-5 h-5" />
                         <span className="font-medium">Feed</span>
+                    </Link>
+                    <Link
+                        to="/scrolls"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content"
+                    >
+                        <Scroll className="w-5 h-5" />
+                        <span className="font-medium">Scrolls</span>
+                    </Link>
+                    <Link
+                        to="/browse-community"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-base-200 transition-colors text-base-content/80 hover:text-base-content"
+                    >
+                        <CompassIcon className="w-5 h-5" />
+                        <span className="font-medium">Explore</span>
                     </Link>
                 </div>
 

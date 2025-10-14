@@ -10,13 +10,6 @@ const CurationScrollCard = ({ scroll, compact = false }) => {
             <div className="card bg-base-100 shadow-sm border border-base-300 hover:shadow-md transition-shadow cursor-pointer">
                 <div className={bodyClasses}>
                     <div className="flex items-start gap-3">
-                        <div className="avatar placeholder">
-                            <div className="bg-secondary text-secondary-content rounded-full w-8 h-8">
-                                <span className="text-sm">
-                                    {scroll.creator?.userName?.[0]?.toUpperCase() || '?'}
-                                </span>
-                            </div>
-                        </div>
                         <div className="flex-1">
                             <div className="flex items-start justify-between">
                                 <div className="flex-1">

@@ -40,10 +40,12 @@ export const createScroll = async (req, res) => {
             if (feedConfig.includedTags && Array.isArray(feedConfig.includedTags)) {
                 const tagIds = [];
                 for (let tagName of feedConfig.includedTags) {
-                    const tag = await Tag.findOne({ name: tagName });
-                    if (tag) {
-                        tagIds.push(tag._id);
+                    let tag = await Tag.findOne({ name: tagName });
+                    if (!tag) {
+                        // Create tag if it doesn't exist
+                        tag = await Tag.create({ name: tagName });
                     }
+                    tagIds.push(tag._id);
                 }
                 processedConfig.includedTags = tagIds;
             }
@@ -52,10 +54,12 @@ export const createScroll = async (req, res) => {
             if (feedConfig.excludedTags && Array.isArray(feedConfig.excludedTags)) {
                 const tagIds = [];
                 for (let tagName of feedConfig.excludedTags) {
-                    const tag = await Tag.findOne({ name: tagName });
-                    if (tag) {
-                        tagIds.push(tag._id);
+                    let tag = await Tag.findOne({ name: tagName });
+                    if (!tag) {
+                        // Create tag if it doesn't exist
+                        tag = await Tag.create({ name: tagName });
                     }
+                    tagIds.push(tag._id);
                 }
                 processedConfig.excludedTags = tagIds;
             }
@@ -119,6 +123,9 @@ export const getScrolls = async (req, res) => {
         })
             .populate('creator', 'userName')
             .populate('savedBy', 'userName')
+            .populate('feedConfig.includedTags', 'name')
+            .populate('feedConfig.excludedTags', 'name')
+            .populate('feedConfig.authors', 'userName')
             .sort({ createdAt: -1 });
 
         res.status(200).json({ scrolls });
@@ -384,7 +391,8 @@ export const getScrollEchos = async (req, res) => {
             }
 
             // Execute query
-            console.log("Feed query:", JSON.stringify(query, null, 2));
+            console.log("Feed configuration:", JSON.stringify(config, null, 2));
+            console.log("Generated query:", JSON.stringify(query, null, 2));
             let echoQuery = Echo.find(query)
                 .populate('author', 'userName')
                 .populate('tags', 'name');
