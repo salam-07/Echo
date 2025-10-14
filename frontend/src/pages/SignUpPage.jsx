@@ -84,14 +84,24 @@ const SignUpPage = () => {
                                 <form onSubmit={handleSubmit} className="space-y-6">
 
                                     {/* Username Field */}
-                                    <Input
-                                        label="Username"
-                                        type="text"
-                                        placeholder="Choose a unique username"
-                                        value={formData.userName}
-                                        onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                                        helperText="Minimum 3 characters required"
-                                    />
+                                    {/* Username Field */}
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-base-content/80">
+                                            Username
+                                        </label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <User className="w-4 h-4 text-base-content/40" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                className="w-full pl-11 pr-4 py-3 bg-base-200/30 border border-base-300/50 rounded-xl text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200"
+                                                placeholder="Enter your username"
+                                                value={formData.userName}
+                                                onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
 
                                     {/* Password Field */}
                                     <div className="space-y-2">
@@ -125,24 +135,23 @@ const SignUpPage = () => {
                                     </div>
 
                                     {/* Submit Button */}
-                                    <Button
+                                    <button
                                         type="submit"
-                                        variant="primary"
-                                        className="w-full flex items-center justify-center gap-2 group"
+                                        className="w-full bg-base-content text-base-100 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-base-content/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                                         disabled={isSigningUp}
                                     >
                                         {isSigningUp ? (
                                             <>
                                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                                Creating account...
+                                                Creating Account...
                                             </>
                                         ) : (
                                             <>
-                                                Create account
+                                                Sign Up
                                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                                             </>
                                         )}
-                                    </Button>
+                                    </button>
                                 </form>
                             </div>
 
