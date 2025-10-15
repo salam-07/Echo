@@ -13,3 +13,4 @@ export { default as UserLink } from './UserLink';
 export { default as NavigationItem } from './NavigationItem';
 export { default as SectionHeader } from './SectionHeader';
 export { default as SplashScreen } from './SplashScreen';
+export { default as UserAutocomplete } from './UserAutocomplete';

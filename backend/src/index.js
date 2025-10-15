@@ -12,6 +12,7 @@ import echoRoutes from "./routes/echo.route.js";
 import profileRoutes from "./routes/profile.route.js";
 import scrollRoutes from "./routes/scroll.route.js";
 import communityRoutes from "./routes/community.route.js";
+import searchRoutes from "./routes/search.route.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
@@ -36,6 +37,7 @@ app.use("/api/echo", echoRoutes); // routes for posting
 app.use("/api/profile", profileRoutes); // routes for posting
 app.use("/api/scroll", scrollRoutes); // routes for scrolls
 app.use("/api/community", communityRoutes); // routes for community features
+app.use("/api/search", searchRoutes); // routes for search
 
 
 if (process.env.NODE_ENV === "production") {

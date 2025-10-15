@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, User as UserIcon } from 'lucide-react';
 import { Card, Badge, UserLink } from '../../ui';
 import FollowButton from './FollowButton';
 
@@ -42,18 +42,40 @@ const ScrollCard = ({
                         </p>
                     )}
 
-                    {/* Tags for feed scrolls */}
-                    {showTags && !compact && scroll.feedConfig?.includedTags && scroll.feedConfig.includedTags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                            {scroll.feedConfig.includedTags.slice(0, 3).map((tag) => (
-                                <Badge key={tag._id} variant="primary" size="xs">
-                                    #{tag.name}
-                                </Badge>
-                            ))}
-                            {scroll.feedConfig.includedTags.length > 3 && (
-                                <Badge variant="ghost" size="xs">
-                                    +{scroll.feedConfig.includedTags.length - 3}
-                                </Badge>
+                    {/* Tags and Authors for feed scrolls */}
+                    {showTags && !compact && (
+                        <div className="space-y-2 mb-3">
+                            {/* Tags */}
+                            {scroll.feedConfig?.includedTags && scroll.feedConfig.includedTags.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                    {scroll.feedConfig.includedTags.slice(0, 3).map((tag) => (
+                                        <Badge key={tag._id} variant="primary" size="xs">
+                                            #{tag.name}
+                                        </Badge>
+                                    ))}
+                                    {scroll.feedConfig.includedTags.length > 3 && (
+                                        <Badge variant="ghost" size="xs">
+                                            +{scroll.feedConfig.includedTags.length - 3}
+                                        </Badge>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Authors */}
+                            {scroll.feedConfig?.authors && scroll.feedConfig.authors.length > 0 && (
+                                <div className="flex flex-wrap gap-1 items-center">
+                                    <UserIcon className="w-3 h-3 text-base-content/50" />
+                                    {scroll.feedConfig.authors.slice(0, 2).map((author) => (
+                                        <Badge key={author._id} variant="secondary" size="xs">
+                                            @{author.userName}
+                                        </Badge>
+                                    ))}
+                                    {scroll.feedConfig.authors.length > 2 && (
+                                        <Badge variant="ghost" size="xs">
+                                            +{scroll.feedConfig.authors.length - 2}
+                                        </Badge>
+                                    )}
+                                </div>
                             )}
                         </div>
                     )}

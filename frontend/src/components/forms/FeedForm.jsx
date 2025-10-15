@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useScrollStore } from '../../store/useScrollStore';
 import { useNavigate } from 'react-router-dom';
-import { X, Hash } from 'lucide-react';
-import { Input, Textarea, Button, Card, Badge, IconButton } from '../ui';
+import { X, Hash, Users } from 'lucide-react';
+import { Input, Textarea, Button, Card, Badge, IconButton, UserAutocomplete } from '../ui';
 
 const FeedForm = () => {
     const [name, setName] = useState('');
@@ -15,6 +15,9 @@ const FeedForm = () => {
     const [excludedTags, setExcludedTags] = useState([]);
     const [includedTagInput, setIncludedTagInput] = useState('');
     const [excludedTagInput, setExcludedTagInput] = useState('');
+
+    // Author filtering
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
 
     // Date range
     const [useDateRange, setUseDateRange] = useState(false);
@@ -81,6 +84,15 @@ const FeedForm = () => {
         setExcludedTags(excludedTags.filter(tag => tag !== tagToRemove));
     };
 
+    // Author handlers
+    const handleAuthorAdd = (user) => {
+        setSelectedAuthors([...selectedAuthors, user]);
+    };
+
+    const handleAuthorRemove = (userId) => {
+        setSelectedAuthors(selectedAuthors.filter(author => author._id !== userId));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -92,6 +104,7 @@ const FeedForm = () => {
             tagMatchType: includedTags.length > 0 ? tagMatchType : 'any',
             includedTags: includedTags,
             excludedTags: excludedTags,
+            authors: selectedAuthors.map(author => author._id), // Store author IDs
             sortBy,
             sortTimeRange,
             excludeLikedEchos
@@ -288,6 +301,24 @@ const FeedForm = () => {
                         className="w-full px-3 py-2 bg-base-100 border border-base-300 rounded-lg text-sm text-base-content placeholder:text-base-content/40"
                     />
                 </div>
+            </div>
+
+            {/* Author Filtering */}
+            <div className="space-y-3 p-4 bg-base-200/50 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                    <Users className="w-4 h-4 text-base-content/60" />
+                    <h3 className="text-sm font-semibold text-base-content/90">Filter by Authors</h3>
+                </div>
+                <p className="text-xs text-base-content/60 mb-3">
+                    Only show echos from specific users. Search and select users to include their past and future echos in this feed.
+                </p>
+
+                <UserAutocomplete
+                    selectedUsers={selectedAuthors}
+                    onUserAdd={handleAuthorAdd}
+                    onUserRemove={handleAuthorRemove}
+                    placeholder="Search users by username..."
+                />
             </div>
 
             {/* Date Range */}

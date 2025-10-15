@@ -14,6 +14,7 @@ export const getPublicFeedScrolls = async (req, res) => {
         })
             .populate('creator', 'userName bio')
             .populate('feedConfig.includedTags', 'name')
+            .populate('feedConfig.authors', 'userName')
             .sort({ createdAt: -1 }); if (limitNum) {
                 query.limit(limitNum);
             }
