@@ -42,7 +42,7 @@ const Sidebar = () => {
                     <NavigationItem to="/scrolls" icon={Scroll}>
                         Scrolls
                     </NavigationItem>
-                    <NavigationItem to="/explore" icon={CompassIcon}>
+                    <NavigationItem to="/browse-community" icon={CompassIcon}>
                         Explore
                     </NavigationItem>
                 </div>
