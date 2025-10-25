@@ -1,22 +1,41 @@
 import React from 'react';
-import { Heart, Share, MoreHorizontal, Bookmark } from 'lucide-react';
+import { Heart, Share, MoreHorizontal, Bookmark, MessageCircle } from 'lucide-react';
 import { Card, IconButton, UserLink, Timestamp, Badge } from '../../ui';
 
 const EchoActions = ({ echo, isLiked, onLike, onToggleMenu, onBookmark }) => {
+    const replyCount = echo.replies?.length || 0;
+
     return (
         <div className="focus:outline-none flex items-center justify-between pt-3 border-t border-base-300/30">
-            <div className="flex items-center gap-1">
-                <IconButton
-                    onClick={onLike}
-                    variant="ghost"
-                    size="sm"
-                    className={isLiked ? 'text-red-500 hover:text-red-600' : 'text-base-content/40 hover:text-red-500'}
-                >
-                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                </IconButton>
-                <span className="text-xs text-base-content/50">
-                    {echo.likes || 0}
-                </span>
+            <div className="flex items-center gap-4">
+                {/* Like button */}
+                <div className="flex items-center gap-1">
+                    <IconButton
+                        onClick={onLike}
+                        variant="ghost"
+                        size="sm"
+                        className={isLiked ? 'text-red-500 hover:text-red-600' : 'text-base-content/40 hover:text-red-500'}
+                    >
+                        <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                    </IconButton>
+                    <span className="text-xs text-base-content/50">
+                        {echo.likes || 0}
+                    </span>
+                </div>
+
+                {/* Reply button */}
+                <div className="flex items-center gap-1">
+                    <IconButton
+                        variant="ghost"
+                        size="sm"
+                        className="text-base-content/40 hover:text-blue-500"
+                    >
+                        <MessageCircle className="w-4 h-4" />
+                    </IconButton>
+                    <span className="text-xs text-base-content/50">
+                        {replyCount}
+                    </span>
+                </div>
             </div>
 
             <div className="flex items-center gap-1">

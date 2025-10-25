@@ -31,6 +31,22 @@ const echoSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        replies: [{
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            comment: {
+                type: String,
+                required: true,
+                maxlength: 500
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            }
+        }],
     },
     { timestamps: true }
 );

@@ -115,10 +115,18 @@ export const viewEcho = async (req, res) => {
 
         const echo = await Echo.findById(echoId)
             .populate('author', 'userName')
-            .populate('tags', 'name');
+            .populate('tags', 'name')
+            .populate('replies.user', 'userName');
 
         if (!echo) {
             return res.status(404).json({ error: "Echo not found" });
+        }
+
+        // Sort replies by oldest first
+        if (echo.replies && echo.replies.length > 0) {
+            echo.replies.sort((a, b) =>
+                new Date(a.createdAt) - new Date(b.createdAt)
+            );
         }
 
         const echoWithLikes = {
@@ -235,5 +243,112 @@ export const getEchosByTag = async (req, res) => {
     } catch (error) {
         console.log("Error in getEchosByTag controller", error);
         res.status(500).json({ error: "Failed to fetch echos" });
+    }
+};
+
+// POST /echo/:id/reply - add a reply to an echo
+export const addReply = async (req, res) => {
+    try {
+        const echoId = req.params.id;
+        const { comment } = req.body;
+        const userId = req.user._id;
+
+        if (!comment || !comment.trim()) {
+            return res.status(400).json({ error: "Comment is required" });
+        }
+
+        if (comment.trim().length > 500) {
+            return res.status(400).json({ error: "Comment must be 500 characters or less" });
+        }
+
+        const echo = await Echo.findById(echoId);
+        if (!echo) {
+            return res.status(404).json({ error: "Echo not found" });
+        }
+
+        // Add reply
+        echo.replies.push({
+            user: userId,
+            comment: comment.trim(),
+            createdAt: new Date()
+        });
+
+        await echo.save();
+
+        // Populate the new reply with user info
+        await echo.populate('replies.user', 'userName');
+
+        // Get the newly added reply
+        const newReply = echo.replies[echo.replies.length - 1];
+
+        res.status(201).json({
+            reply: newReply,
+            replyCount: echo.replies.length
+        });
+    } catch (error) {
+        console.log("Error in addReply controller", error);
+        res.status(500).json({ error: "Failed to add reply" });
+    }
+};
+
+// DELETE /echo/:id/reply/:replyId - delete a reply
+export const deleteReply = async (req, res) => {
+    try {
+        const { id: echoId, replyId } = req.params;
+        const userId = req.user._id;
+
+        const echo = await Echo.findById(echoId);
+        if (!echo) {
+            return res.status(404).json({ error: "Echo not found" });
+        }
+
+        const reply = echo.replies.id(replyId);
+        if (!reply) {
+            return res.status(404).json({ error: "Reply not found" });
+        }
+
+        // Only the reply author can delete their reply
+        if (reply.user.toString() !== userId.toString()) {
+            return res.status(403).json({ error: "Not authorized" });
+        }
+
+        echo.replies.pull(replyId);
+        await echo.save();
+
+        res.status(200).json({
+            message: "Reply deleted",
+            replyCount: echo.replies.length
+        });
+    } catch (error) {
+        console.log("Error in deleteReply controller", error);
+        res.status(500).json({ error: "Failed to delete reply" });
+    }
+};
+
+// GET /echo/:id/replies - get all replies for an echo
+export const getReplies = async (req, res) => {
+    try {
+        const echoId = req.params.id;
+
+        const echo = await Echo.findById(echoId)
+            .populate('replies.user', 'userName')
+            .select('replies');
+
+        if (!echo) {
+            return res.status(404).json({ error: "Echo not found" });
+        }
+
+        // Sort replies by oldest first
+        const sortedReplies = echo.replies.sort((a, b) =>
+            new Date(a.createdAt) - new Date(b.createdAt)
+        );
+
+        res.status(200).json({
+            replies: sortedReplies,
+            replyCount: echo.replies.length
+        });
+    } catch (error) {
+        console.log("Error in getReplies controller", error);
+        res.status(500).json({ error: "Failed to fetch replies" });
     }
 };

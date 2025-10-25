@@ -1,7 +1,7 @@
 import express from "express";
 
 // controller functions
-import { postEcho, deleteEcho, getAllEcho, viewEcho, likeEcho, unlikeEcho, getEchosByTag } from "../controllers/echo.controller.js";
+import { postEcho, deleteEcho, getAllEcho, viewEcho, likeEcho, unlikeEcho, getEchosByTag, addReply, deleteReply, getReplies } from "../controllers/echo.controller.js";
 // protected route checking
 import { protectRoute } from "../middleware/auth.middleware.js";
 
@@ -18,5 +18,10 @@ router.get("/tag/:tagName", protectRoute, getEchosByTag);
 // like/unlike routes
 router.post("/like/:id", protectRoute, likeEcho);
 router.delete("/like/:id", protectRoute, unlikeEcho);
+
+// reply routes
+router.post("/:id/reply", protectRoute, addReply);
+router.delete("/:id/reply/:replyId", protectRoute, deleteReply);
+router.get("/:id/replies", protectRoute, getReplies);
 
 export default router;

@@ -200,4 +200,73 @@ export const useEchoStore = create((set, get) => ({
 
     // Clear all echos
     clearEchos: () => set({ echos: [] }),
+
+    // Add reply to an echo
+    addReply: async (echoId, comment) => {
+        try {
+            const res = await axiosInstance.post(`/echo/${echoId}/reply`, { comment });
+
+            // Update the echo with the new reply
+            const { echo, echos } = get();
+
+            if (echo && echo._id === echoId) {
+                set({
+                    echo: {
+                        ...echo,
+                        replies: [...(echo.replies || []), res.data.reply]
+                    }
+                });
+            }
+
+            // Also update in echos array
+            set({
+                echos: echos.map(e =>
+                    e._id === echoId
+                        ? { ...e, replies: [...(e.replies || []), res.data.reply] }
+                        : e
+                )
+            });
+
+            toast.success("Reply added");
+            return res.data.reply;
+        } catch (error) {
+            console.log("Error adding reply:", error);
+            toast.error(error.response?.data?.error || "Failed to add reply");
+            throw error;
+        }
+    },
+
+    // Delete reply from an echo
+    deleteReply: async (echoId, replyId) => {
+        try {
+            await axiosInstance.delete(`/echo/${echoId}/reply/${replyId}`);
+
+            // Update the echo by removing the reply
+            const { echo, echos } = get();
+
+            if (echo && echo._id === echoId) {
+                set({
+                    echo: {
+                        ...echo,
+                        replies: echo.replies.filter(r => r._id !== replyId)
+                    }
+                });
+            }
+
+            // Also update in echos array
+            set({
+                echos: echos.map(e =>
+                    e._id === echoId
+                        ? { ...e, replies: e.replies?.filter(r => r._id !== replyId) || [] }
+                        : e
+                )
+            });
+
+            toast.success("Reply deleted");
+        } catch (error) {
+            console.log("Error deleting reply:", error);
+            toast.error(error.response?.data?.error || "Failed to delete reply");
+            throw error;
+        }
+    },
 }));

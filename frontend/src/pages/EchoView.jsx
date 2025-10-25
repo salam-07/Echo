@@ -1,14 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, Share, Calendar } from 'lucide-react';
+import { ArrowLeft, Heart, Share, Calendar, MessageCircle } from 'lucide-react';
 import { useEchoStore } from '../store/useEchoStore';
 import Layout from '../layouts/Layout';
+import ReplyList from '../components/features/echo/ReplyList';
+import ReplyInput from '../components/features/echo/ReplyInput';
 
 const EchoView = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { getEcho, echo, isLoadingEcho, toggleLike } = useEchoStore();
+    const { getEcho, echo, isLoadingEcho, toggleLike, addReply, deleteReply } = useEchoStore();
+    const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const isLiked = echo?.isLiked;
+    const replyCount = echo?.replies?.length || 0;
 
     useEffect(() => {
         if (id) {
@@ -31,6 +35,27 @@ const EchoView = () => {
     };
 
     const handleLike = () => toggleLike(echo._id);
+
+    const handleAddReply = async (comment) => {
+        setIsSubmittingReply(true);
+        try {
+            await addReply(id, comment);
+        } catch (error) {
+            console.error('Error adding reply:', error);
+        } finally {
+            setIsSubmittingReply(false);
+        }
+    };
+
+    const handleDeleteReply = async (replyId) => {
+        if (window.confirm('Are you sure you want to delete this reply?')) {
+            try {
+                await deleteReply(id, replyId);
+            } catch (error) {
+                console.error('Error deleting reply:', error);
+            }
+        }
+    };
 
     if (isLoadingEcho) {
         return (
@@ -149,8 +174,16 @@ const EchoView = () => {
                                 )}
                             </button>
 
+                            <div className="flex items-center gap-2 text-base-content/60">
+                                <MessageCircle className="w-5 h-5" />
+                                <span className="text-sm">Replies</span>
+                                {replyCount > 0 && (
+                                    <span className="text-xs text-base-content/50">({replyCount})</span>
+                                )}
+                            </div>
+
                             <button
-                                className="flex items-center gap-2 text-base-content/60 hover:text-base-content transition-colors"
+                                className="flex items-center gap-2 text-base-content/60 hover:text-base-content transition-colors ml-auto"
                                 onClick={() => {
                                     // Handle share action
                                     if (navigator.share) {
@@ -170,6 +203,27 @@ const EchoView = () => {
                             </button>
                         </div>
                     </div>
+                </div>
+
+                {/* Reply Section */}
+                <div className="mt-6 bg-base-100 border border-base-300 rounded-lg p-4">
+                    <h3 className="text-sm font-semibold text-base-content mb-3">
+                        Replies {replyCount > 0 && `(${replyCount})`}
+                    </h3>
+
+                    {/* Reply Input - Single Line */}
+                    <div className="mb-4 pb-4 border-b border-base-300">
+                        <ReplyInput
+                            onSubmit={handleAddReply}
+                            isSubmitting={isSubmittingReply}
+                        />
+                    </div>
+
+                    {/* Replies List */}
+                    <ReplyList
+                        replies={echo.replies || []}
+                        onDeleteReply={handleDeleteReply}
+                    />
                 </div>
             </div>
         </Layout>
