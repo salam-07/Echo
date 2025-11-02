@@ -41,6 +41,20 @@ const FeedForm = () => {
     ];
 
     // Tag handlers for included tags
+    const handleIncludedTagInput = (e) => {
+        const value = e.target.value;
+
+        // Handle space or comma to add tag immediately
+        if (value.includes(' ') || value.includes(',')) {
+            e.preventDefault();
+            addIncludedTag(value.replace(/[, ]+/g, ''));
+            setIncludedTagInput('');
+            return;
+        }
+
+        setIncludedTagInput(value);
+    };
+
     const handleIncludedTagKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
             e.preventDefault();
@@ -63,6 +77,20 @@ const FeedForm = () => {
     };
 
     // Tag handlers for excluded tags
+    const handleExcludedTagInput = (e) => {
+        const value = e.target.value;
+
+        // Handle space or comma to add tag immediately
+        if (value.includes(' ') || value.includes(',')) {
+            e.preventDefault();
+            addExcludedTag(value.replace(/[, ]+/g, ''));
+            setExcludedTagInput('');
+            return;
+        }
+
+        setExcludedTagInput(value);
+    };
+
     const handleExcludedTagKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
             e.preventDefault();
@@ -204,7 +232,7 @@ const FeedForm = () => {
                     <input
                         type="text"
                         value={includedTagInput}
-                        onChange={(e) => setIncludedTagInput(e.target.value)}
+                        onChange={handleIncludedTagInput}
                         onKeyDown={handleIncludedTagKeyDown}
                         placeholder="Type tags and press space or comma"
                         className="w-full px-3 py-2 bg-base-100 border border-base-300 rounded-lg text-sm text-base-content placeholder:text-base-content/40"
@@ -295,7 +323,7 @@ const FeedForm = () => {
                     <input
                         type="text"
                         value={excludedTagInput}
-                        onChange={(e) => setExcludedTagInput(e.target.value)}
+                        onChange={handleExcludedTagInput}
                         onKeyDown={handleExcludedTagKeyDown}
                         placeholder="Type tags to exclude and press space or comma"
                         className="w-full px-3 py-2 bg-base-100 border border-base-300 rounded-lg text-sm text-base-content placeholder:text-base-content/40"
