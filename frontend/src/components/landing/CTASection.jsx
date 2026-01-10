@@ -1,40 +1,12 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const CTASection = () => {
-    const sectionRef = useRef(null);
-    const contentRef = useRef(null);
-
-    useGSAP(() => {
-        gsap.fromTo(
-            contentRef.current.children,
-            { y: 50, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 0.8,
-                stagger: 0.15,
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: 'top 80%',
-                },
-            }
-        );
-    }, { scope: sectionRef });
-
     return (
-        <section
-            ref={sectionRef}
-            className="py-20 lg:py-32 px-4 bg-neutral text-neutral-content"
-        >
+        <section className="py-20 lg:py-32 px-4 bg-neutral text-neutral-content">
             <div className="container mx-auto max-w-4xl">
-                <div ref={contentRef} className="text-center">
+                <div className="text-center">
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
                         Ready to make your voice heard?
                     </h2>

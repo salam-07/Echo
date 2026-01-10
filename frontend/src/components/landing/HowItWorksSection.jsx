@@ -1,10 +1,5 @@
-import React, { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { UserPlus, PenLine, Library, Globe } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const steps = [
     {
@@ -34,53 +29,14 @@ const steps = [
 ];
 
 const HowItWorksSection = () => {
-    const sectionRef = useRef(null);
-    const headingRef = useRef(null);
-    const stepsRef = useRef(null);
-
-    useGSAP(() => {
-        // Heading animation
-        gsap.fromTo(
-            headingRef.current.children,
-            { y: 50, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 0.8,
-                stagger: 0.15,
-                scrollTrigger: {
-                    trigger: headingRef.current,
-                    start: 'top 80%',
-                },
-            }
-        );
-
-        // Steps animation
-        gsap.fromTo(
-            stepsRef.current.children,
-            { x: -50, opacity: 0 },
-            {
-                x: 0,
-                opacity: 1,
-                duration: 0.6,
-                stagger: 0.2,
-                scrollTrigger: {
-                    trigger: stepsRef.current,
-                    start: 'top 70%',
-                },
-            }
-        );
-    }, { scope: sectionRef });
-
     return (
         <section
-            ref={sectionRef}
             id="how-it-works"
             className="py-20 lg:py-32 px-4 bg-base-200/30"
         >
             <div className="container mx-auto max-w-6xl">
                 {/* Heading */}
-                <div ref={headingRef} className="text-center mb-16">
+                <div className="text-center mb-16">
                     <span className="inline-block px-4 py-2 bg-base-200 rounded-full text-sm font-medium mb-4">
                         How It Works
                     </span>
@@ -93,10 +49,7 @@ const HowItWorksSection = () => {
                 </div>
 
                 {/* Steps */}
-                <div
-                    ref={stepsRef}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-                >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {steps.map((step, index) => (
                         <StepCard key={index} {...step} isLast={index === steps.length - 1} />
                     ))}

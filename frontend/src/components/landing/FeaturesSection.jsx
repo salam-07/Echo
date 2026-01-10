@@ -1,10 +1,5 @@
-import React, { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { MessageCircle, Layers, Users, Hash, TrendingUp, Bookmark } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const features = [
     {
@@ -40,53 +35,14 @@ const features = [
 ];
 
 const FeaturesSection = () => {
-    const sectionRef = useRef(null);
-    const headingRef = useRef(null);
-    const cardsRef = useRef(null);
-
-    useGSAP(() => {
-        // Heading animation
-        gsap.fromTo(
-            headingRef.current.children,
-            { y: 50, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 0.8,
-                stagger: 0.15,
-                scrollTrigger: {
-                    trigger: headingRef.current,
-                    start: 'top 80%',
-                },
-            }
-        );
-
-        // Cards animation
-        gsap.fromTo(
-            cardsRef.current.children,
-            { y: 60, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 0.6,
-                stagger: 0.1,
-                scrollTrigger: {
-                    trigger: cardsRef.current,
-                    start: 'top 75%',
-                },
-            }
-        );
-    }, { scope: sectionRef });
-
     return (
         <section
-            ref={sectionRef}
             id="features"
             className="py-20 lg:py-32 px-4 bg-base-100"
         >
             <div className="container mx-auto max-w-6xl">
                 {/* Heading */}
-                <div ref={headingRef} className="text-center mb-16">
+                <div className="text-center mb-16">
                     <span className="inline-block px-4 py-2 bg-base-200 rounded-full text-sm font-medium mb-4">
                         Features
                     </span>
@@ -99,10 +55,7 @@ const FeaturesSection = () => {
                 </div>
 
                 {/* Feature Cards Grid */}
-                <div
-                    ref={cardsRef}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((feature, index) => (
                         <FeatureCard key={index} {...feature} />
                     ))}
