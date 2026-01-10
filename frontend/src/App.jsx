@@ -15,6 +15,7 @@ import BrowseScrollsPage from "./pages/BrowseScrollsPage";
 import BrowseCurationPage from "./pages/BrowseCurationPage";
 import BrowseTagsPage from "./pages/BrowseTagsPage";
 import PopularEchosPage from "./pages/PopularEchosPage";
+import LandingPage from "./pages/LandingPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -56,31 +57,31 @@ const App = () => {
     <div className="relative h-screen w-full bg-base-100 overflow-hidden">
       <div className="relative z-10 h-full overflow-y-auto">
         <Routes>
-          <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+          <Route path="/" element={authUser ? <HomePage /> : <LandingPage />} />
 
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 
-          <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
-          <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
-          <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/login" />} />
+          <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/" />} />
+          <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/" />} />
+          <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/" />} />
 
-          <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/login" />} />
-          <Route path="/tag/:tagName" element={authUser ? <TagsPage /> : <Navigate to="/login" />} />
-          <Route path="/new" element={authUser ? <NewEcho /> : <Navigate to="/login" />} />
+          <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/" />} />
+          <Route path="/tag/:tagName" element={authUser ? <TagsPage /> : <Navigate to="/" />} />
+          <Route path="/new" element={authUser ? <NewEcho /> : <Navigate to="/" />} />
 
-          <Route path="/scrolls" element={authUser ? <ScrollsPage /> : <Navigate to="/login" />} />
-          <Route path="/scrolls/feeds" element={authUser ? <FeedScrollsPage /> : <Navigate to="/login" />} />
-          <Route path="/scrolls/curations" element={authUser ? <CurationScrollsPage /> : <Navigate to="/login" />} />
-          <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/login" />} />
-          <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/login" />} />
+          <Route path="/scrolls" element={authUser ? <ScrollsPage /> : <Navigate to="/" />} />
+          <Route path="/scrolls/feeds" element={authUser ? <FeedScrollsPage /> : <Navigate to="/" />} />
+          <Route path="/scrolls/curations" element={authUser ? <CurationScrollsPage /> : <Navigate to="/" />} />
+          <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/" />} />
+          <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/" />} />
 
-          <Route path="/community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/login" />} />
-          <Route path="/browse/scrolls" element={authUser ? <BrowseScrollsPage /> : <Navigate to="/login" />} />
-          <Route path="/browse/curation" element={authUser ? <BrowseCurationPage /> : <Navigate to="/login" />} />
-          <Route path="/browse/tags" element={authUser ? <BrowseTagsPage /> : <Navigate to="/login" />} />
-          <Route path="/browse/popular" element={authUser ? <PopularEchosPage /> : <Navigate to="/login" />} />
-          <Route path="/browse-community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/login" />} />
+          <Route path="/community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/" />} />
+          <Route path="/browse/scrolls" element={authUser ? <BrowseScrollsPage /> : <Navigate to="/" />} />
+          <Route path="/browse/curation" element={authUser ? <BrowseCurationPage /> : <Navigate to="/" />} />
+          <Route path="/browse/tags" element={authUser ? <BrowseTagsPage /> : <Navigate to="/" />} />
+          <Route path="/browse/popular" element={authUser ? <PopularEchosPage /> : <Navigate to="/" />} />
+          <Route path="/browse-community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/" />} />
 
         </Routes>
 
