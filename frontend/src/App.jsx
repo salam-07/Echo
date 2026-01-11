@@ -54,55 +54,83 @@ const App = () => {
   }
 
   return (
-    <div className="relative h-screen w-full bg-base-100 overflow-hidden">
-      <div className="relative z-10 h-full overflow-y-auto">
-        <Routes>
-          <Route path="/" element={authUser ? <HomePage /> : <LandingPage />} />
+    <>
+      {authUser ? (
+        <div className="relative h-screen w-full bg-base-100 overflow-hidden">
+          <div className="relative z-10 h-full overflow-y-auto">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/signup" element={<Navigate to="/" />} />
+              <Route path="/login" element={<Navigate to="/" />} />
 
-          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
-          <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/user/:id" element={<UserPage />} />
 
-          <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/" />} />
-          <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/" />} />
-          <Route path="/user/:id" element={authUser ? <UserPage /> : <Navigate to="/" />} />
+              <Route path="/echo/:id" element={<EchoView />} />
+              <Route path="/tag/:tagName" element={<TagsPage />} />
+              <Route path="/new" element={<NewEcho />} />
 
-          <Route path="/echo/:id" element={authUser ? <EchoView /> : <Navigate to="/" />} />
-          <Route path="/tag/:tagName" element={authUser ? <TagsPage /> : <Navigate to="/" />} />
-          <Route path="/new" element={authUser ? <NewEcho /> : <Navigate to="/" />} />
+              <Route path="/scrolls" element={<ScrollsPage />} />
+              <Route path="/scrolls/feeds" element={<FeedScrollsPage />} />
+              <Route path="/scrolls/curations" element={<CurationScrollsPage />} />
+              <Route path="/scroll/new" element={<NewScrollPage />} />
+              <Route path="/scroll/:id" element={<ScrollViewPage />} />
 
-          <Route path="/scrolls" element={authUser ? <ScrollsPage /> : <Navigate to="/" />} />
-          <Route path="/scrolls/feeds" element={authUser ? <FeedScrollsPage /> : <Navigate to="/" />} />
-          <Route path="/scrolls/curations" element={authUser ? <CurationScrollsPage /> : <Navigate to="/" />} />
-          <Route path="/scroll/new" element={authUser ? <NewScrollPage /> : <Navigate to="/" />} />
-          <Route path="/scroll/:id" element={authUser ? <ScrollViewPage /> : <Navigate to="/" />} />
+              <Route path="/community" element={<BrowseCommunityPage />} />
+              <Route path="/browse/scrolls" element={<BrowseScrollsPage />} />
+              <Route path="/browse/curation" element={<BrowseCurationPage />} />
+              <Route path="/browse/tags" element={<BrowseTagsPage />} />
+              <Route path="/browse/popular" element={<PopularEchosPage />} />
+              <Route path="/browse-community" element={<BrowseCommunityPage />} />
+            </Routes>
 
-          <Route path="/community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/" />} />
-          <Route path="/browse/scrolls" element={authUser ? <BrowseScrollsPage /> : <Navigate to="/" />} />
-          <Route path="/browse/curation" element={authUser ? <BrowseCurationPage /> : <Navigate to="/" />} />
-          <Route path="/browse/tags" element={authUser ? <BrowseTagsPage /> : <Navigate to="/" />} />
-          <Route path="/browse/popular" element={authUser ? <PopularEchosPage /> : <Navigate to="/" />} />
-          <Route path="/browse-community" element={authUser ? <BrowseCommunityPage /> : <Navigate to="/" />} />
+            <Toaster
+              toastOptions={{
+                success: {
+                  style: {
+                    background: 'black',
+                    color: '#cacaca',
+                  },
+                },
+                error: {
+                  style: {
+                    background: 'black',
+                    color: '#cacaca',
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="bg-base-100">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
 
-        </Routes>
-
-        <Toaster
-          toastOptions={{
-            success: {
-              style: {
-                background: 'black',
-                color: '#cacaca',
+          <Toaster
+            toastOptions={{
+              success: {
+                style: {
+                  background: 'black',
+                  color: '#cacaca',
+                },
               },
-            },
-            error: {
-              style: {
-                background: 'black',
-                color: '#cacaca',
+              error: {
+                style: {
+                  background: 'black',
+                  color: '#cacaca',
+                },
               },
-            },
-          }}
-        />
-      </div>
-    </div >
+            }}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

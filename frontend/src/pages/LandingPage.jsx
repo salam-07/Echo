@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -10,17 +10,21 @@ import TestimonialsSection from '../components/landing/TestimonialsSection';
 import CTASection from '../components/landing/CTASection';
 import LandingFooter from '../components/landing/LandingFooter';
 
-// Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
 
 const LandingPage = () => {
-    useEffect(() => {
-        // Refresh ScrollTrigger on mount
-        ScrollTrigger.refresh();
+    useLayoutEffect(() => {
+        // Ensure document body can scroll properly
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.overflow = 'auto';
+
+        // Refresh ScrollTrigger after a short delay to ensure layout is complete
+        const timeoutId = setTimeout(() => {
+            ScrollTrigger.refresh(true);
+        }, 100);
 
         return () => {
-            // Cleanup ScrollTrigger instances
-            ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+            clearTimeout(timeoutId);
         };
     }, []);
 
