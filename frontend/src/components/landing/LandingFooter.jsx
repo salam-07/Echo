@@ -20,12 +20,17 @@ const footerLinks = {
 
 const LandingFooter = () => {
     return (
-        <footer className="py-16 px-4 bg-base-200/50 border-t border-base-300">
-            <div className="container mx-auto max-w-6xl">
+        <footer className="relative py-16 px-4 bg-base-100 border-t border-base-200 overflow-hidden">
+            {/* Subtle background glow */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-gradient-to-t from-violet-500/5 to-transparent rounded-full blur-3xl" />
+            </div>
+
+            <div className="relative container mx-auto max-w-6xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                     {/* Brand */}
                     <div className="col-span-2 md:col-span-1">
-                        <Link to="/" className="text-2xl font-bold text-neutral">
+                        <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-rose-500 bg-clip-text text-transparent">
                             Echo
                         </Link>
                         <p className="mt-4 text-base-content/60 text-sm">
@@ -86,7 +91,7 @@ const LandingFooter = () => {
                 </div>
 
                 {/* Bottom */}
-                <div className="pt-8 border-t border-base-300 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="pt-8 border-t border-base-200 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-base-content/60 text-sm">
                         © {new Date().getFullYear()} Echo. All rights reserved.
                     </p>
@@ -99,7 +104,7 @@ const LandingFooter = () => {
                         </Link>
                         <Link
                             to="/signup"
-                            className="text-sm px-4 py-2 bg-neutral text-neutral-content rounded-full hover:opacity-90 transition-opacity"
+                            className="text-sm px-4 py-2 bg-gradient-to-r from-violet-500 to-rose-500 text-white rounded-full hover:shadow-lg hover:shadow-violet-500/20 transition-all duration-300"
                         >
                             Get Started
                         </Link>
