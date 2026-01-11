@@ -56,8 +56,8 @@ const EchoCard = memo(({ echo }) => {
 
     return (
         <article className="group relative">
-            <div className="py-4 px-1 border-b border-base-200/40 hover:bg-base-200/20 transition-colors">
-                <div className="space-y-3">
+            <div className="py-5 sm:py-6 border-b border-base-200/30 transition-colors duration-200">
+                <div className="space-y-3 sm:space-y-4">
                     <EchoHeader echo={echo} onToggleMenu={handleToggleMenu} />
                     <EchoContent echo={echo} />
                     <EchoActions
