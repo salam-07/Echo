@@ -1,172 +1,214 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { useScrollStore } from '../../../store/useScrollStore';
 
 const ScrollSelector = () => {
     const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } = useScrollStore();
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const containerRef = useRef(null);
+    const wheelTimeoutRef = useRef(null);
 
-    // Filter only feed type scrolls
-    const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
-    const allScrollOptions = feedScrolls;
+    // Memoize feed scrolls to prevent unnecessary recalculations
+    const allScrollOptions = useMemo(() =>
+        scrolls.filter(scroll => scroll.type === 'feed'),
+        [scrolls]
+    );
 
     useEffect(() => {
         getScrolls();
     }, [getScrolls]);
 
+    // Sync selected index with selectedScroll
     useEffect(() => {
+        if (!allScrollOptions.length) return;
+
         if (selectedScroll) {
             const index = allScrollOptions.findIndex(s => s._id === selectedScroll._id);
-            setSelectedIndex(index !== -1 ? index : 0);
-        } else if (allScrollOptions.length > 0) {
-            // If no scroll is selected, select the first available scroll
+            if (index !== -1 && index !== selectedIndex) {
+                setSelectedIndex(index);
+            }
+        } else {
             setSelectedIndex(0);
             setSelectedScroll(allScrollOptions[0]);
         }
-    }, [selectedScroll, allScrollOptions]);
+    }, [selectedScroll?._id, allScrollOptions.length]);
 
-    const handleSelection = (index) => {
+    const handleSelection = useCallback((index) => {
+        if (index === selectedIndex || isAnimating) return;
+        setIsAnimating(true);
         setSelectedIndex(index);
         const scroll = allScrollOptions[index];
-        setSelectedScroll(scroll);
-    };
+        if (scroll) {
+            setSelectedScroll(scroll);
+        }
+        // Reset animation state after transition
+        setTimeout(() => setIsAnimating(false), 150);
+    }, [selectedIndex, allScrollOptions, setSelectedScroll, isAnimating]);
 
-    const navigateUp = () => {
+    const navigateUp = useCallback(() => {
         if (selectedIndex > 0) handleSelection(selectedIndex - 1);
-    };
+    }, [selectedIndex, handleSelection]);
 
-    const navigateDown = () => {
+    const navigateDown = useCallback(() => {
         if (selectedIndex < allScrollOptions.length - 1) handleSelection(selectedIndex + 1);
-    };
+    }, [selectedIndex, allScrollOptions.length, handleSelection]);
 
-    const getVisibleScrolls = () => {
-        const total = allScrollOptions.length;
-        let startIndex, endIndex;
+    // Debounced wheel handler for smooth scrolling
+    const handleWheel = useCallback((e) => {
+        e.preventDefault();
 
-        if (selectedIndex === 0) {
-            // Top position: show selected + 2 below
-            startIndex = 0;
-            endIndex = Math.min(2, total - 1);
-        } else if (selectedIndex === total - 1) {
-            // Bottom position: show 2 above + selected
-            startIndex = Math.max(0, total - 3);
-            endIndex = total - 1;
-        } else {
-            // Middle position: show 1 above + selected + 1 below
-            startIndex = selectedIndex - 1;
-            endIndex = selectedIndex + 1;
+        if (wheelTimeoutRef.current) return;
+
+        if (e.deltaY < 0) {
+            navigateUp();
+        } else if (e.deltaY > 0) {
+            navigateDown();
         }
 
-        return allScrollOptions.slice(startIndex, endIndex + 1).map((scroll, idx) => {
-            const actualIndex = startIndex + idx;
-            const isSelected = actualIndex === selectedIndex;
+        wheelTimeoutRef.current = setTimeout(() => {
+            wheelTimeoutRef.current = null;
+        }, 100);
+    }, [navigateUp, navigateDown]);
 
-            return {
-                ...scroll,
-                index: actualIndex,
-                isSelected,
-                opacity: isSelected ? 1 : 0.6,
-                scale: isSelected ? 1 : 0.9
-            };
-        });
-    };
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (wheelTimeoutRef.current) {
+                clearTimeout(wheelTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Calculate visible items with position info
+    const visibleScrolls = useMemo(() => {
+        const total = allScrollOptions.length;
+        if (total === 0) return [];
+
+        const visibleCount = Math.min(5, total);
+        const halfVisible = Math.floor(visibleCount / 2);
+
+        let startIndex = Math.max(0, selectedIndex - halfVisible);
+        let endIndex = Math.min(total - 1, startIndex + visibleCount - 1);
+
+        if (endIndex - startIndex < visibleCount - 1) {
+            startIndex = Math.max(0, endIndex - visibleCount + 1);
+        }
+
+        // Find which position in the visible list the selected item is
+        const selectedVisiblePosition = selectedIndex - startIndex;
+
+        return {
+            items: allScrollOptions.slice(startIndex, endIndex + 1).map((scroll, idx) => {
+                const actualIndex = startIndex + idx;
+                const offset = actualIndex - selectedIndex;
+                const isSelected = offset === 0;
+                const absOffset = Math.abs(offset);
+
+                // Subtle 3D wheel effect
+                const rotateX = offset * -12;
+                const scale = isSelected ? 1 : Math.max(0.88, 1 - absOffset * 0.06);
+                const opacity = isSelected ? 1 : Math.max(0.35, 1 - absOffset * 0.3);
+
+                return {
+                    _id: scroll._id,
+                    name: scroll.name,
+                    index: actualIndex,
+                    offset,
+                    isSelected,
+                    style: {
+                        transform: `perspective(200px) rotateX(${rotateX}deg) scale(${scale})`,
+                        opacity,
+                    }
+                };
+            }),
+            selectedVisiblePosition,
+            visibleCount: endIndex - startIndex + 1
+        };
+    }, [allScrollOptions, selectedIndex]);
 
     if (isLoadingScrolls) {
         return (
-            <div className="relative w-full h-44 rounded-box overflow-hidden bg-base-100">
-                {/* Top gradient */}
-                <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent to-base-100 z-10 pointer-events-none" />
-
-                {/* Navigation up skeleton */}
-                <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full">
-                    <div className="skeleton w-4 h-4 rounded" />
+            <div className="relative w-full py-3">
+                <div className="flex flex-col items-center gap-1">
+                    <div className="h-3 w-12 rounded-full bg-base-content/5 animate-pulse" />
+                    <div className="h-5 w-20 rounded-full bg-base-content/10 animate-pulse" />
+                    <div className="h-3 w-12 rounded-full bg-base-content/5 animate-pulse" />
                 </div>
-
-                {/* Scroll items skeleton container */}
-                <div className="py-8 px-4 h-full flex items-center">
-                    <div className="space-y-1 w-full">
-                        {/* Center item (selected) */}
-                        <div className="flex items-center justify-center">
-                            <div className="skeleton h-8 w-24 rounded-md"></div>
-                        </div>
-
-                        {/* Top item */}
-                        <div className="flex items-center justify-center opacity-60 scale-90">
-                            <div className="skeleton h-7 w-20 rounded-md"></div>
-                        </div>
-
-                        {/* Bottom item */}
-                        <div className="flex items-center justify-center opacity-60 scale-90">
-                            <div className="skeleton h-7 w-16 rounded-md"></div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Navigation down skeleton */}
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full">
-                    <div className="skeleton w-4 h-4 rounded" />
-                </div>
-
-                {/* Bottom gradient */}
-                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-transparent to-base-100 z-10 pointer-events-none" />
             </div>
         );
     }
 
-    // Handle empty state when no scrolls exist
     if (allScrollOptions.length === 0) {
         return (
-            <div className="relative w-full h-44 rounded-box overflow-hidden bg-base-100 flex items-center justify-center">
-                <div className="text-center text-base-content/60">
-                    <div className="text-sm font-medium mb-1">No Scrolls</div>
-                    <div className="text-xs">Create your first scroll to get started</div>
+            <div className="relative w-full py-4 text-center">
+                <div className="space-y-1">
+                    <p className="text-sm font-medium text-base-content/30">No scrolls</p>
+                    <p className="text-xs text-base-content/20">Create your first scroll</p>
                 </div>
             </div>
         );
     }
 
-    const visibleScrolls = getVisibleScrolls();
     const canScrollUp = selectedIndex > 0;
     const canScrollDown = selectedIndex < allScrollOptions.length - 1;
 
-    return (
-        <div className="relative w-full h-44 rounded-box overflow-hidden">
-            {/* Top gradient */}
-            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent to-base-100 z-10 pointer-events-none" />
+    // Calculate highlight position based on where selected item appears in visible list
+    const itemHeight = 32; // height of each item in pixels
+    const highlightTop = visibleScrolls.selectedVisiblePosition * itemHeight;
 
+    return (
+        <div
+            ref={containerRef}
+            onWheel={handleWheel}
+            className="relative w-full select-none"
+        >
             {/* Navigation up */}
             <button
                 onClick={navigateUp}
                 disabled={!canScrollUp}
-                className="absolute top-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full hover:bg-base-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className={`
+                    w-full flex justify-center py-1
+                    transition-all duration-150
+                    ${canScrollUp
+                        ? 'text-base-content/30 hover:text-base-content/60 cursor-pointer'
+                        : 'text-base-content/10 cursor-default'
+                    }
+                `}
+                aria-label="Previous scroll"
             >
-                <ChevronUp className="w-4 h-4 text-base-content/60" />
+                <ChevronUp className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
 
             {/* Scroll items container */}
-            <div className="py-8 px-4 h-full flex items-center">
-                <div className="space-y-1 w-full">
-                    {visibleScrolls.map((item) => (
-                        <div
+            <div className="relative">
+                {/* Selection highlight band - positioned dynamically */}
+                <div
+                    className="absolute inset-x-1 h-8 rounded-md bg-base-content/[0.06] pointer-events-none transition-all duration-150 ease-out"
+                    style={{ top: highlightTop }}
+                />
+
+                {/* Items */}
+                <div className="relative flex flex-col">
+                    {visibleScrolls.items.map((item) => (
+                        <button
                             key={item._id}
-                            className="flex items-center justify-center transition-all duration-300 ease-out"
-                            style={{
-                                opacity: item.opacity,
-                                transform: `scale(${item.scale})`
-                            }}
+                            onClick={() => handleSelection(item.index)}
+                            className="cursor-pointer w-full h-8 px-2 flex items-center justify-center transition-all duration-150 ease-out focus:outline-none"
+                            style={item.style}
                         >
-                            <button
-                                onClick={() => handleSelection(item.index)}
-                                className={`text-center px-3 py-2 rounded-md transition-all duration-300 w-full max-w-[200px] ${item.isSelected
-                                    ? 'bg-base-200/70 text-base-content font-medium'
-                                    : 'text-base-content/60 hover:text-base-content hover:bg-base-300/50'
-                                    }`}
+                            <span
+                                className={`
+                                    truncate text-center transition-all duration-150
+                                    ${item.isSelected
+                                        ? 'text-base-content font-medium text-sm'
+                                        : 'text-base-content/40 font-normal text-[13px]'
+                                    }
+                                `}
                             >
-                                <span className="text-sm block truncate">
-                                    {item.name}
-                                </span>
-                            </button>
-                        </div>
+                                {item.name}
+                            </span>
+                        </button>
                     ))}
                 </div>
             </div>
@@ -175,13 +217,18 @@ const ScrollSelector = () => {
             <button
                 onClick={navigateDown}
                 disabled={!canScrollDown}
-                className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20 p-1 rounded-full hover:bg-base-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className={`
+                    w-full flex justify-center py-1
+                    transition-all duration-150
+                    ${canScrollDown
+                        ? 'text-base-content/30 hover:text-base-content/60 cursor-pointer'
+                        : 'text-base-content/10 cursor-default'
+                    }
+                `}
+                aria-label="Next scroll"
             >
-                <ChevronDown className="w-4 h-4 text-base-content/60" />
+                <ChevronDown className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
-
-            {/* Bottom gradient */}
-            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-transparent to-base-100 z-10 pointer-events-none" />
         </div>
     );
 };

@@ -11,18 +11,18 @@ const NavigationItem = ({
     size = 'default',
     ...props
 }) => {
-    const baseClasses = 'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors';
+    const baseClasses = 'flex items-center gap-2.5 px-2 py-1.5 rounded-md transition-colors text-sm';
 
     const variants = {
-        default: 'hover:bg-base-200 text-base-content/80 hover:text-base-content',
-        primary: 'bg-secondary hover:bg-primary/80 text-base-100',
-        active: 'bg-base-200 text-base-content'
+        default: 'text-base-content/60 hover:text-base-content hover:bg-base-200/50',
+        primary: 'text-base-content font-medium bg-base-200/80 hover:bg-base-300/80',
+        active: 'text-base-content bg-base-200/60'
     };
 
     const sizes = {
-        sm: 'px-2 py-1 text-sm',
-        default: 'px-3 py-2',
-        lg: 'px-4 py-3 text-lg'
+        sm: 'px-2 py-1 text-xs',
+        default: 'px-2 py-1.5 text-sm',
+        lg: 'px-3 py-2 text-base'
     };
 
     const classes = cn(
@@ -34,8 +34,8 @@ const NavigationItem = ({
 
     const content = (
         <>
-            {Icon && <Icon className="w-5 h-5" />}
-            <span className="font-medium">{children}</span>
+            {Icon && <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />}
+            <span>{children}</span>
         </>
     );
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { EchoCard, EchoCardSkeleton } from '../components/features/echo';
@@ -21,37 +21,47 @@ const HomePage = () => {
         getScrolls
     } = useScrollStore();
 
-    // Load scrolls and echos
+    // Load scrolls once on mount
     useEffect(() => {
         getScrolls();
     }, [getScrolls]);
 
-    // Load echos based on selected scroll
+    // Load echos based on selected scroll - use ID for stable dependency
+    const selectedScrollId = selectedScroll?._id;
     useEffect(() => {
-        if (selectedScroll) {
-            getScrollEchos(selectedScroll._id, true);
-        } else {
+        if (selectedScrollId) {
+            getScrollEchos(selectedScrollId, true);
+        } else if (!isLoadingScrolls && scrolls.length > 0) {
+            // Only load all echos if we have scrolls but none selected
+        } else if (!isLoadingScrolls && scrolls.length === 0) {
             getAllEchos({}, true);
         }
-    }, [selectedScroll, getAllEchos, getScrollEchos]);
+    }, [selectedScrollId, isLoadingScrolls, scrolls.length, getAllEchos, getScrollEchos]);
 
-    // Determine which echos to display
-    const displayEchos = selectedScroll ? scrollEchos : echos;
+    // Memoize derived state
+    const displayEchos = useMemo(() =>
+        selectedScroll ? scrollEchos : echos,
+        [selectedScroll, scrollEchos, echos]
+    );
+
     const isLoading = selectedScroll ? isLoadingScrollEchos : isLoadingEchos;
     const pagination = selectedScroll ? scrollEchoPagination : echoPagination;
 
-    // Check if user has any scrolls
-    const feedScrolls = scrolls.filter(scroll => scroll.type === 'feed');
+    // Memoize feed scrolls filter
+    const feedScrolls = useMemo(() =>
+        scrolls.filter(scroll => scroll.type === 'feed'),
+        [scrolls]
+    );
     const hasNoScrolls = !isLoadingScrolls && feedScrolls.length === 0;
 
     // Load more function for infinite scroll
     const handleLoadMore = useCallback(() => {
-        if (selectedScroll) {
-            loadMoreScrollEchos(selectedScroll._id);
+        if (selectedScrollId) {
+            loadMoreScrollEchos(selectedScrollId);
         } else {
             loadMoreEchos({});
         }
-    }, [selectedScroll, loadMoreEchos, loadMoreScrollEchos]);
+    }, [selectedScrollId, loadMoreEchos, loadMoreScrollEchos]);
 
     // Setup infinite scroll
     const sentinelRef = useInfiniteScroll(

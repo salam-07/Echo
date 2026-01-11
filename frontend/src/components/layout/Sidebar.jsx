@@ -3,19 +3,16 @@ import { Link } from 'react-router-dom';
 import {
     Home,
     Users,
-    Compass,
     Scroll,
     Bookmark,
-    Eye,
     User,
     Plus,
     Hash,
     TrendingUp,
-    BookOpen,
-    CompassIcon,
+    Compass,
     Settings
 } from 'lucide-react';
-import { NavigationItem, SectionHeader, IconButton } from '../ui';
+import { NavigationItem } from '../ui';
 import ScrollSelector from '../features/scroll/ScrollSelector';
 import useAuthStore from '../../store/useAuthStore';
 
@@ -23,85 +20,84 @@ const Sidebar = () => {
     const { authUser } = useAuthStore();
 
     return (
-        <aside className="flex flex-col h-full w-60 bg-base-100 border-r border-base-300">
-            {/* Header - Scroll Selector */}
-            <div className="p-4 border-b border-base-300">
+        <aside className="flex flex-col h-full w-56 bg-base-100 border-r border-base-200/60">
+            {/* Scroll Selector */}
+            <div className="px-3 py-4 border-b border-base-200/60">
                 <ScrollSelector />
             </div>
 
-            {/* Scrollable Content */}
-            <nav className="flex-1 overflow-y-auto p-4 space-y-6">
-                {/* Main Navigation */}
-                <div className="space-y-1">
+            {/* Navigation */}
+            <nav className="flex-1 overflow-y-auto py-4 px-3">
+                {/* Primary Actions */}
+                <div className="mb-6">
                     <NavigationItem to="/new" icon={Plus} variant="primary">
-                        Create Echo
+                        New Echo
                     </NavigationItem>
+                </div>
+
+                {/* Main */}
+                <div className="space-y-0.5 mb-6">
                     <NavigationItem to="/" icon={Home}>
                         Feed
                     </NavigationItem>
                     <NavigationItem to="/scrolls" icon={Scroll}>
-                        Scrolls
+                        My Scrolls
                     </NavigationItem>
-                    <NavigationItem to="/browse-community" icon={CompassIcon}>
+                    <NavigationItem to="/browse-community" icon={Compass}>
                         Explore
                     </NavigationItem>
                 </div>
 
-                {/* Scrolls Section */}
-                <div>
-                    <SectionHeader
-                        title="Scrolls"
-                        action={
-                            <Link to="/scroll/new">
-                                <IconButton size="sm" variant="ghost">
-                                    <Plus className="w-4 h-4 text-base-content/60" />
-                                </IconButton>
-                            </Link>
-                        }
-                    />
-                    <div className="space-y-1">
+                {/* Scrolls */}
+                <div className="mb-6">
+                    <div className="flex items-center justify-between px-2 mb-2">
+                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
+                            Scrolls
+                        </span>
+                        <Link
+                            to="/scroll/new"
+                            className="text-base-content/30 hover:text-base-content/60 transition-colors"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                        </Link>
+                    </div>
+                    <div className="space-y-0.5">
                         <NavigationItem to="/scrolls/feeds" icon={Scroll}>
-                            Feed Scrolls
+                            Feeds
                         </NavigationItem>
                         <NavigationItem to="/scrolls/curations" icon={Bookmark}>
-                            Curation Scrolls
-                        </NavigationItem>
-                        <NavigationItem to="/scrolls" icon={Eye}>
-                            View All
+                            Curations
                         </NavigationItem>
                     </div>
                 </div>
 
-                {/* Browse Section */}
-                <div>
-                    <SectionHeader title="Browse" />
-                    <div className="space-y-1">
+                {/* Discover */}
+                <div className="mb-6">
+                    <div className="px-2 mb-2">
+                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
+                            Discover
+                        </span>
+                    </div>
+                    <div className="space-y-0.5">
                         <NavigationItem to="/browse-community" icon={Users}>
-                            Community Scroll
+                            Community
                         </NavigationItem>
                         <NavigationItem to="/browse/tags" icon={Hash}>
                             Tags
                         </NavigationItem>
                         <NavigationItem to="/browse/popular" icon={TrendingUp}>
-                            Popular
+                            Trending
                         </NavigationItem>
                     </div>
                 </div>
             </nav>
 
-            {/* User Section */}
-            <div className="p-4 border-t border-base-300 space-y-1">
-                <NavigationItem
-                    to={`/user/${authUser?._id}`}
-                    icon={User}
-                    variant="active"
-                >
+            {/* User */}
+            <div className="p-3 border-t border-base-200/60">
+                <NavigationItem to={`/user/${authUser?._id}`} icon={User}>
                     @{authUser?.userName}
                 </NavigationItem>
-                <NavigationItem
-                    to={`/settings`}
-                    icon={Settings}
-                >
+                <NavigationItem to="/settings" icon={Settings}>
                     Settings
                 </NavigationItem>
             </div>

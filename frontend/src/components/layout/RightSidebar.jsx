@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useScrollStore } from '../../store/useScrollStore';
-import { Scroll, Bookmark, Plus } from 'lucide-react';
+import { Scroll, Bookmark, Plus, ArrowRight } from 'lucide-react';
 
 const RightSidebar = () => {
     const { scrolls, getScrolls } = useScrollStore();
@@ -9,115 +10,118 @@ const RightSidebar = () => {
         getScrolls();
     }, [getScrolls]);
 
-    // Filter scrolls by type and limit
     const feedScrolls = scrolls
         .filter(scroll => scroll.type === 'feed')
-        .slice(0, 5);
+        .slice(0, 4);
 
     const curationScrolls = scrolls
         .filter(scroll => scroll.type === 'curation')
         .slice(0, 3);
 
-    const handleFeedScrollClick = (scroll) => {
-        // For future navigation to feed page
-        console.log('Navigate to feed:', scroll.name);
-    };
-
-    const handleCurationScrollClick = (scroll) => {
-        // For future navigation to curation page
-        console.log('Navigate to curation:', scroll.name);
-    };
-
     return (
-        <aside className="hidden lg:block w-64 p-4 bg-base-50/50 border-l border-base-300/50">
+        <aside className="hidden lg:block w-56 py-4 px-3 border-l border-base-200/60">
             <div className="space-y-6">
-                {/* Feed Scrolls Section */}
-                <div className="bg-base-100 rounded-xl p-4 shadow-sm border border-base-300/30">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                            <Scroll className="w-4 h-4 text-primary" />
-                            <h3 className="font-semibold text-base-content">Feed Scrolls</h3>
-                        </div>
-                        <span className="text-xs text-base-content/50 bg-base-200 px-2 py-1 rounded-full">
-                            {feedScrolls.length}
+                {/* Feed Scrolls */}
+                <div>
+                    <div className="flex items-center justify-between px-2 mb-2">
+                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
+                            Feeds
                         </span>
+                        <Link
+                            to="/scroll/new"
+                            className="text-base-content/30 hover:text-base-content/60 transition-colors"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                        </Link>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                         {feedScrolls.length > 0 ? (
                             feedScrolls.map((scroll) => (
-                                <button
+                                <Link
                                     key={scroll._id}
-                                    onClick={() => handleFeedScrollClick(scroll)}
-                                    className="w-full text-left px-3 py-2 rounded-lg transition-all duration-200 hover:bg-base-200/60 text-base-content/80 hover:text-base-content group"
+                                    to={`/scroll/${scroll._id}`}
+                                    className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium truncate flex-1">
-                                            {scroll.name}
-                                        </span>
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                                        </div>
-                                    </div>
-                                    {scroll.description && (
-                                        <p className="text-xs text-base-content/60 mt-1 truncate">
-                                            {scroll.description}
-                                        </p>
-                                    )}
-                                </button>
+                                    <Scroll className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
+                                    <span className="truncate">{scroll.name}</span>
+                                </Link>
                             ))
                         ) : (
-                            <div className="text-center py-4">
-                                <Scroll className="w-8 h-8 text-base-content/30 mx-auto mb-2" />
-                                <p className="text-sm text-base-content/60">No feed scrolls</p>
-                                <p className="text-xs text-base-content/40 mt-1">Create your first feed</p>
-                            </div>
+                            <p className="px-2 py-3 text-xs text-base-content/30">
+                                No feed scrolls yet
+                            </p>
+                        )}
+
+                        {feedScrolls.length > 0 && (
+                            <Link
+                                to="/scrolls/feeds"
+                                className="flex items-center gap-1 px-2 py-1.5 text-xs text-base-content/40 hover:text-base-content/60 transition-colors"
+                            >
+                                View all <ArrowRight className="w-3 h-3" />
+                            </Link>
                         )}
                     </div>
                 </div>
 
-                {/* Curation Scrolls Section */}
-                <div className="bg-base-100 rounded-xl p-4 shadow-sm border border-base-300/30">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                            <Bookmark className="w-4 h-4 text-secondary" />
-                            <h3 className="font-semibold text-base-content">My Curations</h3>
-                        </div>
-                        <span className="text-xs text-base-content/50 bg-base-200 px-2 py-1 rounded-full">
-                            {curationScrolls.length}
+                {/* Curation Scrolls */}
+                <div>
+                    <div className="flex items-center justify-between px-2 mb-2">
+                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
+                            Curations
                         </span>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                         {curationScrolls.length > 0 ? (
                             curationScrolls.map((scroll) => (
-                                <button
+                                <Link
                                     key={scroll._id}
-                                    onClick={() => handleCurationScrollClick(scroll)}
-                                    className="w-full text-left px-3 py-2 rounded-lg transition-all duration-200 hover:bg-base-200/60 text-base-content/80 hover:text-base-content group"
+                                    to={`/scroll/${scroll._id}`}
+                                    className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium truncate flex-1">
-                                            {scroll.name}
-                                        </span>
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="w-1.5 h-1.5 bg-secondary rounded-full"></div>
-                                        </div>
-                                    </div>
-                                    {scroll.description && (
-                                        <p className="text-xs text-base-content/60 mt-1 truncate">
-                                            {scroll.description}
-                                        </p>
-                                    )}
-                                </button>
+                                    <Bookmark className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
+                                    <span className="truncate">{scroll.name}</span>
+                                </Link>
                             ))
                         ) : (
-                            <div className="text-center py-4">
-                                <Bookmark className="w-8 h-8 text-base-content/30 mx-auto mb-2" />
-                                <p className="text-sm text-base-content/60">No curations</p>
-                                <p className="text-xs text-base-content/40 mt-1">Start curating content</p>
-                            </div>
+                            <p className="px-2 py-3 text-xs text-base-content/30">
+                                No curations yet
+                            </p>
                         )}
+
+                        {curationScrolls.length > 0 && (
+                            <Link
+                                to="/scrolls/curations"
+                                className="flex items-center gap-1 px-2 py-1.5 text-xs text-base-content/40 hover:text-base-content/60 transition-colors"
+                            >
+                                View all <ArrowRight className="w-3 h-3" />
+                            </Link>
+                        )}
+                    </div>
+                </div>
+
+                {/* Trending Tags */}
+                <div>
+                    <div className="px-2 mb-2">
+                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
+                            Explore
+                        </span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                        <Link
+                            to="/browse/tags"
+                            className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
+                        >
+                            Browse Tags
+                        </Link>
+                        <Link
+                            to="/browse/popular"
+                            className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
+                        >
+                            Trending Echos
+                        </Link>
                     </div>
                 </div>
             </div>

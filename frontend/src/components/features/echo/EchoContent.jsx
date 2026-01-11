@@ -1,39 +1,35 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Badge } from '../../ui';
 
-const EchoContent = ({ echo }) => {
+const EchoContent = memo(({ echo }) => {
     return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
             {/* Main Content */}
-            <Link to={`/echo/${echo._id}`} className="block">
-                <p className="text-base-content leading-relaxed whitespace-pre-wrap">
+            <Link to={`/echo/${echo._id}`} className="block group">
+                <p className="text-base-content leading-relaxed whitespace-pre-wrap text-[15px]">
                     {echo.content}
                 </p>
             </Link>
 
             {/* Tags */}
             {echo.tags && echo.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                     {echo.tags.map((tag) => (
                         <Link
                             key={tag._id}
                             to={`/tag/${tag.name}`}
                             onClick={(e) => e.stopPropagation()}
+                            className="text-xs text-base-content/40 hover:text-base-content/70 transition-colors"
                         >
-                            <Badge
-                                variant="bg-base-content/20"
-                                size="sm"
-                                className="text-base-content/60 hover:badge-primary-focus transition-colors"
-                            >
-                                #{tag.name}
-                            </Badge>
+                            #{tag.name}
                         </Link>
                     ))}
                 </div>
             )}
         </div>
     );
-};
+});
+
+EchoContent.displayName = 'EchoContent';
 
 export default EchoContent;

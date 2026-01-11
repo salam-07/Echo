@@ -1,27 +1,33 @@
-import React from 'react';
-import { UserLink, Timestamp, IconButton } from '../../ui';
+import React, { memo } from 'react';
+import { UserLink, Timestamp } from '../../ui';
 import { MoreHorizontal } from 'lucide-react';
 
-const EchoHeader = ({ echo, onToggleMenu }) => {
+const EchoHeader = memo(({ echo, onToggleMenu }) => {
     return (
         <header className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-                <UserLink user={echo.author} />
-                <span className="text-xs text-base-content/50">·</span>
-                <Timestamp date={echo.createdAt} />
+            <div className="flex items-center gap-2 text-sm">
+                <UserLink
+                    user={echo.author}
+                    className="font-medium text-base-content hover:underline transition-colors"
+                />
+                <span className="text-base-content/30">·</span>
+                <Timestamp
+                    date={echo.createdAt}
+                    className="text-base-content/40"
+                />
             </div>
 
-            <IconButton
+            <button
                 onClick={onToggleMenu}
-                variant="ghost"
-                size="sm"
-                className="text-base-content/40"
+                className="p-1 rounded text-base-content/30 hover:text-base-content/60 hover:bg-base-200/50 transition-colors"
                 aria-label="More options"
             >
-                <MoreHorizontal className="w-4 h-4" />
-            </IconButton>
+                <MoreHorizontal className="w-4 h-4" strokeWidth={1.5} />
+            </button>
         </header>
     );
-};
+});
+
+EchoHeader.displayName = 'EchoHeader';
 
 export default EchoHeader;

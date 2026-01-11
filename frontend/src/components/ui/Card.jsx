@@ -1,10 +1,17 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 
-const Card = ({ className, children, hover = false, ...props }) => {
+const Card = ({ className, children, hover = false, variant = 'default', ...props }) => {
+    const variants = {
+        default: 'bg-base-100',
+        bordered: 'bg-base-100 border border-base-200/60',
+        ghost: 'bg-transparent'
+    };
+
     const classes = cn(
-        'card bg-base-100 shadow-sm border border-base-300',
-        hover && 'hover:shadow-md transition-shadow cursor-pointer',
+        'rounded-lg',
+        variants[variant],
+        hover && 'hover:bg-base-200/30 transition-colors cursor-pointer',
         className
     );
 
@@ -17,7 +24,7 @@ const Card = ({ className, children, hover = false, ...props }) => {
 
 const CardHeader = ({ className, children, ...props }) => {
     return (
-        <div className={cn('card-header p-4 border-b border-base-300', className)} {...props}>
+        <div className={cn('px-4 pt-4 pb-2', className)} {...props}>
             {children}
         </div>
     );
@@ -25,7 +32,7 @@ const CardHeader = ({ className, children, ...props }) => {
 
 const CardBody = ({ className, children, ...props }) => {
     return (
-        <div className={cn('card-body p-4', className)} {...props}>
+        <div className={cn('px-4 py-3', className)} {...props}>
             {children}
         </div>
     );
@@ -33,7 +40,7 @@ const CardBody = ({ className, children, ...props }) => {
 
 const CardFooter = ({ className, children, ...props }) => {
     return (
-        <div className={cn('card-footer p-4 border-t border-base-300', className)} {...props}>
+        <div className={cn('px-4 pt-2 pb-4 border-t border-base-200/40', className)} {...props}>
             {children}
         </div>
     );

@@ -1,72 +1,55 @@
-import React from 'react';
-import { Heart, Share, MoreHorizontal, Bookmark, MessageCircle } from 'lucide-react';
-import { Card, IconButton, UserLink, Timestamp, Badge } from '../../ui';
+import React, { memo } from 'react';
+import { Heart, Share, Bookmark, MessageCircle } from 'lucide-react';
 
-const EchoActions = ({ echo, isLiked, onLike, onToggleMenu, onBookmark }) => {
+const ActionButton = memo(({ onClick, children, count, isActive, className = '' }) => (
+    <button
+        onClick={onClick}
+        className={`flex items-center gap-1.5 text-base-content/40 hover:text-base-content/70 transition-colors ${isActive ? 'text-base-content/70' : ''} ${className}`}
+    >
+        {children}
+        {typeof count === 'number' && (
+            <span className="text-xs tabular-nums">{count}</span>
+        )}
+    </button>
+));
+
+ActionButton.displayName = 'ActionButton';
+
+const EchoActions = memo(({ echo, isLiked, onLike, onToggleMenu, onBookmark }) => {
     const replyCount = echo.replies?.length || 0;
 
     return (
-        <div className="focus:outline-none flex items-center justify-between pt-3 border-t border-base-300/30">
-            <div className="flex items-center gap-4">
-                {/* Like button */}
-                <div className="flex items-center gap-1">
-                    <IconButton
-                        onClick={onLike}
-                        variant="ghost"
-                        size="sm"
-                        className={isLiked ? 'text-red-500 hover:text-red-600' : 'text-base-content/40 hover:text-red-500'}
-                    >
-                        <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                    </IconButton>
-                    <span className="text-xs text-base-content/50">
-                        {echo.likes || 0}
-                    </span>
-                </div>
+        <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center gap-5">
+                {/* Like */}
+                <ActionButton onClick={onLike} count={echo.likes || 0} isActive={isLiked}>
+                    <Heart
+                        className={`w-4 h-4 ${isLiked ? 'fill-current text-base-content/60' : ''}`}
+                        strokeWidth={1.5}
+                    />
+                </ActionButton>
 
-                {/* Reply button */}
-                <div className="flex items-center gap-1">
-                    <IconButton
-                        variant="ghost"
-                        size="sm"
-                        className="text-base-content/40 hover:text-blue-500"
-                    >
-                        <MessageCircle className="w-4 h-4" />
-                    </IconButton>
-                    <span className="text-xs text-base-content/50">
-                        {replyCount}
-                    </span>
-                </div>
+                {/* Reply */}
+                <ActionButton count={replyCount}>
+                    <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
+                </ActionButton>
             </div>
 
-            <div className="flex items-center gap-1">
-                <IconButton
-                    onClick={onBookmark}
-                    variant="ghost"
-                    size="sm"
-                    className="text-base-content/40 hover:text-blue-500"
-                >
-                    <Bookmark className="w-4 h-4" />
-                </IconButton>
+            <div className="flex items-center gap-3">
+                {/* Bookmark */}
+                <ActionButton onClick={onBookmark}>
+                    <Bookmark className="w-4 h-4" strokeWidth={1.5} />
+                </ActionButton>
 
-                <IconButton
-                    variant="ghost"
-                    size="sm"
-                    className="text-base-content/40 hover:text-green-500"
-                >
-                    <Share className="w-4 h-4" />
-                </IconButton>
-
-                <IconButton
-                    onClick={onToggleMenu}
-                    variant="ghost"
-                    size="sm"
-                    className="text-base-content/40"
-                >
-                    <MoreHorizontal className="w-4 h-4" />
-                </IconButton>
+                {/* Share */}
+                <ActionButton>
+                    <Share className="w-4 h-4" strokeWidth={1.5} />
+                </ActionButton>
             </div>
         </div>
     );
-};
+});
+
+EchoActions.displayName = 'EchoActions';
 
 export default EchoActions;

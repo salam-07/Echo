@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card } from '../../ui';
+import React, { useState, memo, useCallback } from 'react';
 import { useEchoStore } from '../../../store/useEchoStore';
 import useAuthStore from '../../../store/useAuthStore';
 import EchoHeader from './EchoHeader';
@@ -9,7 +7,7 @@ import EchoActions from './EchoActions';
 import EchoMenu from './EchoMenu';
 import AddToScrollModal from './AddToScrollModal';
 
-const EchoCard = ({ echo }) => {
+const EchoCard = memo(({ echo }) => {
     const { toggleLike, deleteEcho } = useEchoStore();
     const { authUser } = useAuthStore();
     const isLiked = echo.isLiked;
@@ -17,13 +15,13 @@ const EchoCard = ({ echo }) => {
     const [showAddToScroll, setShowAddToScroll] = useState(false);
     const isOwnEcho = authUser?._id === echo.author?._id;
 
-    const handleLike = (e) => {
+    const handleLike = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
         toggleLike(echo._id);
-    };
+    }, [echo._id, toggleLike]);
 
-    const handleDelete = async () => {
+    const handleDelete = useCallback(async () => {
         if (window.confirm('Are you sure you want to delete this echo?')) {
             try {
                 await deleteEcho(echo._id);
@@ -32,30 +30,34 @@ const EchoCard = ({ echo }) => {
                 console.log('Error deleting echo:', error);
             }
         }
-    };
+    }, [echo._id, deleteEcho]);
 
-    const handleCopyLink = () => {
+    const handleCopyLink = useCallback(() => {
         const link = `${window.location.origin}/echo/${echo._id}`;
         navigator.clipboard.writeText(link);
         setShowMenu(false);
-    };
+    }, [echo._id]);
 
-    const handleToggleMenu = (e) => {
+    const handleToggleMenu = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
-        setShowMenu(!showMenu);
-    };
+        setShowMenu(prev => !prev);
+    }, []);
 
-    const handleBookmark = (e) => {
+    const handleBookmark = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
         setShowAddToScroll(true);
-    };
+    }, []);
+
+    const handleCloseAddToScroll = useCallback(() => {
+        setShowAddToScroll(false);
+    }, []);
 
     return (
         <article className="group relative">
-            <Card className="border-b border-base-300/30 transition-all duration-200">
-                <Card.Body className="p-5">
+            <div className="py-4 px-1 border-b border-base-200/40 hover:bg-base-200/20 transition-colors">
+                <div className="space-y-3">
                     <EchoHeader echo={echo} onToggleMenu={handleToggleMenu} />
                     <EchoContent echo={echo} />
                     <EchoActions
@@ -65,8 +67,8 @@ const EchoCard = ({ echo }) => {
                         onToggleMenu={handleToggleMenu}
                         onBookmark={handleBookmark}
                     />
-                </Card.Body>
-            </Card>
+                </div>
+            </div>
 
             {showMenu && (
                 <EchoMenu
@@ -82,11 +84,13 @@ const EchoCard = ({ echo }) => {
             {showAddToScroll && (
                 <AddToScrollModal
                     echoId={echo._id}
-                    onClose={() => setShowAddToScroll(false)}
+                    onClose={handleCloseAddToScroll}
                 />
             )}
         </article>
     );
-};
+});
+
+EchoCard.displayName = 'EchoCard';
 
 export default EchoCard;
