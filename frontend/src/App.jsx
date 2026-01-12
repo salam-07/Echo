@@ -16,6 +16,10 @@ import BrowseCurationPage from "./pages/BrowseCurationPage";
 import BrowseTagsPage from "./pages/BrowseTagsPage";
 import PopularEchosPage from "./pages/PopularEchosPage";
 import LandingPage from "./pages/LandingPage";
+import SearchPage from "./pages/SearchPage";
+import EchoSearchPage from "./pages/EchoSearchPage";
+import ScrollSearchPage from "./pages/ScrollSearchPage";
+import UserSearchPage from "./pages/UserSearchPage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -83,6 +87,11 @@ const App = () => {
               <Route path="/browse/tags" element={<BrowseTagsPage />} />
               <Route path="/browse/popular" element={<PopularEchosPage />} />
               <Route path="/browse-community" element={<BrowseCommunityPage />} />
+
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/search/echos" element={<EchoSearchPage />} />
+              <Route path="/search/scrolls" element={<ScrollSearchPage />} />
+              <Route path="/search/users" element={<UserSearchPage />} />
             </Routes>
 
             <Toaster
