@@ -57,7 +57,7 @@ const App = () => {
     <>
       {authUser ? (
         <div className="relative h-screen w-full bg-base-100 overflow-hidden">
-          <div className="relative z-10 h-full overflow-y-auto">
+          <div className="relative z-10 h-full overflow-hidden">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/signup" element={<Navigate to="/" />} />

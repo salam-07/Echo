@@ -1,81 +1,99 @@
 import React, { useState } from 'react';
 import Layout from '../layouts/Layout';
 import { CurationForm, FeedForm } from '../components/forms';
+import { Layers, Filter, BookMarked, Sparkles } from 'lucide-react';
 
 const NewScrollPage = () => {
     const [scrollType, setScrollType] = useState('feed');
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto px-4 py-6">
+            <div className="max-w-xl mx-auto px-6 py-8">
                 {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-base-content mb-2">
-                        Create New Scroll
+                <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-base-200/50 mb-3">
+                        <Layers className="w-5 h-5 text-base-content/70" />
+                    </div>
+                    <h1 className="text-xl font-light text-base-content tracking-tight mb-1">
+                        Create a Scroll
                     </h1>
-                    <p className="text-sm text-base-content/60">
-                        Choose between a curated collection or a personalized feed
+                    <p className="text-xs text-base-content/40">
+                        Organize your echos, your way
                     </p>
                 </div>
 
-                {/* Type Toggle */}
-                <div className="mb-8">
-                    <div className="flex gap-3 p-1 bg-base-200/50 rounded-lg">
-                        <button
-                            type="button"
-                            onClick={() => setScrollType('feed')}
-                            className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${scrollType === 'feed'
-                                ? 'bg-primary text-primary-content shadow-sm'
-                                : 'text-base-content/70 hover:text-base-content'
-                                }`}
-                        >
-                            <div className="text-center">
-                                <div className="text-sm font-semibold">Feed</div>
-                                <div className="text-xs opacity-80 mt-0.5">Personalized & Dynamic</div>
+                {/* Type Selector */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                    <button
+                        type="button"
+                        onClick={() => setScrollType('feed')}
+                        className={`group relative p-4 rounded-xl border transition-all duration-200 text-left ${scrollType === 'feed'
+                            ? 'border-base-content/20 bg-base-200/30'
+                            : 'border-base-content/5 hover:border-base-content/10'
+                            }`}
+                    >
+                        <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2 transition-colors ${scrollType === 'feed'
+                            ? 'bg-base-content/10'
+                            : 'bg-base-200/50'
+                            }`}>
+                            <Filter className={`w-4 h-4 ${scrollType === 'feed'
+                                ? 'text-base-content'
+                                : 'text-base-content/40'
+                                }`} />
+                        </div>
+                        <h3 className={`text-sm font-medium mb-0.5 transition-colors ${scrollType === 'feed'
+                            ? 'text-base-content'
+                            : 'text-base-content/60'
+                            }`}>
+                            Feed
+                        </h3>
+                        <p className="text-xs text-base-content/40 leading-relaxed">
+                            Auto-updates with filters
+                        </p>
+                        {scrollType === 'feed' && (
+                            <div className="absolute top-2 right-2">
+                                <Sparkles className="w-3 h-3 text-base-content/30" />
                             </div>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setScrollType('curation')}
-                            className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${scrollType === 'curation'
-                                ? 'bg-primary text-primary-content shadow-sm'
-                                : 'text-base-content/70 hover:text-base-content'
-                                }`}
-                        >
-                            <div className="text-center">
-                                <div className="text-sm font-semibold">Curation</div>
-                                <div className="text-xs opacity-80 mt-0.5">Manual Collection</div>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setScrollType('curation')}
+                        className={`group relative p-4 rounded-xl border transition-all duration-200 text-left ${scrollType === 'curation'
+                            ? 'border-base-content/20 bg-base-200/30'
+                            : 'border-base-content/5 hover:border-base-content/10'
+                            }`}
+                    >
+                        <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2 transition-colors ${scrollType === 'curation'
+                            ? 'bg-base-content/10'
+                            : 'bg-base-200/50'
+                            }`}>
+                            <BookMarked className={`w-4 h-4 ${scrollType === 'curation'
+                                ? 'text-base-content'
+                                : 'text-base-content/40'
+                                }`} />
+                        </div>
+                        <h3 className={`text-sm font-medium mb-0.5 transition-colors ${scrollType === 'curation'
+                            ? 'text-base-content'
+                            : 'text-base-content/60'
+                            }`}>
+                            Curation
+                        </h3>
+                        <p className="text-xs text-base-content/40 leading-relaxed">
+                            Hand-pick your favorites
+                        </p>
+                        {scrollType === 'curation' && (
+                            <div className="absolute top-2 right-2">
+                                <Sparkles className="w-3 h-3 text-base-content/30" />
                             </div>
-                        </button>
-                    </div>
+                        )}
+                    </button>
                 </div>
 
-                {/* Form Container */}
-                <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                {/* Form */}
+                <div className="pb-8">
                     {scrollType === 'feed' ? <FeedForm /> : <CurationForm />}
-                </div>
-
-                {/* Info Section */}
-                <div className="mt-6 p-4 bg-base-200/30 rounded-lg">
-                    {scrollType === 'feed' ? (
-                        <div className="text-sm text-base-content/70 space-y-2">
-                            <p className="font-medium text-base-content">About Feeds:</p>
-                            <ul className="space-y-1 ml-4 list-disc">
-                                <li>Automatically shows echos based on your filters</li>
-                                <li>Updates dynamically as new echos are posted</li>
-                                <li>Perfect for following topics, tags, or trends</li>
-                            </ul>
-                        </div>
-                    ) : (
-                        <div className="text-sm text-base-content/70 space-y-2">
-                            <p className="font-medium text-base-content">About Curations:</p>
-                            <ul className="space-y-1 ml-4 list-disc">
-                                <li>Manually select which echos to include</li>
-                                <li>Create themed collections or favorites</li>
-                                <li>Add echos from any echo's menu option</li>
-                            </ul>
-                        </div>
-                    )}
                 </div>
             </div>
         </Layout>

@@ -5,7 +5,7 @@ const Layout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="flex h-screen w-full">
+        <div className="flex h-screen w-full overflow-hidden">
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
