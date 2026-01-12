@@ -2,7 +2,6 @@ import React from "react";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
-import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import TagsPage from "./pages/TagsPage";
 import ScrollsPage from "./pages/ScrollsPage";
@@ -67,7 +66,7 @@ const App = () => {
               <Route path="/signup" element={<Navigate to="/" />} />
               <Route path="/login" element={<Navigate to="/" />} />
 
-              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile" element={<UserPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/user/:id" element={<UserPage />} />
 

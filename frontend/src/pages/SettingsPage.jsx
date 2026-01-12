@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../layouts/Layout';
 import { useAuthStore } from '../store/useAuthStore';
-import { Settings, Moon, Sun, LogOut, Palette } from 'lucide-react';
+import { Moon, Sun, LogOut, User, Mail, Calendar, ChevronRight } from 'lucide-react';
 
 const SettingsPage = () => {
     const { logout, authUser } = useAuthStore();
@@ -31,119 +31,154 @@ const SettingsPage = () => {
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto p-6">
+            <div className="max-w-xl mx-auto px-4 py-8 sm:py-12">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-base-content flex items-center gap-3">
-                        <Settings className="w-7 h-7 text-primary" />
+                <div className="mb-10">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-base-content mb-2">
                         Settings
                     </h1>
-                    <p className="text-base-content/60 mt-1">
-                        Manage your account preferences and settings
+                    <p className="text-base-content/40">
+                        Manage your preferences
                     </p>
                 </div>
 
-                {/* Settings Sections */}
-                <div className="space-y-6">
-                    {/* Theme Settings */}
-                    <div className="bg-base-100 border border-base-300 rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Palette className="w-5 h-5 text-primary" />
-                            <h2 className="text-lg font-semibold text-base-content">
-                                Appearance
-                            </h2>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-medium text-base-content">
-                                    Dark Mode
-                                </h3>
-                                <p className="text-sm text-base-content/60">
-                                    Switch between light and dark themes
-                                </p>
+                {/* Settings Groups */}
+                <div className="space-y-8">
+                    {/* Account Info Section */}
+                    <section>
+                        <h2 className="text-xs font-medium text-base-content/30 uppercase tracking-wider mb-4">
+                            Account
+                        </h2>
+                        <div className="space-y-0 border border-base-content/5 rounded-xl overflow-hidden">
+                            {/* Username */}
+                            <div className="flex items-center justify-between px-4 py-4 bg-base-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-base-content/5 flex items-center justify-center">
+                                        <User className="w-4 h-4 text-base-content/40" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-base-content/40">Username</p>
+                                        <p className="text-base-content font-medium">@{authUser?.userName}</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Sun className={`w-4 h-4 transition-colors ${theme === 'light' ? 'text-primary' : 'text-base-content/40'
-                                    }`} />
-                                <input
-                                    type="checkbox"
-                                    className="toggle toggle-primary"
-                                    checked={theme === 'dark'}
-                                    onChange={toggleTheme}
-                                />
-                                <Moon className={`w-4 h-4 transition-colors ${theme === 'dark' ? 'text-primary' : 'text-base-content/40'
-                                    }`} />
-                            </div>
-                        </div>
-                    </div>
+                            {/* Divider */}
+                            <div className="h-px bg-base-content/5" />
 
-                    {/* Account Settings */}
-                    <div className="bg-base-100 border border-base-300 rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <LogOut className="w-5 h-5 text-error" />
-                            <h2 className="text-lg font-semibold text-base-content">
-                                Account
-                            </h2>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-medium text-base-content">
-                                    Sign Out
-                                </h3>
-                                <p className="text-sm text-base-content/60">
-                                    Sign out of your account on this device
-                                </p>
+                            {/* Email */}
+                            <div className="flex items-center justify-between px-4 py-4 bg-base-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-base-content/5 flex items-center justify-center">
+                                        <Mail className="w-4 h-4 text-base-content/40" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-base-content/40">Email</p>
+                                        <p className="text-base-content font-medium">{authUser?.email}</p>
+                                    </div>
+                                </div>
                             </div>
 
+                            {/* Divider */}
+                            <div className="h-px bg-base-content/5" />
+
+                            {/* Joined */}
+                            <div className="flex items-center justify-between px-4 py-4 bg-base-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-base-content/5 flex items-center justify-center">
+                                        <Calendar className="w-4 h-4 text-base-content/40" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-base-content/40">Joined</p>
+                                        <p className="text-base-content font-medium">
+                                            {authUser?.createdAt && new Date(authUser.createdAt).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Appearance Section */}
+                    <section>
+                        <h2 className="text-xs font-medium text-base-content/30 uppercase tracking-wider mb-4">
+                            Appearance
+                        </h2>
+                        <div className="border border-base-content/5 rounded-xl overflow-hidden">
+                            <div
+                                className="flex items-center justify-between px-4 py-4 bg-base-100 cursor-pointer"
+                                onClick={toggleTheme}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === ' ' || e.key === 'Enter') {
+                                        e.preventDefault();
+                                        toggleTheme();
+                                    }
+                                }}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-base-content/5 flex items-center justify-center">
+                                        {theme === 'dark' ? (
+                                            <Moon className="w-4 h-4 text-base-content/40" />
+                                        ) : (
+                                            <Sun className="w-4 h-4 text-base-content/40" />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="text-base-content font-medium">Dark Mode</p>
+                                        <p className="text-sm text-base-content/40">
+                                            {theme === 'dark' ? 'On' : 'Off'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    className={`relative w-11 h-6 rounded-full transition-colors ${theme === 'dark' ? 'bg-base-content/30' : 'bg-base-content/10'
+                                        }`}
+                                >
+                                    <span className={`absolute top-1 w-4 h-4 bg-base-content rounded-full transition-all ${theme === 'dark' ? 'left-6' : 'left-1'
+                                        }`} />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Danger Zone */}
+                    <section>
+                        <h2 className="text-xs font-medium text-base-content/30 uppercase tracking-wider mb-4">
+                            Session
+                        </h2>
+                        <div className="border border-base-content/5 rounded-xl overflow-hidden">
                             <button
                                 onClick={handleLogout}
-                                className="btn btn-error btn-outline gap-2"
+                                className="w-full flex items-center justify-between px-4 py-4 bg-base-100 hover:bg-base-content/[0.02] transition-colors text-left"
                             >
-                                <LogOut className="w-4 h-4" />
-                                Logout
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-error/10 flex items-center justify-center">
+                                        <LogOut className="w-4 h-4 text-error/70" />
+                                    </div>
+                                    <div>
+                                        <p className="text-error/80 font-medium">Sign Out</p>
+                                        <p className="text-sm text-base-content/40">
+                                            Sign out of your account
+                                        </p>
+                                    </div>
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-base-content/20" />
                             </button>
                         </div>
-                    </div>
+                    </section>
+                </div>
 
-                    {/* User Info */}
-                    <div className="bg-base-100 border border-base-300 rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-5 h-5 bg-primary rounded-full"></div>
-                            <h2 className="text-lg font-semibold text-base-content">
-                                Account Information
-                            </h2>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-base-content/70">
-                                    Username
-                                </span>
-                                <span className="text-sm text-base-content font-medium">
-                                    @{authUser?.userName}
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-base-content/70">
-                                    Email
-                                </span>
-                                <span className="text-sm text-base-content font-medium">
-                                    {authUser?.email}
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-base-content/70">
-                                    Joined
-                                </span>
-                                <span className="text-sm text-base-content font-medium">
-                                    {authUser?.createdAt && new Date(authUser.createdAt).toLocaleDateString()}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                {/* Footer */}
+                <div className="mt-12 pt-8 border-t border-base-content/5 text-center">
+                    <p className="text-xs text-base-content/20">
+                        Echo v1.0.0
+                    </p>
                 </div>
             </div>
         </Layout>

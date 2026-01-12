@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Search, Filter, BookOpen } from 'lucide-react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { Search, Layers, ArrowLeft } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
 import Layout from '../layouts/Layout';
-import CurationScrollCard from '../components/features/scroll/CurationScrollCard';
 
 const BrowseCurationPage = () => {
     const {
@@ -12,117 +12,120 @@ const BrowseCurationPage = () => {
     } = useCommunityStore();
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredScrolls, setFilteredScrolls] = useState([]);
 
     useEffect(() => {
-        fetchPublicCurationScrolls(); // Fetch all without limit
+        fetchPublicCurationScrolls();
     }, [fetchPublicCurationScrolls]);
 
-    useEffect(() => {
-        if (searchQuery.trim()) {
-            const filtered = curationScrolls.filter(scroll =>
-                scroll.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                scroll.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                scroll.creator?.userName.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredScrolls(filtered);
-        } else {
-            setFilteredScrolls(curationScrolls);
-        }
+    // Memoized filtered scrolls for performance
+    const filteredScrolls = useMemo(() => {
+        if (!searchQuery.trim()) return curationScrolls;
+
+        const query = searchQuery.toLowerCase();
+        return curationScrolls.filter(scroll =>
+            scroll.name.toLowerCase().includes(query) ||
+            scroll.description?.toLowerCase().includes(query) ||
+            scroll.creator?.userName.toLowerCase().includes(query)
+        );
     }, [searchQuery, curationScrolls]);
 
-
-
-    const LoadingSkeleton = () => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="card bg-base-100 shadow-sm border border-base-300">
-                    <div className="card-body p-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <div className="skeleton w-5 h-5 rounded"></div>
-                            <div className="skeleton h-6 w-32"></div>
-                            <div className="skeleton w-4 h-4 rounded"></div>
-                        </div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="skeleton w-6 h-6 rounded-full"></div>
-                            <div className="skeleton h-4 w-20"></div>
-                        </div>
-                        <div className="skeleton h-4 w-full mb-2"></div>
-                        <div className="skeleton h-4 w-3/4 mb-4"></div>
-                        <div className="flex gap-4 mb-4">
-                            <div className="skeleton h-3 w-16"></div>
-                            <div className="skeleton h-3 w-20"></div>
-                            <div className="skeleton h-3 w-24"></div>
-                        </div>
-                        <div className="flex justify-between">
-                            <div className="skeleton h-8 w-16 rounded-md"></div>
-                            <div className="skeleton h-8 w-24 rounded-md"></div>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
+    const handleSearchChange = useCallback((e) => {
+        setSearchQuery(e.target.value);
+    }, []);
 
     return (
         <Layout>
-            <div className="container mx-auto p-6 max-w-6xl">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Browse Curation Scrolls</h1>
-                    <p className="text-base-content/70">
-                        Explore curated collections of the best echos from the community
+            <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+                {/* Header */}
+                <div className="mb-10">
+                    <Link
+                        to="/community"
+                        className="inline-flex items-center gap-1 text-sm text-base-content/40 hover:text-base-content mb-4 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Back to Explore
+                    </Link>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-base-content mb-2">
+                        Curations
+                    </h1>
+                    <p className="text-base-content/40">
+                        Hand-picked collections of the best echos
                     </p>
                 </div>
 
-                {/* Search and Filters */}
+                {/* Search */}
                 <div className="mb-8">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/60 w-4 h-4" />
-                                <input
-                                    type="text"
-                                    placeholder="Search curation scrolls, creators..."
-                                    className="input input-bordered w-full pl-10"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <button className="btn btn-outline gap-2">
-                            <Filter className="w-4 h-4" />
-                            Filters
-                        </button>
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/30" />
+                        <input
+                            type="text"
+                            placeholder="Search curations..."
+                            className="w-full h-12 pl-11 pr-4 bg-base-content/[0.03] border-0 rounded-xl text-base-content placeholder:text-base-content/30 focus:outline-none focus:ring-2 focus:ring-base-content/10"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                        />
                     </div>
                 </div>
 
+                {/* Results count */}
+                {!isLoadingCurations && (
+                    <p className="text-xs text-base-content/30 uppercase tracking-wider mb-6">
+                        {filteredScrolls.length} curation{filteredScrolls.length !== 1 ? 's' : ''}
+                        {searchQuery && ` matching "${searchQuery}"`}
+                    </p>
+                )}
+
                 {/* Results */}
                 {isLoadingCurations ? (
-                    <LoadingSkeleton />
+                    <div className="space-y-3">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                            <div key={i} className="h-24 bg-base-content/[0.02] rounded-xl animate-pulse" />
+                        ))}
+                    </div>
                 ) : filteredScrolls.length > 0 ? (
-                    <>
-                        <div className="mb-4">
-                            <p className="text-sm text-base-content/60">
-                                {filteredScrolls.length} collection{filteredScrolls.length !== 1 ? 's' : ''} found
-                                {searchQuery && ` for "${searchQuery}"`}
-                            </p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredScrolls.map((scroll) => (
-                                <CurationScrollCard key={scroll._id} scroll={scroll} />
-                            ))}
-                        </div>
-                    </>
+                    <div className="space-y-3">
+                        {filteredScrolls.map((scroll) => (
+                            <Link
+                                key={scroll._id}
+                                to={`/scroll/${scroll._id}`}
+                                className="group block p-5 rounded-xl border border-base-content/5 hover:border-base-content/10 hover:bg-base-content/[0.02] transition-all"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center shrink-0">
+                                        <Layers className="w-5 h-5 text-base-content/30" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="text-lg font-medium text-base-content group-hover:text-base-content/80 truncate">
+                                                {scroll.name}
+                                            </h3>
+                                            <span className="text-xs text-base-content/30 shrink-0">
+                                                {scroll.echos?.length || 0} echos
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-base-content/40 mt-0.5">
+                                            by @{scroll.creator?.userName}
+                                        </p>
+                                        {scroll.description && (
+                                            <p className="text-sm text-base-content/30 mt-2 line-clamp-2">
+                                                {scroll.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
                 ) : (
-                    <div className="text-center py-16">
-                        <BookOpen className="w-16 h-16 text-base-content/30 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold mb-2">
-                            {searchQuery ? 'No collections found' : 'No public curation scrolls yet'}
+                    <div className="py-20 text-center">
+                        <Layers className="w-12 h-12 mx-auto text-base-content/10 mb-4" strokeWidth={1} />
+                        <h3 className="text-lg font-medium text-base-content/60 mb-2">
+                            {searchQuery ? 'No curations found' : 'No public curations yet'}
                         </h3>
-                        <p className="text-base-content/60">
+                        <p className="text-sm text-base-content/30">
                             {searchQuery
-                                ? 'Try adjusting your search terms'
-                                : 'Be the first to create a public curation scroll!'
+                                ? 'Try a different search term'
+                                : 'Be the first to curate a collection'
                             }
                         </p>
                     </div>
