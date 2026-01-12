@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, Share, Calendar, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Heart, Share, MessageCircle, Calendar } from 'lucide-react';
 import { useEchoStore } from '../store/useEchoStore';
 import Layout from '../layouts/Layout';
 import ReplyList from '../components/features/echo/ReplyList';
 import ReplyInput from '../components/features/echo/ReplyInput';
+import { Timestamp } from '../components/ui';
 
 const EchoView = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { getEcho, echo, isLoadingEcho, toggleLike, addReply, deleteReply } = useEchoStore();
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+    const [isLikeAnimating, setIsLikeAnimating] = useState(false);
     const isLiked = echo?.isLiked;
     const replyCount = echo?.replies?.length || 0;
 
@@ -20,21 +22,15 @@ const EchoView = () => {
         }
     }, [id]);
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
     const handleBack = () => {
         navigate(-1);
     };
 
-    const handleLike = () => toggleLike(echo._id);
+    const handleLike = () => {
+        setIsLikeAnimating(true);
+        toggleLike(echo._id);
+        setTimeout(() => setIsLikeAnimating(false), 300);
+    };
 
     const handleAddReply = async (comment) => {
         setIsSubmittingReply(true);
@@ -97,122 +93,117 @@ const EchoView = () => {
 
     return (
         <Layout>
-            <div className="w-full max-w-2xl mx-auto px-3 py-6 sm:px-6">
-                {/* Header with Back Arrow and Username */}
-                <div className="flex items-center gap-4 mb-6">
+            <div className="w-full max-w-2xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
+                {/* Header with Back Arrow */}
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-base-200/40">
                     <button
                         onClick={handleBack}
-                        className="p-2 rounded-full hover:bg-base-200 transition-colors"
+                        className="p-1.5 -ml-1.5 rounded-full text-base-content/40 hover:text-base-content/70 hover:bg-base-200/50 transition-colors"
                         aria-label="Go back"
                     >
-                        <ArrowLeft className="w-5 h-5 text-base-content" />
+                        <ArrowLeft className="w-4 h-4" />
                     </button>
-                    <div>
-                        <h1 className="text-lg font-semibold text-base-content">
-                            Echo by{' '}
-                            <Link
-                                to={`/user/${echo.author?._id}`}
-                                className="text-primary hover:text-primary/80 transition-colors"
-                            >
-                                @{echo.author?.userName || 'Anonymous'}
-                            </Link>
-                        </h1>
-                    </div>
+                    <span className="text-sm text-base-content/50">Echo</span>
                 </div>
 
-                {/* Echo Content - Similar to EchoCard */}
-                <div className="bg-base-100 border border-base-300 rounded-lg">
-                    <div className="p-6">
-                        {/* Header: Username and Date */}
-                        <div className="flex justify-between items-center mb-4">
-                            <Link
-                                to={`/user/${echo.author?._id}`}
-                                className="text-sm font-medium text-base-content hover:text-primary transition-colors"
-                            >
-                                @{echo.author?.userName || 'Anonymous'}
-                            </Link>
-                            <span className="text-xs text-base-content/50 flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {formatDate(echo.createdAt)}
-                            </span>
+                {/* Echo Content */}
+                <article className="py-2">
+                    {/* Header: Username and Date */}
+                    <div className="flex items-center gap-2 mb-3">
+                        <Link
+                            to={`/user/${echo.author?._id}`}
+                            className="font-medium text-sm text-base-content/70 hover:text-base-content transition-colors"
+                        >
+                            @{echo.author?.userName || 'anonymous'}
+                        </Link>
+                        <span className="text-base-content/20 text-xs">·</span>
+                        <Timestamp
+                            date={echo.createdAt}
+                            className="text-xs text-base-content/35"
+                        />
+                        <Calendar className="w-3 h-3" />
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="mb-3">
+                        <p className="text-base-content text-[15px] sm:text-base leading-relaxed whitespace-pre-wrap break-words">
+                            {echo.content}
+                        </p>
+                    </div>
+
+                    {/* Tags (if any) */}
+                    {echo.tags && echo.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                            {echo.tags.map((tag) => (
+                                <Link
+                                    key={tag._id}
+                                    to={`/tag/${tag.name}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-xs text-base-content/30 hover:text-base-content/50 transition-colors"
+                                >
+                                    #{tag.name}
+                                </Link>
+                            ))}
                         </div>
+                    )}
 
-                        {/* Main Content */}
-                        <div className="mb-4">
-                            <p className="text-base-content text-base leading-relaxed">
-                                {echo.content}
-                            </p>
-                        </div>
-
-                        {/* Tags (if any) */}
-                        {echo.tags && echo.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {echo.tags.map((tag) => (
-                                    <Link
-                                        key={tag._id}
-                                        to={`/tag/${tag.name}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="inline-flex items-center px-2 py-0.5 text-xs text-base-content/60 bg-base-200/50 rounded-full hover:bg-base-200/80 hover:text-primary transition-colors"
-                                    >
-                                        #{tag.name}
-                                    </Link>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Actions: Like and Share */}
-                        <div className="flex items-center gap-6 pt-4 border-t border-base-300">
+                    {/* Actions: Like and Share */}
+                    <div className="flex items-center justify-between pt-3 border-t border-base-200/40">
+                        <div className="flex items-center gap-1">
                             <button
-                                className={`flex items-center gap-2 transition-all ${isLiked ? 'text-red-500' : 'text-base-content/60 hover:text-red-500'
+                                className={`flex items-center gap-1.5 py-1.5 px-2.5 -ml-2 rounded-full transition-colors duration-150 ${isLiked
+                                    ? 'text-base-content/60'
+                                    : 'text-base-content/25 hover:text-base-content/45 hover:bg-base-content/[0.03]'
                                     }`}
                                 onClick={handleLike}
                             >
-                                <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                                <span className="text-sm">Like</span>
+                                <Heart
+                                    className={`w-[17px] h-[17px] sm:w-[18px] sm:h-[18px] transition-all duration-200 ${isLiked ? 'fill-current' : ''
+                                        } ${isLikeAnimating ? 'scale-125' : ''}`}
+                                    strokeWidth={isLiked ? 0 : 1.5}
+                                />
                                 {echo.likes > 0 && (
-                                    <span className="text-xs text-base-content/50">({echo.likes})</span>
+                                    <span className={`text-[11px] sm:text-xs tabular-nums font-medium transition-transform duration-200 ${isLikeAnimating ? 'scale-110' : ''}`}>
+                                        {echo.likes}
+                                    </span>
                                 )}
                             </button>
 
-                            <div className="flex items-center gap-2 text-base-content/60">
-                                <MessageCircle className="w-5 h-5" />
-                                <span className="text-sm">Replies</span>
+                            <div className="flex items-center gap-1.5 py-1.5 px-2.5 text-base-content/25">
+                                <MessageCircle className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
                                 {replyCount > 0 && (
-                                    <span className="text-xs text-base-content/50">({replyCount})</span>
+                                    <span className="text-[11px] sm:text-xs tabular-nums font-medium">{replyCount}</span>
                                 )}
                             </div>
-
-                            <button
-                                className="flex items-center gap-2 text-base-content/60 hover:text-base-content transition-colors ml-auto"
-                                onClick={() => {
-                                    // Handle share action
-                                    if (navigator.share) {
-                                        navigator.share({
-                                            title: `Echo by @${echo.author?.userName}`,
-                                            text: echo.content,
-                                            url: window.location.href
-                                        });
-                                    } else {
-                                        navigator.clipboard.writeText(window.location.href);
-                                        // You could show a toast here
-                                    }
-                                }}
-                            >
-                                <Share className="w-5 h-5" />
-                                <span className="text-sm">Share</span>
-                            </button>
                         </div>
+
+                        <button
+                            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-full text-base-content/25 hover:text-base-content/45 hover:bg-base-content/[0.03] transition-colors duration-150"
+                            onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({
+                                        title: `Echo by @${echo.author?.userName}`,
+                                        text: echo.content,
+                                        url: window.location.href
+                                    });
+                                } else {
+                                    navigator.clipboard.writeText(window.location.href);
+                                }
+                            }}
+                        >
+                            <Share className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
+                        </button>
                     </div>
-                </div>
+                </article>
 
                 {/* Reply Section */}
-                <div className="mt-6 bg-base-100 border border-base-300 rounded-lg p-4">
-                    <h3 className="text-sm font-semibold text-base-content mb-3">
+                <div className="mt-6 pt-4 border-t border-base-200/40">
+                    <h3 className="text-xs font-medium text-base-content/40 uppercase tracking-wider mb-4">
                         Replies {replyCount > 0 && `(${replyCount})`}
                     </h3>
 
-                    {/* Reply Input - Single Line */}
-                    <div className="mb-4 pb-4 border-b border-base-300">
+                    {/* Reply Input */}
+                    <div className="mb-4 pb-4 border-b border-base-200/40">
                         <ReplyInput
                             onSubmit={handleAddReply}
                             isSubmitting={isSubmittingReply}

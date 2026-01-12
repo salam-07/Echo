@@ -123,7 +123,7 @@ const ScrollViewPage = () => {
                 {/* Echos */}
                 <div>
                     {isLoadingScrollEchos && scrollEchos.length === 0 && (
-                        <div className="space-y-0">
+                        <div>
                             {Array.from({ length: 5 }).map((_, index) => (
                                 <EchoCardSkeleton key={index} />
                             ))}
@@ -132,10 +132,10 @@ const ScrollViewPage = () => {
 
                     {!isLoadingScrollEchos && scrollEchos.length === 0 && (
                         <div className="text-center py-12">
-                            <h3 className="text-lg font-semibold text-base-content mb-2">
+                            <h3 className="text-base font-medium text-base-content mb-1">
                                 {scroll.type === 'feed' ? 'No echos match your filters' : 'No echos in this curation'}
                             </h3>
-                            <p className="text-base-content/60 text-sm">
+                            <p className="text-base-content/40 text-sm">
                                 {scroll.type === 'feed'
                                     ? 'Try adjusting your scroll settings or check back later'
                                     : 'Add echos to this curation from any echo\'s menu'}
@@ -144,7 +144,7 @@ const ScrollViewPage = () => {
                     )}
 
                     {scrollEchos.length > 0 && (
-                        <div className="space-y-4">
+                        <div>
                             {scrollEchos.map((echo) => (
                                 <EchoCard key={echo._id} echo={echo} />
                             ))}

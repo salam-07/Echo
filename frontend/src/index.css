@@ -131,3 +131,19 @@ input[type="radio"]:focus {
   scrollbar-width: thin;
   scrollbar-color: var(--color-base-400, #a3a3a3) transparent;
 }
+
+/* Subtle animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out forwards;
+}

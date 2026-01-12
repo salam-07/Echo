@@ -58,34 +58,23 @@ const BrowseCommunityPage = () => {
     );
 
     const EchoCard = ({ echo }) => (
-        <div className="card bg-base-100 shadow-sm border border-base-300 hover:shadow-md transition-shadow">
-            <div className="card-body p-4">
-                <div className="flex items-start gap-3">
-                    <div className="avatar placeholder">
-                        <div className="bg-primary text-primary-content rounded-full w-8 h-8">
-                            <span className="text-xs">
-                                {echo.author?.userName?.[0]?.toUpperCase() || 'U'}
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">@{echo.author?.userName}</span>
-                            <span className="text-xs text-base-content/50">
-                                {new Date(echo.createdAt).toLocaleDateString()}
-                            </span>
-                        </div>
-                        <p className="text-sm line-clamp-3">{echo.content}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-base-content/60">
-                            <div className="flex items-center gap-1">
-                                <Heart className="w-3 h-3" />
-                                <span>{echo.likes?.length || 0}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <Link
+            to={`/echo/${echo._id}`}
+            className="block py-3 border-b border-base-200/40 last:border-0"
+        >
+            <div className="flex items-center gap-2 mb-1.5">
+                <span className="font-medium text-[13px] text-base-content/60">@{echo.author?.userName}</span>
+                <span className="text-xs text-base-content/20">·</span>
+                <span className="text-xs text-base-content/30">
+                    {new Date(echo.createdAt).toLocaleDateString()}
+                </span>
             </div>
-        </div>
+            <p className="text-sm text-base-content leading-relaxed line-clamp-2 mb-2">{echo.content}</p>
+            <div className="flex items-center gap-1 text-xs text-base-content/25">
+                <Heart className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <span>{echo.likes || 0}</span>
+            </div>
+        </Link>
     );
 
     const LoadingSkeleton = ({ count = 4, type = 'card' }) => {

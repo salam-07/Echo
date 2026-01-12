@@ -3,36 +3,42 @@ import { cn } from '../../lib/utils';
 
 const Skeleton = ({ className, ...props }) => {
     return (
-        <div className={cn('animate-pulse bg-base-content/[0.06] rounded', className)} {...props} />
+        <div className={cn('animate-pulse bg-base-content/[0.04] rounded', className)} {...props} />
     );
 };
 
 const SkeletonCard = ({ className }) => {
     return (
-        <div className={cn('py-5 sm:py-6 border-b border-base-200/30', className)}>
-            <div className="flex items-start gap-3">
-                {/* Avatar */}
-                <Skeleton className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0" />
+        <div className={cn('py-4 sm:py-5 border-b border-base-200/40', className)}>
+            <div className="space-y-2.5 sm:space-y-3">
+                {/* Header - username and timestamp */}
+                <div className="flex items-center gap-2">
+                    <Skeleton className="h-3.5 w-20 rounded" />
+                    <Skeleton className="h-3 w-12 rounded" />
+                </div>
 
                 {/* Content */}
-                <div className="flex-1 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center gap-2">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-3 w-12" />
-                    </div>
+                <div className="space-y-1.5">
+                    <Skeleton className="h-4 w-full rounded" />
+                    <Skeleton className="h-4 w-[95%] rounded" />
+                    <Skeleton className="h-4 w-[75%] rounded" />
+                </div>
 
-                    {/* Body */}
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-[90%]" />
-                        <Skeleton className="h-4 w-[70%]" />
-                    </div>
+                {/* Tags */}
+                <div className="flex items-center gap-2 pt-0.5">
+                    <Skeleton className="h-3 w-14 rounded" />
+                    <Skeleton className="h-3 w-10 rounded" />
+                </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-6 pt-1">
-                        <Skeleton className="h-5 w-12 rounded-full" />
-                        <Skeleton className="h-5 w-12 rounded-full" />
+                {/* Actions */}
+                <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="h-4 w-10 rounded" />
+                        <Skeleton className="h-4 w-8 rounded" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="h-4 w-4 rounded" />
+                        <Skeleton className="h-4 w-4 rounded" />
                     </div>
                 </div>
             </div>

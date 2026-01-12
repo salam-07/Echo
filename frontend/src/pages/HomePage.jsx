@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { EchoCard, EchoCardSkeleton } from '../components/features/echo';
@@ -21,6 +21,11 @@ const HomePage = () => {
         getScrolls
     } = useScrollStore();
 
+    // Track scroll switching for smooth transitions
+    const [isScrollSwitching, setIsScrollSwitching] = useState(false);
+    const [showEchos, setShowEchos] = useState(true);
+    const prevScrollId = useRef(null);
+
     // Load scrolls once on mount
     useEffect(() => {
         getScrolls();
@@ -28,6 +33,16 @@ const HomePage = () => {
 
     // Load echos based on selected scroll - use ID for stable dependency
     const selectedScrollId = selectedScroll?._id;
+
+    // Handle scroll switching animation
+    useEffect(() => {
+        if (prevScrollId.current !== selectedScrollId && prevScrollId.current !== null) {
+            setIsScrollSwitching(true);
+            setShowEchos(false);
+        }
+        prevScrollId.current = selectedScrollId;
+    }, [selectedScrollId]);
+
     useEffect(() => {
         if (selectedScrollId) {
             getScrollEchos(selectedScrollId, true);
@@ -37,6 +52,17 @@ const HomePage = () => {
             getAllEchos({}, true);
         }
     }, [selectedScrollId, isLoadingScrolls, scrolls.length, getAllEchos, getScrollEchos]);
+
+    // Show echos with fade-in after loading completes
+    useEffect(() => {
+        if (isScrollSwitching && !isLoadingScrollEchos) {
+            const timer = setTimeout(() => {
+                setShowEchos(true);
+                setIsScrollSwitching(false);
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [isScrollSwitching, isLoadingScrollEchos]);
 
     // Memoize derived state
     const displayEchos = useMemo(() =>
@@ -104,24 +130,27 @@ const HomePage = () => {
 
                 {/* Feed Content */}
                 {!hasNoScrolls && (
-                    <div className="py-4 sm:py-6">
-                        {/* Scroll Header */}
-                        {selectedScroll && (
-                            <div className="mb-6 sm:mb-8">
-                                <h1 className="text-2xl sm:text-3xl font-bold text-base-content tracking-tight">
+                    <div className="py-2 sm:py-4">
+                        {/* Scroll Header - only show current selected scroll */}
+                        {selectedScroll && !isScrollSwitching && (
+                            <div
+                                key={`header-${selectedScroll._id}`}
+                                className="mb-4 sm:mb-6 pb-4 border-b border-base-200/30 animate-fade-in"
+                            >
+                                <h1 className="text-lg sm:text-xl font-semibold text-base-content tracking-tight">
                                     {selectedScroll.name}
                                 </h1>
                                 {selectedScroll.description && (
-                                    <p className="text-base-content/50 mt-2 text-sm sm:text-base leading-relaxed">
+                                    <p className="text-base-content/40 mt-1 text-sm leading-relaxed">
                                         {selectedScroll.description}
                                     </p>
                                 )}
                             </div>
                         )}
 
-                        {/* Loading State */}
-                        {isLoading && displayEchos.length === 0 && (
-                            <div className="space-y-1">
+                        {/* Loading State - show when switching scrolls or initial load */}
+                        {(isScrollSwitching || (isLoading && displayEchos.length === 0)) && (
+                            <div>
                                 {Array.from({ length: 5 }).map((_, index) => (
                                     <EchoCardSkeleton key={index} />
                                 ))}
@@ -129,17 +158,17 @@ const HomePage = () => {
                         )}
 
                         {/* Empty State */}
-                        {!isLoading && displayEchos.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-20 text-center">
-                                <div className="w-12 h-12 rounded-full bg-base-200/50 flex items-center justify-center mb-4">
-                                    <svg className="w-6 h-6 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        {!isLoading && !isScrollSwitching && displayEchos.length === 0 && (
+                            <div className="flex flex-col items-center justify-center py-16 text-center">
+                                <div className="w-10 h-10 rounded-full bg-base-200/40 flex items-center justify-center mb-3">
+                                    <svg className="w-5 h-5 text-base-content/25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-base font-medium text-base-content mb-1">
+                                <h3 className="text-sm font-medium text-base-content/60 mb-0.5">
                                     {selectedScroll ? 'No echos yet' : 'Nothing here'}
                                 </h3>
-                                <p className="text-sm text-base-content/40 max-w-xs">
+                                <p className="text-xs text-base-content/35 max-w-xs">
                                     {selectedScroll
                                         ? 'Echos matching your scroll filters will appear here'
                                         : 'Be the first to share something'}
@@ -148,16 +177,19 @@ const HomePage = () => {
                         )}
 
                         {/* Echoes List */}
-                        {displayEchos.length > 0 && (
-                            <div>
-                                {displayEchos.map((echo, index) => (
-                                    <EchoCard key={echo._id} echo={echo} isFirst={index === 0} />
+                        {displayEchos.length > 0 && showEchos && !isScrollSwitching && (
+                            <div
+                                key={selectedScrollId || 'all'}
+                                className="animate-fade-in"
+                            >
+                                {displayEchos.map((echo) => (
+                                    <EchoCard key={echo._id} echo={echo} />
                                 ))}
 
                                 {/* Infinite Scroll Sentinel */}
                                 <div ref={sentinelRef}>
                                     {isLoading && pagination.hasMore && (
-                                        <div className="space-y-1">
+                                        <div>
                                             {Array.from({ length: 2 }).map((_, index) => (
                                                 <EchoCardSkeleton key={`loading-${index}`} />
                                             ))}
@@ -167,11 +199,11 @@ const HomePage = () => {
 
                                 {/* End indicator */}
                                 {!pagination.hasMore && displayEchos.length > 0 && (
-                                    <div className="py-12 text-center">
-                                        <div className="inline-flex items-center gap-2 text-xs text-base-content/30">
-                                            <div className="w-8 h-px bg-base-content/10" />
-                                            <span>End of scroll</span>
-                                            <div className="w-8 h-px bg-base-content/10" />
+                                    <div className="py-10 text-center">
+                                        <div className="inline-flex items-center gap-2.5 text-[11px] text-base-content/20 tracking-wide">
+                                            <div className="w-6 h-px bg-base-content/10" />
+                                            <span>end</span>
+                                            <div className="w-6 h-px bg-base-content/10" />
                                         </div>
                                     </div>
                                 )}

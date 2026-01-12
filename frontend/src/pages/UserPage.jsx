@@ -72,31 +72,21 @@ const UserPage = () => {
         switch (activeTab) {
             case 'echos':
                 return (
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold">{isOwnProfile ? 'My' : `${profile.userName}'s`} Echos</h3>
-                        </div>
-
+                    <div>
                         {isLoadingUserEchos ? (
-                            <div className="space-y-3">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="bg-base-200 rounded-box p-4 animate-pulse">
-                                        <div className="h-4 bg-base-300 rounded w-3/4 mb-2"></div>
-                                        <div className="h-3 bg-base-300 rounded w-1/2"></div>
-                                    </div>
-                                ))}
+                            <div className="py-8 text-center">
+                                <div className="loading loading-spinner loading-sm text-base-content/30"></div>
                             </div>
                         ) : userEchos?.length > 0 ? (
-                            <div className="space-y-0">
+                            <div>
                                 {userEchos.map((echo) => (
                                     <EchoCard key={echo._id} echo={echo} />
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-8">
-                                <MessageCircle className="w-12 h-12 mx-auto text-base-content/30 mb-4" />
-                                <p className="text-base-content/60 mb-4">
-                                    {isOwnProfile ? "No echos yet" : `${profile.userName} hasn't posted any echos yet`}
+                            <div className="text-center py-12">
+                                <p className="text-sm text-base-content/40">
+                                    {isOwnProfile ? "No echos yet" : `No echos yet`}
                                 </p>
                             </div>
                         )}

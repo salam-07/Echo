@@ -13,12 +13,15 @@ const EchoCard = memo(({ echo }) => {
     const isLiked = echo.isLiked;
     const [showMenu, setShowMenu] = useState(false);
     const [showAddToScroll, setShowAddToScroll] = useState(false);
+    const [isLikeAnimating, setIsLikeAnimating] = useState(false);
     const isOwnEcho = authUser?._id === echo.author?._id;
 
     const handleLike = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
+        setIsLikeAnimating(true);
         toggleLike(echo._id);
+        setTimeout(() => setIsLikeAnimating(false), 300);
     }, [echo._id, toggleLike]);
 
     const handleDelete = useCallback(async () => {
@@ -55,14 +58,15 @@ const EchoCard = memo(({ echo }) => {
     }, []);
 
     return (
-        <article className="group relative">
-            <div className="py-5 sm:py-6 border-b border-base-200/30 transition-colors duration-200">
-                <div className="space-y-3 sm:space-y-4">
+        <article className="group relative w-full">
+            <div className="py-4 sm:py-5 border-b border-base-200/40">
+                <div className="space-y-2.5 sm:space-y-3">
                     <EchoHeader echo={echo} onToggleMenu={handleToggleMenu} />
                     <EchoContent echo={echo} />
                     <EchoActions
                         echo={echo}
                         isLiked={isLiked}
+                        isLikeAnimating={isLikeAnimating}
                         onLike={handleLike}
                         onToggleMenu={handleToggleMenu}
                         onBookmark={handleBookmark}

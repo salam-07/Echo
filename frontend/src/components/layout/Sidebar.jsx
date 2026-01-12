@@ -10,7 +10,8 @@ import {
     Hash,
     TrendingUp,
     Compass,
-    Settings
+    Settings,
+    PlusSquare
 } from 'lucide-react';
 import { NavigationItem } from '../ui';
 import ScrollSelector from '../features/scroll/ScrollSelector';
@@ -29,9 +30,12 @@ const Sidebar = () => {
             {/* Navigation */}
             <nav className="flex-1 overflow-y-auto py-4 px-3">
                 {/* Primary Actions */}
-                <div className="mb-6">
+                <div className="mb-4">
                     <NavigationItem to="/new" icon={Plus} variant="primary">
                         New Echo
+                    </NavigationItem>
+                    <NavigationItem className="mt-1" to="/scroll/new" icon={PlusSquare}>
+                        Create Scroll
                     </NavigationItem>
                 </div>
 
