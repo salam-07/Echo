@@ -193,29 +193,6 @@ const BrowseCommunityPage = () => {
                         </div>
                     )}
                 </div>
-
-                {/* Popular Echos Section */}
-                <div className="mb-8">
-                    <SectionHeader
-                        icon={Heart}
-                        title="Today's Popular Echos"
-                        linkTo="/browse/popular"
-                        linkText="See All"
-                    />
-                    {isLoadingPopularEchos ? (
-                        <LoadingSkeleton count={3} />
-                    ) : popularEchos.length > 0 ? (
-                        <div className="space-y-4">
-                            {popularEchos.map((echo) => (
-                                <EchoCard key={echo._id} echo={echo} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-8 text-base-content/60">
-                            No popular echos today
-                        </div>
-                    )}
-                </div>
             </div>
         </Layout>
     );

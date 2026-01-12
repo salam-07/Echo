@@ -85,9 +85,6 @@ const Sidebar = () => {
                         <NavigationItem to="/browse/tags" icon={Hash}>
                             Tags
                         </NavigationItem>
-                        <NavigationItem to="/browse/popular" icon={TrendingUp}>
-                            Trending
-                        </NavigationItem>
                     </div>
                 </div>
             </nav>

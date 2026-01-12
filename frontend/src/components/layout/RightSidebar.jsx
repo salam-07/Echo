@@ -116,12 +116,6 @@ const RightSidebar = () => {
                         >
                             Browse Tags
                         </Link>
-                        <Link
-                            to="/browse/popular"
-                            className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
-                        >
-                            Trending Echos
-                        </Link>
                     </div>
                 </div>
             </div>
