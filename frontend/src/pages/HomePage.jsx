@@ -98,7 +98,7 @@ const HomePage = () => {
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto px-4 sm:px-6">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6">
                 {/* No Scrolls State */}
                 {hasNoScrolls && (
                     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
