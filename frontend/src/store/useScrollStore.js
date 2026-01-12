@@ -197,8 +197,51 @@ export const useScrollStore = create((set, get) => ({
         });
     },
 
+    // Helper to update scroll's savedBy in all relevant state
+    updateScrollSavedBy: (scrollId, userId, isFollowing) => {
+        const { scrolls, scroll } = get();
+
+        // Update scrolls array
+        set({
+            scrolls: scrolls.map(s => {
+                if (s._id === scrollId) {
+                    const savedBy = s.savedBy || [];
+                    return {
+                        ...s,
+                        savedBy: isFollowing
+                            ? [...savedBy, userId]
+                            : savedBy.filter(id => id !== userId)
+                    };
+                }
+                return s;
+            })
+        });
+
+        // Update current scroll if viewing it
+        if (scroll?._id === scrollId) {
+            const savedBy = scroll.savedBy || [];
+            set({
+                scroll: {
+                    ...scroll,
+                    savedBy: isFollowing
+                        ? [...savedBy, userId]
+                        : savedBy.filter(id => id !== userId)
+                }
+            });
+        }
+    },
+
     // Follow a scroll
     followScroll: async (scrollId) => {
+        // Get user ID from auth store
+        const authUser = JSON.parse(localStorage.getItem('auth-user') || '{}');
+        const userId = authUser?._id;
+
+        // Optimistic update
+        if (userId) {
+            get().updateScrollSavedBy(scrollId, userId, true);
+        }
+
         try {
             const res = await axiosInstance.post(`/scroll/${scrollId}/follow`);
 
@@ -208,6 +251,10 @@ export const useScrollStore = create((set, get) => ({
             toast.success("Scroll followed!");
             return res.data;
         } catch (error) {
+            // Revert optimistic update on error
+            if (userId) {
+                get().updateScrollSavedBy(scrollId, userId, false);
+            }
             console.log("Error following scroll:", error);
             toast.error(error.response?.data?.error || "Failed to follow scroll");
             throw error;
@@ -216,6 +263,15 @@ export const useScrollStore = create((set, get) => ({
 
     // Unfollow a scroll
     unfollowScroll: async (scrollId) => {
+        // Get user ID from auth store
+        const authUser = JSON.parse(localStorage.getItem('auth-user') || '{}');
+        const userId = authUser?._id;
+
+        // Optimistic update
+        if (userId) {
+            get().updateScrollSavedBy(scrollId, userId, false);
+        }
+
         try {
             const res = await axiosInstance.delete(`/scroll/${scrollId}/follow`);
 
@@ -225,6 +281,10 @@ export const useScrollStore = create((set, get) => ({
             toast.success("Scroll unfollowed!");
             return res.data;
         } catch (error) {
+            // Revert optimistic update on error
+            if (userId) {
+                get().updateScrollSavedBy(scrollId, userId, true);
+            }
             console.log("Error unfollowing scroll:", error);
             toast.error(error.response?.data?.error || "Failed to unfollow scroll");
             throw error;

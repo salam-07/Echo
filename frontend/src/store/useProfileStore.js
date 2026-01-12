@@ -193,6 +193,25 @@ export const useProfileStore = create((set, get) => ({
         }
     },
 
+    // Update scroll's savedBy in user scrolls
+    updateScrollSavedBy: (scrollId, userId, isFollowing) => {
+        const { userScrolls } = get();
+        set({
+            userScrolls: userScrolls.map(s => {
+                if (s._id === scrollId) {
+                    const savedBy = s.savedBy || [];
+                    return {
+                        ...s,
+                        savedBy: isFollowing
+                            ? [...savedBy, userId]
+                            : savedBy.filter(id => id !== userId)
+                    };
+                }
+                return s;
+            })
+        });
+    },
+
     // Clear profile data (useful when navigating away)
     clearProfile: () => {
         set({

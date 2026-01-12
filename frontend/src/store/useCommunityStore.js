@@ -78,6 +78,43 @@ const useCommunityStore = create((set, get) => ({
         }
     },
 
+    // Update scroll's savedBy in community data
+    updateScrollSavedBy: (scrollId, userId, isFollowing) => {
+        const { feedScrolls, curationScrolls } = get();
+
+        // Update feed scrolls
+        set({
+            feedScrolls: feedScrolls.map(s => {
+                if (s._id === scrollId) {
+                    const savedBy = s.savedBy || [];
+                    return {
+                        ...s,
+                        savedBy: isFollowing
+                            ? [...savedBy, userId]
+                            : savedBy.filter(id => id !== userId)
+                    };
+                }
+                return s;
+            })
+        });
+
+        // Update curation scrolls
+        set({
+            curationScrolls: curationScrolls.map(s => {
+                if (s._id === scrollId) {
+                    const savedBy = s.savedBy || [];
+                    return {
+                        ...s,
+                        savedBy: isFollowing
+                            ? [...savedBy, userId]
+                            : savedBy.filter(id => id !== userId)
+                    };
+                }
+                return s;
+            })
+        });
+    },
+
     // Clear data
     clearCommunityData: () => {
         set({

@@ -135,6 +135,41 @@ export const useSearchStore = create((set, get) => ({
         }
     },
 
+    // Update scroll's savedBy in search results
+    updateScrollSavedBy: (scrollId, userId, isFollowing) => {
+        const { feeds, curations } = get();
+
+        set({
+            feeds: feeds.map(s => {
+                if (s._id === scrollId) {
+                    const savedBy = s.savedBy || [];
+                    return {
+                        ...s,
+                        savedBy: isFollowing
+                            ? [...savedBy, userId]
+                            : savedBy.filter(id => id !== userId)
+                    };
+                }
+                return s;
+            })
+        });
+
+        set({
+            curations: curations.map(s => {
+                if (s._id === scrollId) {
+                    const savedBy = s.savedBy || [];
+                    return {
+                        ...s,
+                        savedBy: isFollowing
+                            ? [...savedBy, userId]
+                            : savedBy.filter(id => id !== userId)
+                    };
+                }
+                return s;
+            })
+        });
+    },
+
     // Clear search results
     clearSearch: () => set({
         query: '',

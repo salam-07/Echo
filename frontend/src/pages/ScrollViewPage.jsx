@@ -2,12 +2,17 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { EchoCard, EchoCardSkeleton } from '../components/features/echo';
+import { FollowButton } from '../components/features/scroll';
 import { useScrollStore } from '../store/useScrollStore';
+import useAuthStore from '../store/useAuthStore';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 
 const ScrollViewPage = () => {
     const { id } = useParams();
     const { scroll, scrollEchos, isLoadingScroll, isLoadingScrollEchos, getScrollById, getScrollEchos, deleteScroll, isDeletingScroll } = useScrollStore();
+    const { authUser } = useAuthStore();
+
+    const isOwner = scroll?.creator?._id === authUser?._id;
 
     useEffect(() => {
         if (id) {
@@ -81,6 +86,11 @@ const ScrollViewPage = () => {
                                     {scroll.description}
                                 </p>
                             )}
+                            {!isOwner && scroll.creator?.userName && (
+                                <p className="text-sm text-base-content/40 mt-1">
+                                    by @{scroll.creator.userName}
+                                </p>
+                            )}
                             {scroll.type === 'feed' && scroll.feedConfig && (
                                 <div className="mt-2">
                                     {scroll.feedConfig.includedTags && scroll.feedConfig.includedTags.length > 0 && (
@@ -109,14 +119,19 @@ const ScrollViewPage = () => {
                                 </div>
                             )}
                         </div>
-                        <button
-                            onClick={handleDelete}
-                            disabled={isDeletingScroll}
-                            className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors disabled:opacity-50"
-                            title="Delete scroll"
-                        >
-                            <Trash2 className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <FollowButton scroll={scroll} size="md" />
+                            {isOwner && (
+                                <button
+                                    onClick={handleDelete}
+                                    disabled={isDeletingScroll}
+                                    className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors disabled:opacity-50"
+                                    title="Delete scroll"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Filter, Layers, Hash, TrendingUp, Heart } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
+import { FollowButton } from '../components/features/scroll';
 import Layout from '../layouts/Layout';
 
 const BrowseCommunityPage = () => {
@@ -81,12 +82,17 @@ const BrowseCommunityPage = () => {
                                             <Filter className="w-5 h-5 text-base-content/30" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-medium text-base-content group-hover:text-base-content/80 truncate">
-                                                {scroll.name}
-                                            </h3>
-                                            <p className="text-sm text-base-content/40 mt-0.5">
-                                                by @{scroll.creator?.userName}
-                                            </p>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-medium text-base-content group-hover:text-base-content/80 truncate">
+                                                        {scroll.name}
+                                                    </h3>
+                                                    <p className="text-sm text-base-content/40 mt-0.5">
+                                                        by @{scroll.creator?.userName}
+                                                    </p>
+                                                </div>
+                                                <FollowButton scroll={scroll} size="xs" />
+                                            </div>
                                             {scroll.description && (
                                                 <p className="text-sm text-base-content/30 mt-2 line-clamp-1">
                                                     {scroll.description}
@@ -141,12 +147,17 @@ const BrowseCommunityPage = () => {
                                             <Layers className="w-5 h-5 text-base-content/30" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-medium text-base-content group-hover:text-base-content/80 truncate">
-                                                {scroll.name}
-                                            </h3>
-                                            <p className="text-sm text-base-content/40 mt-0.5">
-                                                {scroll.echos?.length || 0} echos • @{scroll.creator?.userName}
-                                            </p>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-medium text-base-content group-hover:text-base-content/80 truncate">
+                                                        {scroll.name}
+                                                    </h3>
+                                                    <p className="text-sm text-base-content/40 mt-0.5">
+                                                        {scroll.echos?.length || 0} echos • @{scroll.creator?.userName}
+                                                    </p>
+                                                </div>
+                                                <FollowButton scroll={scroll} size="xs" />
+                                            </div>
                                             {scroll.description && (
                                                 <p className="text-sm text-base-content/30 mt-2 line-clamp-1">
                                                     {scroll.description}

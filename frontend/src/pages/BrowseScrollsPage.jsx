@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, ArrowLeft } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
+import { FollowButton } from '../components/features/scroll';
 import Layout from '../layouts/Layout';
 
 const BrowseScrollsPage = () => {
@@ -95,12 +96,17 @@ const BrowseScrollsPage = () => {
                                         <Filter className="w-5 h-5 text-base-content/30" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-lg font-medium text-base-content group-hover:text-base-content/80 truncate">
-                                            {scroll.name}
-                                        </h3>
-                                        <p className="text-sm text-base-content/40 mt-0.5">
-                                            by @{scroll.creator?.userName}
-                                        </p>
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-lg font-medium text-base-content group-hover:text-base-content/80 truncate">
+                                                    {scroll.name}
+                                                </h3>
+                                                <p className="text-sm text-base-content/40 mt-0.5">
+                                                    by @{scroll.creator?.userName}
+                                                </p>
+                                            </div>
+                                            <FollowButton scroll={scroll} size="sm" />
+                                        </div>
                                         {scroll.description && (
                                             <p className="text-sm text-base-content/30 mt-2 line-clamp-2">
                                                 {scroll.description}

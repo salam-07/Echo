@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { useSearchStore } from '../store/useSearchStore';
 import { useEchoStore } from '../store/useEchoStore';
+import { FollowButton } from '../components/features/scroll';
 import { Search, ArrowRight, User, Layers, Filter, BookMarked, FileText, Loader2 } from 'lucide-react';
 import EchoCard from '../components/features/echo/EchoCard';
 
@@ -193,17 +194,22 @@ const SearchPage = () => {
                                                     <Filter className="w-4 h-4 text-base-content/40" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="text-sm font-medium text-base-content/80 truncate">
-                                                        {feed.name}
-                                                    </h3>
-                                                    {feed.description && (
-                                                        <p className="text-xs text-base-content/40 truncate mt-0.5">
-                                                            {feed.description}
-                                                        </p>
-                                                    )}
-                                                    <p className="text-xs text-base-content/30 mt-1">
-                                                        by @{feed.creator?.userName}
-                                                    </p>
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="flex-1 min-w-0">
+                                                            <h3 className="text-sm font-medium text-base-content/80 truncate">
+                                                                {feed.name}
+                                                            </h3>
+                                                            {feed.description && (
+                                                                <p className="text-xs text-base-content/40 truncate mt-0.5">
+                                                                    {feed.description}
+                                                                </p>
+                                                            )}
+                                                            <p className="text-xs text-base-content/30 mt-1">
+                                                                by @{feed.creator?.userName}
+                                                            </p>
+                                                        </div>
+                                                        <FollowButton scroll={feed} size="xs" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </Link>
@@ -239,17 +245,22 @@ const SearchPage = () => {
                                                     <BookMarked className="w-4 h-4 text-base-content/40" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="text-sm font-medium text-base-content/80 truncate">
-                                                        {curation.name}
-                                                    </h3>
-                                                    {curation.description && (
-                                                        <p className="text-xs text-base-content/40 truncate mt-0.5">
-                                                            {curation.description}
-                                                        </p>
-                                                    )}
-                                                    <p className="text-xs text-base-content/30 mt-1">
-                                                        by @{curation.creator?.userName} • {curation.echos?.length || 0} echos
-                                                    </p>
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="flex-1 min-w-0">
+                                                            <h3 className="text-sm font-medium text-base-content/80 truncate">
+                                                                {curation.name}
+                                                            </h3>
+                                                            {curation.description && (
+                                                                <p className="text-xs text-base-content/40 truncate mt-0.5">
+                                                                    {curation.description}
+                                                                </p>
+                                                            )}
+                                                            <p className="text-xs text-base-content/30 mt-1">
+                                                                by @{curation.creator?.userName} • {curation.echos?.length || 0} echos
+                                                            </p>
+                                                        </div>
+                                                        <FollowButton scroll={curation} size="xs" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </Link>

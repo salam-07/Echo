@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import EchoCard from '../components/features/echo/EchoCard';
+import { FollowButton } from '../components/features/scroll';
 import {
     MessageCircle,
     Scroll,
@@ -116,7 +117,7 @@ const UserPage = () => {
                                 </p>
                                 {isOwnProfile && (
                                     <Link
-                                        to="/create-echo"
+                                        to="/new"
                                         className="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content transition-colors"
                                     >
                                         Create your first echo
@@ -148,28 +149,31 @@ const UserPage = () => {
                                     className="group block py-5 border-b border-base-content/5 last:border-0"
                                 >
                                     <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-3 mb-1">
-                                                <div className="w-6 h-6 rounded flex items-center justify-center bg-base-content/5">
-                                                    {scroll.type === 'feed' ? (
-                                                        <Filter className="w-3 h-3 text-base-content/40" />
-                                                    ) : (
-                                                        <Layers className="w-3 h-3 text-base-content/40" />
-                                                    )}
-                                                </div>
+                                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-base-content/5 shrink-0">
+                                                {scroll.type === 'feed' ? (
+                                                    <Filter className="w-4 h-4 text-base-content/40" />
+                                                ) : (
+                                                    <Layers className="w-4 h-4 text-base-content/40" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
                                                 <h4 className="font-medium text-base-content group-hover:text-base-content/70 transition-colors truncate">
                                                     {scroll.name}
                                                 </h4>
+                                                {scroll.description && (
+                                                    <p className="text-sm text-base-content/40 line-clamp-1 mt-0.5">
+                                                        {scroll.description}
+                                                    </p>
+                                                )}
+                                                <span className="text-xs text-base-content/30 mt-1 inline-block">
+                                                    {scroll.type === 'feed' ? 'Feed' : `${scroll.echos?.length || 0} echos`}
+                                                </span>
                                             </div>
-                                            {scroll.description && (
-                                                <p className="text-sm text-base-content/40 line-clamp-1 ml-9">
-                                                    {scroll.description}
-                                                </p>
-                                            )}
                                         </div>
-                                        <span className="text-xs text-base-content/30 shrink-0">
-                                            {scroll.type === 'curation' && `${scroll.echos?.length || 0} echos`}
-                                        </span>
+                                        {!isOwnProfile && (
+                                            <FollowButton scroll={scroll} size="sm" />
+                                        )}
                                     </div>
                                 </Link>
                             ))
@@ -240,8 +244,8 @@ const UserPage = () => {
                         <button
                             onClick={handleFollowToggle}
                             className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm rounded-full transition-all ${isFollowing
-                                    ? 'text-base-content/70 border border-base-content/10 hover:border-base-content/20 hover:text-base-content'
-                                    : 'bg-base-content text-base-100 hover:bg-base-content/90'
+                                ? 'text-base-content/70 border border-base-content/10 hover:border-base-content/20 hover:text-base-content'
+                                : 'bg-base-content text-base-100 hover:bg-base-content/90'
                                 }`}
                         >
                             {isFollowing ? (
@@ -272,8 +276,8 @@ const UserPage = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`relative pb-2 text-sm font-medium transition-colors ${activeTab === tab.id
-                                    ? 'text-base-content'
-                                    : 'text-base-content/30 hover:text-base-content/50'
+                                ? 'text-base-content'
+                                : 'text-base-content/30 hover:text-base-content/50'
                                 }`}
                         >
                             {tab.label}

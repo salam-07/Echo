@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Layers, ArrowLeft } from 'lucide-react';
 import useCommunityStore from '../store/useCommunityStore';
+import { FollowButton } from '../components/features/scroll';
 import Layout from '../layouts/Layout';
 
 const BrowseCurationPage = () => {
@@ -95,17 +96,22 @@ const BrowseCurationPage = () => {
                                         <Layers className="w-5 h-5 text-base-content/30" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="text-lg font-medium text-base-content group-hover:text-base-content/80 truncate">
-                                                {scroll.name}
-                                            </h3>
-                                            <span className="text-xs text-base-content/30 shrink-0">
-                                                {scroll.echos?.length || 0} echos
-                                            </span>
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-3">
+                                                    <h3 className="text-lg font-medium text-base-content group-hover:text-base-content/80 truncate">
+                                                        {scroll.name}
+                                                    </h3>
+                                                    <span className="text-xs text-base-content/30 shrink-0">
+                                                        {scroll.echos?.length || 0} echos
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-base-content/40 mt-0.5">
+                                                    by @{scroll.creator?.userName}
+                                                </p>
+                                            </div>
+                                            <FollowButton scroll={scroll} size="sm" />
                                         </div>
-                                        <p className="text-sm text-base-content/40 mt-0.5">
-                                            by @{scroll.creator?.userName}
-                                        </p>
                                         {scroll.description && (
                                             <p className="text-sm text-base-content/30 mt-2 line-clamp-2">
                                                 {scroll.description}

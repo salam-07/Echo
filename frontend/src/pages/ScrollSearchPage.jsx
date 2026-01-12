@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { useSearchStore } from '../store/useSearchStore';
+import { FollowButton } from '../components/features/scroll';
 import { ArrowLeft, Search, Loader2, Filter, BookMarked } from 'lucide-react';
 
 const ScrollSearchPage = () => {
@@ -90,18 +91,23 @@ const ScrollSearchPage = () => {
                                         <Icon className="w-5 h-5 text-base-content/40" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-sm font-medium text-base-content/80 truncate">
-                                            {scroll.name}
-                                        </h3>
-                                        {scroll.description && (
-                                            <p className="text-xs text-base-content/40 line-clamp-2 mt-0.5">
-                                                {scroll.description}
-                                            </p>
-                                        )}
-                                        <p className="text-xs text-base-content/30 mt-1.5">
-                                            by @{scroll.creator?.userName}
-                                            {type === 'curation' && ` • ${scroll.echos?.length || 0} echos`}
-                                        </p>
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-sm font-medium text-base-content/80 truncate">
+                                                    {scroll.name}
+                                                </h3>
+                                                {scroll.description && (
+                                                    <p className="text-xs text-base-content/40 line-clamp-2 mt-0.5">
+                                                        {scroll.description}
+                                                    </p>
+                                                )}
+                                                <p className="text-xs text-base-content/30 mt-1.5">
+                                                    by @{scroll.creator?.userName}
+                                                    {type === 'curation' && ` • ${scroll.echos?.length || 0} echos`}
+                                                </p>
+                                            </div>
+                                            <FollowButton scroll={scroll} size="sm" />
+                                        </div>
                                     </div>
                                 </div>
                             </Link>
