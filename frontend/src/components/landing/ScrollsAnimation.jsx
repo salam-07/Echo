@@ -24,7 +24,7 @@ const scrolls = [
 ];
 
 const ScrollCard = React.memo(({ title, color }) => (
-    <div className="flex-shrink-0 w-28 sm:w-32 lg:w-36 h-40 sm:h-48 lg:h-56 bg-base-100 rounded-xl border border-base-200 shadow-sm overflow-hidden">
+    <div className="hover:scale-115 hover:shadow-5xl transition-all flex-shrink-0 w-28 sm:w-32 lg:w-36 h-40 sm:h-48 lg:h-56 bg-base-100 rounded-xl border border-base-200 shadow-sm overflow-hidden">
         {/* Header */}
         <div className={`${color} px-2.5 py-2 sm:py-2.5`}>
             <span className="text-white font-semibold text-xs sm:text-sm truncate block">{title}</span>
@@ -79,9 +79,6 @@ const ScrollsAnimation = () => {
                 }
                 .animate-scroll {
                     animation: scroll 40s linear infinite;
-                }
-                .animate-scroll:hover {
-                    animation-play-state: paused;
                 }
             `}</style>
         </div>

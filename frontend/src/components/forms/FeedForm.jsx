@@ -274,8 +274,8 @@ const FeedForm = () => {
                                             type="button"
                                             onClick={() => setTagMatchType('any')}
                                             className={`px-3 py-1 text-xs rounded-full transition-colors ${tagMatchType === 'any'
-                                                    ? 'bg-base-content/10 text-base-content'
-                                                    : 'text-base-content/40 hover:text-base-content/60'
+                                                ? 'bg-base-content/10 text-base-content'
+                                                : 'text-base-content/40 hover:text-base-content/60'
                                                 }`}
                                         >
                                             Any
@@ -284,8 +284,8 @@ const FeedForm = () => {
                                             type="button"
                                             onClick={() => setTagMatchType('all')}
                                             className={`px-3 py-1 text-xs rounded-full transition-colors ${tagMatchType === 'all'
-                                                    ? 'bg-base-content/10 text-base-content'
-                                                    : 'text-base-content/40 hover:text-base-content/60'
+                                                ? 'bg-base-content/10 text-base-content'
+                                                : 'text-base-content/40 hover:text-base-content/60'
                                                 }`}
                                         >
                                             All
@@ -467,8 +467,8 @@ const FeedForm = () => {
                                             type="button"
                                             onClick={() => setSortBy(option.value)}
                                             className={`flex-1 px-3 py-2 text-xs rounded-lg transition-colors ${sortBy === option.value
-                                                    ? 'bg-base-content/10 text-base-content'
-                                                    : 'text-base-content/40 hover:text-base-content/60'
+                                                ? 'bg-base-content/10 text-base-content'
+                                                : 'text-base-content/40 hover:text-base-content/60'
                                                 }`}
                                         >
                                             {option.label}
@@ -498,22 +498,28 @@ const FeedForm = () => {
             </div>
 
             {/* Hide Liked Option */}
-            <label className="flex items-center gap-3 cursor-pointer py-2">
+            <div
+                className="flex items-center gap-3 cursor-pointer py-2"
+                onClick={() => setExcludeLikedEchos(!excludeLikedEchos)}
+                role="checkbox"
+                aria-checked={excludeLikedEchos}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setExcludeLikedEchos(!excludeLikedEchos);
+                    }
+                }}
+            >
                 {excludeLikedEchos ? (
                     <EyeOff className="w-4 h-4 text-base-content/40" />
                 ) : (
                     <Eye className="w-4 h-4 text-base-content/40" />
                 )}
-                <input
-                    type="checkbox"
-                    checked={excludeLikedEchos}
-                    onChange={(e) => setExcludeLikedEchos(e.target.checked)}
-                    className="sr-only"
-                />
                 <span className={`text-sm transition-colors ${excludeLikedEchos ? 'text-base-content/70' : 'text-base-content/40'}`}>
                     Hide echos I've already liked
                 </span>
-            </label>
+            </div>
 
             {/* Privacy Toggle */}
             <div className="flex items-center justify-between py-4 border-y border-base-content/5">
@@ -557,8 +563,8 @@ const FeedForm = () => {
                 type="submit"
                 disabled={!canSubmit}
                 className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all ${canSubmit
-                        ? 'bg-base-content text-base-100 hover:bg-base-content/90'
-                        : 'bg-base-content/5 text-base-content/30 cursor-not-allowed'
+                    ? 'bg-base-content text-base-100 hover:bg-base-content/90'
+                    : 'bg-base-content/5 text-base-content/30 cursor-not-allowed'
                     }`}
             >
                 {isCreatingScroll ? (
