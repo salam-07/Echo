@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Heart, Share2 } from 'lucide-react';
 
 const scrolls = [
@@ -23,14 +23,8 @@ const scrolls = [
     { title: 'Sigma', color: 'bg-neutral-600' },
 ];
 
-const ScrollCard = React.memo(({ title, color, scale = 1 }) => (
-    <div
-        className="flex-shrink-0 w-28 sm:w-32 lg:w-36 h-40 sm:h-48 lg:h-56 bg-base-100 rounded-xl border border-base-200 shadow-sm overflow-hidden transition-transform duration-150 ease-out"
-        style={{
-            transform: `scale(${scale})`,
-            zIndex: Math.round(scale * 10),
-        }}
-    >
+const ScrollCard = React.memo(({ title, color }) => (
+    <div className="hover:scale-115 hover:shadow-5xl transition-all flex-shrink-0 w-28 sm:w-32 lg:w-36 h-40 sm:h-48 lg:h-56 bg-base-100 rounded-xl border border-base-200 shadow-sm overflow-hidden">
         {/* Header */}
         <div className={`${color} px-2.5 py-2 sm:py-2.5`}>
             <span className="text-white font-semibold text-xs sm:text-sm truncate block">{title}</span>
@@ -59,78 +53,22 @@ ScrollCard.displayName = 'ScrollCard';
 const ScrollsAnimation = () => {
     // Duplicate for seamless loop
     const items = useMemo(() => [...scrolls, ...scrolls], []);
-    const containerRef = useRef(null);
-    const trackRef = useRef(null);
-    const [scales, setScales] = useState(() => items.map(() => 1));
-    const animationRef = useRef(null);
-
-    const calculateScales = useCallback(() => {
-        if (!containerRef.current || !trackRef.current) return;
-
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const centerX = containerRect.width / 2;
-        const cards = trackRef.current.children;
-        const newScales = [];
-
-        for (let i = 0; i < cards.length; i++) {
-            const cardRect = cards[i].getBoundingClientRect();
-            const cardCenterX = cardRect.left - containerRect.left + cardRect.width / 2;
-            const distanceFromCenter = Math.abs(cardCenterX - centerX);
-
-            // Scale range: cards within ~200px of center get scaled up
-            const maxDistance = 180;
-            const minScale = 0.85;
-            const maxScale = 1.15;
-
-            if (distanceFromCenter < maxDistance) {
-                // Smooth curve for scaling - closer to center = bigger
-                const normalizedDistance = distanceFromCenter / maxDistance;
-                const scaleFactor = 1 - normalizedDistance * normalizedDistance; // Quadratic ease
-                const scale = minScale + (maxScale - minScale) * scaleFactor;
-                newScales.push(scale);
-            } else {
-                newScales.push(minScale);
-            }
-        }
-
-        setScales(newScales);
-    }, []);
-
-    useEffect(() => {
-        const animate = () => {
-            calculateScales();
-            animationRef.current = requestAnimationFrame(animate);
-        };
-
-        animationRef.current = requestAnimationFrame(animate);
-
-        return () => {
-            if (animationRef.current) {
-                cancelAnimationFrame(animationRef.current);
-            }
-        };
-    }, [calculateScales]);
 
     return (
-        <div ref={containerRef} className="relative w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden">
             {/* Gradient masks - positioned to match card height */}
-            <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-base-100 to-transparent z-20 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-base-100 to-transparent z-20 pointer-events-none" />
+            <div className="absolute left-0 top-4 bottom-4 w-8 sm:w-16 bg-gradient-to-r from-base-100 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-4 bottom-4 w-8 sm:w-16 bg-gradient-to-l from-pink-500/10 to-transparent z-10 pointer-events-none" />
 
             {/* Scrolling track */}
             <div
-                ref={trackRef}
-                className="flex gap-3 sm:gap-4 py-8 animate-scroll items-center"
+                className="flex gap-3 sm:gap-4 py-4 animate-scroll"
                 style={{
                     width: 'max-content',
                 }}
             >
                 {items.map((scroll, idx) => (
-                    <ScrollCard
-                        key={`${scroll.title}-${idx}`}
-                        {...scroll}
-                        scale={scales[idx] || 1}
-                    />
+                    <ScrollCard key={`${scroll.title}-${idx}`} {...scroll} />
                 ))}
             </div>
 
