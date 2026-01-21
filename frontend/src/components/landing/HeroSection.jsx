@@ -138,9 +138,9 @@ const HeroSection = () => {
                 {/* Stats Row */}
                 <div className="container mx-auto max-w-4xl px-4 sm:px-6">
                     <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-16 mt-12 lg:mt-16 pt-8 border-t border-base-200/80">
-                        <Stat value="10K+" label="Users" />
-                        <Stat value="50K+" label="Echos" />
-                        <Stat value="5K+" label="Scrolls" />
+                        <Stat value="700+" label="Users" />
+                        <Stat value="10K+" label="Echos" />
+                        <Stat value="400+" label="Scrolls" />
                         <Stat value="100%" label="Your Control" highlight />
                     </div>
                 </div>
