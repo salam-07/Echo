@@ -1,9 +1,7 @@
-export { default as LandingNavbar } from './LandingNavbar';
-export { default as HeroSection } from './HeroSection';
-export { default as ScrollsAnimation } from './ScrollsAnimation';
-export { default as Reveal } from './Reveal';
-export { default as FeaturesSection } from './FeaturesSection';
-export { default as HowItWorksSection } from './HowItWorksSection';
-export { default as IdeaSection } from './IdeaSection';
-export { default as CTASection } from './CTASection';
-export { default as LandingFooter } from './LandingFooter';
+export { default as SheetIndex, SHEETS } from './SheetIndex';
+export { default as CoverSheet } from './CoverSheet';
+export { default as SectionThrough } from './SectionThrough';
+export { default as TwoWays } from './TwoWays';
+export { default as GeneralNotes } from './GeneralNotes';
+export { default as TheRoom } from './TheRoom';
+export { default as IssuedFor } from './IssuedFor';
