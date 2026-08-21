@@ -122,9 +122,22 @@ const HeroSection = () => {
                 {/* Product preview */}
                 <div ref={animationRef} className="mt-16 lg:mt-20">
                     <ScrollsAnimation />
+<<<<<<< HEAD
                     <p className="text-center text-sm text-base-content/45 mt-5 px-6">
                         A few Scrolls you could build — yours are entirely up to you.
                     </p>
+=======
+                </div>
+
+                {/* Stats Row */}
+                <div className="container mx-auto max-w-4xl px-4 sm:px-6">
+                    <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-16 mt-12 lg:mt-16 pt-8 border-t border-base-200/80">
+                        <Stat value="700+" label="Users" />
+                        <Stat value="10K+" label="Echos" />
+                        <Stat value="400+" label="Scrolls" />
+                        <Stat value="100%" label="Your Control" highlight />
+                    </div>
+>>>>>>> 1acd2c967b4f501d75ef25fad544bc1f8a6d01e3
                 </div>
             </div>
         </section>
