@@ -1,138 +1,99 @@
-import React, { useState } from "react";
-import useAuthStore from "../store/useAuthStore.js";
-import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore.js';
+import AuthSheet, { Field } from '../components/auth/AuthSheet.jsx';
+
+/**
+ * Sign in — the last page of the specification sheet.
+ *
+ * Two fields, one hairline each. Validation is inline and named, next to the field
+ * that caused it, rather than thrown across the screen as a toast; the store's
+ * toast is left to carry what only the server knows.
+ */
+
+const TERMS = [
+    { term: 'Identifier', detail: 'Username' },
+    { term: 'Email address', detail: 'None on file' },
+    { term: 'Password', detail: '4 characters minimum' },
+];
 
 const LoginPage = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({
-        userName: "",
-        password: ""
-    });
-
     const { login, isLoggingIn } = useAuthStore();
+    const [form, setForm] = useState({ userName: '', password: '' });
+    const [errors, setErrors] = useState({});
 
-    const validateForm = () => {
-        if (!formData.userName.trim()) return toast.error("Username is required");
-        if (!formData.password) return toast.error("Password is required");
-        if (formData.password.length < 4) return toast.error("Password must be at least 4 characters");
-        return true;
+    const edit = (key) => (event) => {
+        setForm((current) => ({ ...current, [key]: event.target.value }));
+        if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validateForm() === true) {
-            login(formData);
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        const next = {};
+        if (!form.userName.trim()) next.userName = 'Enter the username you signed up with.';
+        if (!form.password) next.password = 'Enter your password.';
+        else if (form.password.length < 4) {
+            next.password = 'Passwords here are at least 4 characters, so this one is too short.';
         }
-    };
 
-    const isFormValid = formData.userName.trim() && formData.password.length >= 4;
+        setErrors(next);
+        if (Object.keys(next).length > 0) return;
+
+        login({ userName: form.userName.trim(), password: form.password });
+    };
 
     return (
-        <div className="min-h-screen bg-base-100 flex flex-col">
-            {/* Main Content */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-sm">
-                    {/* Logo & Welcome */}
-                    <div className="text-center mb-10">
-                        <h1 className="text-3xl font-light tracking-tight text-base-content mb-2">
-                            echo<span className="text-base-content/30">.</span>
-                        </h1>
-                        <p className="text-base-content/40 text-sm">
-                            Welcome back
-                        </p>
-                    </div>
+        <AuthSheet
+            reference="Sign in"
+            statement="Your rule is where you left it."
+            deck="Every Scroll you wrote is exactly as you wrote it. Nothing was re-ordered while you were away, because nothing here re-orders anything on its own."
+            terms={TERMS}
+            footer="Set in Playfair Display and Inter."
+        >
+            <form onSubmit={handleSubmit} noValidate className="space-y-10">
+                <Field
+                    label="Username"
+                    prefix="@"
+                    value={form.userName}
+                    onChange={edit('userName')}
+                    error={errors.userName}
+                    autoComplete="username"
+                    placeholder="yourname"
+                    disabled={isLoggingIn}
+                />
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Username */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                                Username
-                            </label>
-                            <input
-                                type="text"
-                                className="w-full px-0 py-3 bg-transparent border-0 border-b border-base-300/50 text-base-content text-lg placeholder:text-base-content/25 focus:outline-none focus:border-base-content/30 transition-colors"
-                                placeholder="Enter your username"
-                                value={formData.userName}
-                                onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                                autoComplete="username"
-                            />
-                        </div>
+                <Field
+                    label="Password"
+                    type="password"
+                    reveal
+                    value={form.password}
+                    onChange={edit('password')}
+                    error={errors.password}
+                    autoComplete="current-password"
+                    disabled={isLoggingIn}
+                />
 
-                        {/* Password */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    className="w-full px-0 py-3 pr-10 bg-transparent border-0 border-b border-base-300/50 text-base-content text-lg placeholder:text-base-content/25 focus:outline-none focus:border-base-content/30 transition-colors"
-                                    placeholder="Enter your password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    autoComplete="current-password"
-                                />
-                                <button
-                                    type="button"
-                                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-base-content/30 hover:text-base-content/50 transition-colors"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className="w-4 h-4" />
-                                    ) : (
-                                        <Eye className="w-4 h-4" />
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Submit */}
-                        <div className="pt-4">
-                            <button
-                                type="submit"
-                                disabled={!isFormValid || isLoggingIn}
-                                className="w-full py-3.5 bg-base-content text-base-100 rounded-full font-medium text-sm transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isLoggingIn ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        <span>Signing in...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Continue</span>
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-
-                    {/* Switch to Signup */}
-                    <div className="mt-8 text-center">
-                        <p className="text-sm text-base-content/40">
-                            New to Echo?{' '}
-                            <Link
-                                to="/signup"
-                                className="text-base-content/70 hover:text-base-content underline underline-offset-2 transition-colors"
-                            >
-                                Create an account
-                            </Link>
-                        </p>
-                    </div>
+                <div>
+                    <button type="submit" disabled={isLoggingIn} className="act h-12 w-full px-8">
+                        {isLoggingIn ? 'Signing in' : 'Sign in'}
+                    </button>
+                    <p aria-live="polite" className="t-label mt-4 h-4 normal-case tracking-[0.04em]">
+                        {isLoggingIn ? 'Checking your username and password…' : ''}
+                    </p>
                 </div>
-            </div>
+            </form>
 
-            {/* Footer */}
-            <div className="py-6 text-center">
-                <p className="text-xs text-base-content/25">
-                    Your thoughts, amplified.
+            <div className="mt-12 border-t border-ink pt-5">
+                <p className="t-body text-ink-soft">
+                    No account yet?{' '}
+                    <Link to="/signup" className="link-rule font-medium text-ink">
+                        Create one
+                    </Link>{' '}
+                    &mdash; it takes a username and a password.
                 </p>
             </div>
-        </div>
+        </AuthSheet>
     );
 };
 

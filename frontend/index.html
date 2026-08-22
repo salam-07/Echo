@@ -5,37 +5,88 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/initial_white.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0d436d" />
-  <title>Echo</title>
+  <meta name="theme-color" content="#f9f9f9" />
+
+  <!--
+    Fonts, announced as early as the browser can possibly be told about them.
+
+    These used to be an @import at the top of index.css, which is the slowest
+    arrangement there is: the browser had to fetch the app stylesheet, parse it,
+    fetch Google's stylesheet, parse that, and only then discover the font files —
+    four serial round trips before a single glyph existed. That chain is why the
+    fallback face was always on screen first.
+
+    Now Google's stylesheet is requested in parallel with the app's own CSS, and
+    the four latin files are preloaded alongside it, so they are in flight before
+    that stylesheet has even arrived. Every family here is a variable font, so one
+    file per style covers the whole weight ramp.
+
+    display=block finishes the job: no fallback face is ever painted. Text waits,
+    briefly, and then arrives correct. The preloads are what make that wait
+    invisible — block on its own would be a worse defect than the swap it
+    replaces, so the two halves of this only work together.
+
+    The versioned gstatic URLs are Google's. If they reissue a family the preload
+    is simply ignored — a console warning, and the swap comes back. Self-hosting
+    these four files is how you make it permanent.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="https://fonts.gstatic.com/s/playfairdisplay/v40/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgA.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="https://fonts.gstatic.com/s/figtree/v9/_Xms-HUzqDCFdgfMm4S9DQ.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="https://fonts.gstatic.com/s/figtree/v9/_Xmu-HUzqDCFdgfMm4GND65o.woff2" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&amp;family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=block" />
+
+  <meta name="description"
+    content="Echo is a social platform for short text posts where what reaches you is decided by a rule you write yourself — a handful of plain conditions you can read, edit, and hand to someone else." />
+  <title>Echo — there is no algorithm here</title>
 </head>
 
 <body>
   <!--
-    IMPECCABLE DIRECTION CONTRACT — Echo landing page — key ECHO-TWD-01
+    IMPECCABLE DIRECTION CONTRACT — Echo landing + auth — key ECHO-EDIT-01
 
-    THESIS: A feed is a volume of decisions; the only question is whether you are shown
-    them. So the page is a working drawing, not a broadsheet — drafted, not typeset —
-    and it refuses the two arrangements this category always ships: the floating-phone
-    hero and the metric row.
+    THESIS: A ranked feed is a rule you are never shown. So this surface is not a
+    page about a rule — it IS one: a printed specification sheet, issued, sectioned
+    §01–§04, that prints the whole engine before it makes a single claim about it.
 
-    OWN-WORLD: Sheet stock #F8F8F6 on a light table #EEEDE9. Graphite #252A31 is the
-    platform's fixed structure, construction blue #0D436D is the visitor's own decision,
-    revision oxide #B4442E is only what they excluded. Three registers: Barlow Condensed
-    drafted, Fragment Mono typed, Barlow written. Vellum overlays veil — saturate and
-    brighten — never blur. Paper fibre printed into the stock.
+    OWN-WORLD: DESIGN.md unaltered. Paper #F9F9F9, ink #1A1C1C, hairline #C4C7C7,
+    one inverted spread on pure black. Playfair Display carries statement, Inter
+    carries apparatus. Achromatic: emphasis is scale, weight, inversion — never
+    colour. #BA1A1A appears only on a field that failed. No radius, no shadow, no
+    gradient, no blur, no image, anywhere.
 
-    STORY: You arrive, set eight fields, and watch the rule you wrote decide — including
-    what it removed and why. By sheet E-06 you have already used the product.
+    STORY: You read the engine in full, hear the objection, see the two kinds of
+    Scroll set two different ways, then operate six real parameters yourself and
+    watch what your own rule refused stay on the page, struck, naming its reason.
 
-    FIRST VIEWPORT: Sheet E-01 on the table. Header band, then "A feed you can / read, and
-    redraw" in condensed graphite at architectural scale, the live rule expression on
-    vellum, and the schedule of parameters beside the drawing it produces.
+    FIRST VIEWPORT: masthead field strip, the statement at anchor scale, and — where
+    this category puts a screenshot — all eight feedConfig parameters, printed.
 
-    FORM: Architectural working-drawing set, six sheets. User-pinned direction; no roll.
-    Motion: one inherited --draw value, so a sheet arrives as one pass of the straightedge.
+    FORM: Five sections on a 1280px measure, structure by hairline alone. Brief-
+    pinned, roll skipped. Persuade scope: six parameters operable, two printed as
+    set-in-app, corpus authored and labelled synthetic.
 
-    FINISH: unreviewed and undocumented is unfinished; this build ends with the finish
-    review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+    MOTION: the sheet being set, in three press verbs and nothing else. Rules
+    STRIKE left to right; statements SET, rising onto their baselines from under a
+    mask; apparatus takes INK. Three hairlines are scrubbed because their length
+    measures something — document progress, and how far down each column you have
+    read. §04 is the one exception and the one material gesture: the black spread
+    wipes down from the top edge, laid on in a single pass. The corpus re-typesets
+    by FLIP when the rule changes. Every reveal fires once and every reveal is a
+    from(), so an unrun script still leaves a complete document. Under
+    prefers-reduced-motion: no wipe, no travel — the progress mark survives, since
+    a 1:1 progress mark is a scrollbar, not an animation.
+
+    FINISH: unreviewed and undocumented is unfinished; this build ends with the
+    finish review, the verdict, DESIGN.md, and every shipping raster carrying its
+    provenance.
   -->
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>

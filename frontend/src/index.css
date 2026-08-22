@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Figtree:ital,wght@0,300..900;1,300..900&family=Fragment+Mono:ital@0;1&display=swap')
-layer(base);
+/* Fonts are linked from index.html, not imported here. An @import puts the font
+   files three round trips behind first paint — the browser cannot even see them
+   until this stylesheet has been fetched and parsed — which guaranteed a fallback
+   face on screen first. See the comment in index.html. */
 
 @import 'tailwindcss';
 @plugin "daisyui";
@@ -149,335 +151,490 @@ input[type="radio"]:focus {
 }
 
 /* ==========================================================================
-   THE WORKING DRAWING  ·  landing-surface visual world  ·  key ECHO-TWD-01
+   ECHO EDITORIAL  ·  unauthenticated surfaces  ·  key ECHO-EDIT-01
    --------------------------------------------------------------------------
-   A drawing set for a feed the visitor specifies. Off-white sheet stock on a
-   light table, graphite lettering, vellum overlays, and three inks that each
-   mean something: graphite is the platform's fixed structure, construction
-   blue is the visitor's own decision, revision oxide is what they excluded.
+   The landing and auth pages are one printed document: a specification sheet
+   for a feed. Tokens are DESIGN.md's, unaltered. The world is achromatic on
+   purpose — every mark is ink, paper, or a hairline rule, and emphasis comes
+   only from scale, weight, and inversion. No shadow, no gradient, no blur, no
+   radius, anywhere.
 
-   Scoped under .sheetset so the authenticated app's DaisyUI light/dark themes
-   are untouched. There is no theme switch here; a drawing sheet has one state.
+   Everything is scoped under `.editorial` so the authenticated app's DaisyUI
+   light/dark themes are untouched. The app declares `* { font-family: Figtree }`,
+   which defeats inheritance, so the two faces are re-asserted at class
+   specificity below — and the app's global `outline: none !important` is an
+   accessibility defect that this scope reverses with equal force.
    ========================================================================== */
 
 @theme {
-  --color-sheet: #f8f8f6;
-  --color-table: #eeede9;
-  --color-graphite: #252a31;
-  --color-prose: #3f464f;
-  --color-fieldname: #666e78;
-  --color-hairline: #c4c8cc;
-  --color-usermark: #0d436d;
-  --color-revision: #b4442e;
+  /* Paper — DESIGN.md surface ramp */
+  --color-paper: #f9f9f9;
+  --color-paper-pure: #ffffff;
+  --color-paper-shade: #f3f3f4;
+  --color-paper-deep: #eeeeee;
+  --color-paper-dim: #e2e2e2;
 
-  --font-drafted: 'Barlow Condensed', 'Arial Narrow', ui-sans-serif, sans-serif;
-  --font-typed: 'Fragment Mono', ui-monospace, 'Cascadia Mono', Menlo, monospace;
-  --font-written: 'Barlow', ui-sans-serif, system-ui, sans-serif;
+  /* Ink — DESIGN.md on-surface ramp. `ink-quiet` is the lightest value that
+     still clears 4.5:1 on paper; `rule` and `rule-strong` are never text. */
+  --color-ink: #1a1c1c;
+  --color-ink-soft: #444748;
+  --color-ink-quiet: #5d5f5f;
+  --color-rule: #c4c7c7;
+  --color-rule-strong: #747878;
+
+  /* Inversion — the one emphasis device this world allows */
+  --color-obsidian: #000000;
+  --color-obsidian-soft: #1c1b1b;
+  --color-chalk: #ffffff;
+  --color-chalk-quiet: #c8c6c5;
+  --color-chalk-dim: #858383;
+
+  --color-alarm: #ba1a1a;
+
+  --font-display: 'Playfair Display', 'Iowan Old Style', Georgia, serif;
+  --font-text: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* The drafting stroke. Every rule, dimension and leader on a sheet derives its
-   extension from this one value, so the page has a single authored motion —
-   the drawing drawing itself — instead of a fade on every section. */
-@property --draw {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-
-.sheetset {
-  /* Drawn state is the default: if scripting never runs, the set is complete. */
-  --draw: 1;
-
-  --rule-minor: rgba(37, 42, 49, 0.05);
-  --rule-major: rgba(13, 67, 109, 0.075);
-
-  /* Laid paper: fine fibre plus a coarser mottle, printed into the stock. */
-  --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23f)'/%3E%3C/svg%3E");
-  --mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='340' height='340' filter='url(%23m)'/%3E%3C/svg%3E");
-
+.editorial {
   position: relative;
-  background-color: var(--color-table);
-  color: var(--color-prose);
-  font-synthesis-weight: none;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  caret-color: var(--color-ink);
+  scrollbar-color: var(--color-rule-strong) transparent;
 }
 
-/* The app sets `* { font-family: Figtree }`, which defeats inheritance, so the
-   three registers are asserted at class specificity inside the set. */
-.sheetset,
-.sheetset * {
-  font-family: var(--font-written);
+/* --- Faces --------------------------------------------------------------- */
+
+/* The app declares `* { font-family: 'Figtree', Arial, sans-serif }` at document
+   level. A bare `*` carries no specificity, so any element's own declaration
+   beats it — but inheritance does not, because a declaration that matches an
+   element always outranks a value the element would have inherited. The text face
+   therefore has to be re-asserted on every element in this scope, not just on the
+   root. */
+.editorial,
+.editorial * {
+  font-family: var(--font-text);
 }
 
-/* --- The three registers ------------------------------------------------- */
-
-/* DRAFTED — the drafter's hand: sheet titles, schedule headers, dimension
-   figures, callouts. Single-stroke gothic lettering, always tabular. */
-.sheetset .drafted {
-  font-family: var(--font-drafted);
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums lining-nums;
-  font-feature-settings: 'tnum' 1;
+/* That blanket has a cost worth naming, because it cost us twice: matching every
+   element means it also outranks inheritance *inside* the scope. Anything a
+   script injects into a Playfair heading matches it and comes out in Inter —
+   which is precisely what SplitText's line and mask wrappers are, so every
+   statement animated in the text face and snapped to the display face at the
+   instant the split was reverted. Restoring inheritance beneath the display
+   registers fixes that for whatever face a register sets, now or later; the
+   registers below all name their own, so this only ever reaches the unclassed
+   wrappers and inline spans that should have inherited in the first place. */
+.editorial :is(.t-display, .t-headline, .t-title, .font-display) * {
+  font-family: inherit;
 }
 
-/* TYPED — machine truth: field values, enum names, the rule expression. The
-   specification book was typed, not drafted. */
-.sheetset .typed {
-  font-family: var(--font-typed);
-  letter-spacing: -0.012em;
-  font-variant-numeric: tabular-nums lining-nums;
+/* Tailwind's own `font-display` utility loses to the blanket for the same reason
+   — one class against one class, and the utility is in a layer while the blanket
+   is not — so the wordmark and the two Scroll captions were quietly set in Inter
+   as well. Re-asserted here, unlayered, where it can win. */
+.editorial .font-display {
+  font-family: var(--font-display);
 }
 
-/* WRITTEN — the one place the page relaxes: didactic notes and the Echos. */
-.sheetset .written {
-  font-family: var(--font-written);
-  line-height: 1.65;
+/* --- Registers ----------------------------------------------------------- */
+
+/* Measures on the display registers are written in em, never ch. A ch is the
+   advance width of "0" in the face that is currently active, so a measure in ch
+   silently changes width when the webfont arrives and re-breaks the headline
+   underneath the reader. An em is measured against the font size, which is known
+   before any font is. Playfair's zero happens to be 0.6em, if a character count
+   ever needs converting. See the note on the cover statement.
+
+   And no display register asks for `text-wrap: balance`, because every one of
+   them is set line by line (see motion.js, SET). A split freezes the ordinary
+   greedy layout into its masks; balancing minimises the longest line instead. The
+   two cannot both hold, so a balanced heading was being set to one set of breaks
+   and reverted to another — visibly re-ragging the instant its reveal finished.
+   The measure is what chooses the break here: each one is set so the greedy rag
+   is the intended rag, which is one layout rather than two, and is how type was
+   set before an algorithm offered to do it. Because the measure is in em and the
+   font size is fluid, that rag holds at every width in the clamp. */
+
+/* DISPLAY — Playfair at anchor scale, tight tracking, bleeding into the air
+   above and below it. The one voice allowed to be large. */
+.editorial .t-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.625rem, 7.4vw, 6rem);
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+}
+
+.editorial .t-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  line-height: 1.14;
+  letter-spacing: -0.014em;
+}
+
+.editorial .t-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  line-height: 1.24;
+  letter-spacing: -0.008em;
+}
+
+/* DECK — the sentence under a headline. 20/32, light. */
+.editorial .t-deck {
+  font-family: var(--font-text);
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
   text-wrap: pretty;
-  color: var(--color-prose);
 }
 
-/* A schedule's field name, labelling a value inside a table. */
-.sheetset .fieldname {
-  font-family: var(--font-drafted);
+.editorial .t-body {
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* LABEL — the document's own apparatus: field names, sheet references, cell
+   counts. Uppercase and widely tracked so it reads as structure, never as
+   ornament, and it always carries information the reader needs. */
+.editorial .t-label {
+  font-family: var(--font-text);
+  font-size: 0.75rem;
   font-weight: 600;
-  font-size: 0.6875rem;
-  line-height: 1.2;
-  letter-spacing: 0.15em;
+  line-height: 1.33;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-fieldname);
-}
-
-/* Dimension figures and counts are measurements. */
-.sheetset [data-dim] {
-  font-family: var(--font-drafted);
-  font-weight: 500;
+  color: var(--color-ink-quiet);
   font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: 0.08em;
 }
 
-/* --- The sheet ----------------------------------------------------------- */
+.editorial .t-label--ink {
+  color: var(--color-ink);
+}
 
-/* A sheet of drawing stock on the light table: paper edge, soft cast shadow,
-   printed border set in from the trim, graph ruling beneath the work. */
-.sheetset .sheet {
+/* READOUT — measured quantities. Tabular so the numbers do not shift width
+   as the rule changes them. */
+.editorial .t-readout {
+  font-family: var(--font-text);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.33;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* --- Rules --------------------------------------------------------------- */
+
+/* Hairlines are drawn, not faded, but the striking is authored in GSAP (see
+   components/editorial/motion.js) so a rule, the type beneath it and the
+   apparatus beside it share one timeline instead of three separate observers.
+   Nothing about a rule's painted state lives here: it is always visible, and
+   motion decides only when it is drawn — never whether it exists. */
+
+/* --- Controls ------------------------------------------------------------ */
+
+/* A position rail, not a pill group: hard-edged stops sharing hairlines, the
+   held stop inverted to solid ink. Each stop is a label around a real radio, so
+   arrow keys work and the group announces itself; selection is never colour
+   alone — the held stop is also the only one at weight 600. */
+.editorial .stop {
   position: relative;
-  background-color: var(--color-sheet);
-  background-image:
-    repeating-linear-gradient(to right, var(--rule-major) 0 1px, transparent 1px 190px),
-    repeating-linear-gradient(to bottom, var(--rule-major) 0 1px, transparent 1px 190px),
-    repeating-linear-gradient(to right, var(--rule-minor) 0 1px, transparent 1px 38px),
-    repeating-linear-gradient(to bottom, var(--rule-minor) 0 1px, transparent 1px 38px);
-  box-shadow:
-    0 1px 1px rgba(37, 42, 49, 0.05),
-    0 14px 30px -14px rgba(37, 42, 49, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--color-ink-quiet);
+  cursor: pointer;
+  transition:
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Paper fibre, printed into the stock rather than laid over the page. */
-.sheetset .sheet::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: var(--fibre), var(--mottle);
-  background-size: 150px 150px, 340px 340px;
-  mix-blend-mode: multiply;
-  opacity: 0.1;
+.editorial .stop:hover:not([data-held='true']) {
+  color: var(--color-ink);
+  background-color: var(--color-paper-dim);
 }
 
-.sheetset .sheet > * {
-  position: relative;
-  z-index: 1;
+.editorial .stop[data-held='true'] {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  font-weight: 600;
 }
 
-/* The printed border, drawn on entry from the left edge outward. */
-.sheetset .sheet-border {
-  position: absolute;
-  inset: 10px;
-  z-index: 0;
-  pointer-events: none;
-  border: 1px solid var(--color-hairline);
-  clip-path: inset(0 calc((1 - var(--draw)) * 100%) 0 0);
+/* The focus ring belongs on the stop, not on the visually-hidden radio. */
+.editorial .stop:has(input:focus-visible) {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
 }
 
-@media (min-width: 768px) {
-  .sheetset .sheet-border {
-    inset: 14px;
-  }
-}
-
-/* --- Vellum -------------------------------------------------------------- */
-
-/* An overlay sheet registered over the drawing. Tracing stock veils what is
-   under it — it lightens and desaturates; it does not blur. */
-.sheetset .vellum {
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: saturate(0.82) brightness(1.03);
-  -webkit-backdrop-filter: saturate(0.82) brightness(1.03);
-  border: 1px solid rgba(196, 200, 204, 0.85);
-}
-
-.sheetset .vellum-deep {
-  background-color: rgba(255, 255, 255, 0.82);
-}
-
-/* --- Drawn lines --------------------------------------------------------- */
-
-.sheetset .rule-h {
-  height: 1px;
-  background-color: var(--color-hairline);
-  transform: scaleX(var(--draw));
-  transform-origin: left center;
-}
-
-.sheetset .rule-h-heavy {
-  height: 1px;
-  background-color: var(--color-graphite);
-  transform: scaleX(var(--draw));
-  transform-origin: left center;
-}
-
-.sheetset .rule-v {
-  width: 1px;
-  background-color: var(--color-hairline);
-  transform: scaleY(var(--draw));
-  transform-origin: top center;
-}
-
-/* Where the rule and the exclusion register part company. */
-.sheetset .cutline {
-  height: 0;
-  border-top: 1px dashed var(--color-revision);
-  opacity: 0.65;
-  transform: scaleX(var(--draw));
-  transform-origin: left center;
-}
-
-/* Leaders and dimension witnesses, drawn as SVG with pathLength="1". */
-.sheetset .leader {
-  stroke: var(--color-hairline);
-  stroke-width: 1;
-  fill: none;
-  stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - var(--draw));
-  vector-effect: non-scaling-stroke;
-}
-
-.sheetset .leader-mark {
-  stroke: var(--color-usermark);
-}
-
-/* Section hatching: the contents of a volume nobody will show you. */
-.sheetset .hatch {
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(37, 42, 49, 0.26) 0 1px,
-    transparent 1px 8px
-  );
-}
-
-/* --- Controls, drawn as instruments -------------------------------------- */
-
-/* A scale bar: the visitor's own value, set on a ruled track. */
-.sheetset input[type="range"].scalebar {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 22px;
-  background: transparent;
-  cursor: ew-resize;
-}
-
-.sheetset input[type="range"].scalebar::-webkit-slider-runnable-track {
-  height: 22px;
-  background-image: linear-gradient(var(--color-graphite), var(--color-graphite));
-  background-size: 100% 1px;
-  background-position: 0 50%;
-  background-repeat: no-repeat;
-}
-
-.sheetset input[type="range"].scalebar::-moz-range-track {
-  height: 22px;
-  background-image: linear-gradient(var(--color-graphite), var(--color-graphite));
-  background-size: 100% 1px;
-  background-position: 0 50%;
-  background-repeat: no-repeat;
-}
-
-/* The station mark: a surveyor's tick, not a pill. */
-.sheetset input[type="range"].scalebar::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 3px;
-  height: 22px;
-  border: 0;
-  border-radius: 0;
-  background-color: var(--color-usermark);
-  box-shadow: 0 0 0 4px var(--color-sheet);
-}
-
-.sheetset input[type="range"].scalebar::-moz-range-thumb {
-  width: 3px;
-  height: 22px;
-  border: 0;
-  border-radius: 0;
-  background-color: var(--color-usermark);
-  box-shadow: 0 0 0 4px var(--color-sheet);
-}
-
-.sheetset input[type="range"].scalebar:disabled {
+/* A disabled rail keeps its held position legible but stops soliciting: the
+   note beneath it says which parameter has to move first. */
+.editorial fieldset:disabled .stop {
   cursor: not-allowed;
+  color: var(--color-rule-strong);
 }
 
-.sheetset input[type="range"].scalebar:disabled::-webkit-slider-thumb {
-  background-color: var(--color-hairline);
+.editorial fieldset:disabled .stop:hover {
+  background-color: transparent;
+  color: var(--color-rule-strong);
 }
 
-.sheetset input[type="range"].scalebar:disabled::-moz-range-thumb {
-  background-color: var(--color-hairline);
+.editorial fieldset:disabled .stop[data-held='true'] {
+  background-color: var(--color-paper-dim);
+  color: var(--color-ink-quiet);
+}
+
+/* A tag is a three-state stamp: admitted (inverted), refused (struck), or
+   unset. State is carried three ways over — ground, strike, and the printed
+   word beside the tag — so it never rests on colour. */
+.editorial .stamp {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  border: 1px solid var(--color-rule);
+  background-color: transparent;
+  color: var(--color-ink-quiet);
+  cursor: pointer;
+  transition:
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial .stamp:hover {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+.editorial .stamp[data-state='in'] {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.editorial .stamp[data-state='out'] {
+  border-color: var(--color-ink-quiet);
+  color: var(--color-ink-quiet);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* The strike belongs to the tag name, not to the word that explains it. An
+   atomic inline box is the only thing a propagated decoration will not cross. */
+.editorial .stamp > .stamp-state {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* --- Actions ------------------------------------------------------------- */
+
+/* Solid ink, inverted text, sharp. Hover inverts rather than lifts: this
+   world has no elevation to lift into. */
+.editorial .act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px solid var(--color-ink);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition:
+    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial .act:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-ink);
+}
+
+.editorial .act:disabled {
+  cursor: not-allowed;
+  border-color: var(--color-rule);
+  background-color: var(--color-rule);
+  color: var(--color-paper);
+}
+
+.editorial .act-outline {
+  background-color: transparent;
+  color: var(--color-ink);
+}
+
+.editorial .act-outline:hover:not(:disabled) {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+}
+
+/* The same two actions on an inverted ground. */
+.editorial .inverted .act {
+  border-color: var(--color-chalk);
+  background-color: var(--color-chalk);
+  color: var(--color-obsidian);
+}
+
+.editorial .inverted .act:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-chalk);
+}
+
+.editorial .inverted .act:disabled {
+  border-color: var(--color-chalk-dim);
+  background-color: var(--color-chalk-dim);
+  color: var(--color-obsidian);
+}
+
+.editorial .inverted .act-outline {
+  background-color: transparent;
+  color: var(--color-chalk);
+}
+
+.editorial .inverted .act-outline:hover:not(:disabled) {
+  background-color: var(--color-chalk);
+  color: var(--color-obsidian);
+}
+
+/* --- Fields -------------------------------------------------------------- */
+
+/* One hairline underneath, nothing else. Focus thickens that line to 2px and
+   darkens it to ink; the label above is the field's only chrome. */
+.editorial .field {
+  width: 100%;
+  padding: 0.75rem 0 0.6875rem;
+  border: 0;
+  border-bottom: 1px solid var(--color-rule-strong);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.5;
+  transition:
+    border-bottom-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    padding-bottom 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial .field::placeholder {
+  color: var(--color-ink-quiet);
+  font-weight: 300;
+}
+
+.editorial .field:focus,
+.editorial .field:focus-visible {
+  border-bottom-color: var(--color-ink) !important;
+  border-bottom-width: 2px !important;
+  padding-bottom: 0.625rem;
+  outline: none !important;
+}
+
+.editorial .field[aria-invalid='true'] {
+  border-bottom-color: var(--color-alarm) !important;
+}
+
+.editorial .inverted .field {
+  border-bottom-color: var(--color-chalk-dim);
+  color: var(--color-chalk);
+}
+
+.editorial .inverted .field::placeholder {
+  color: var(--color-chalk-dim);
+}
+
+.editorial .inverted .field:focus,
+.editorial .inverted .field:focus-visible {
+  border-bottom-color: var(--color-chalk) !important;
+}
+
+/* --- The corpus column --------------------------------------------------- */
+
+/* An entry your rule refused stays on the page, dimmed and struck, because the
+   whole argument is that you can see what your own rule removed. Still 6:1 on
+   paper, so refused is readable, not destroyed.
+
+   Colour is all CSS transitions here. Opacity and position belong to GSAP — the
+   first-view reveal — and to the FLIP in TheRule.jsx, which writes `transform`
+   directly. Transitioning opacity here as well would put two systems on the same
+   property and make both of them late. */
+.editorial .entry {
+  color: var(--color-ink);
+  transition: color 480ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 18ms);
+}
+
+.editorial .entry[data-admitted='false'] {
+  color: var(--color-ink-quiet);
+}
+
+.editorial .entry[data-admitted='false'] .entry-body {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklab, var(--color-ink-quiet) 45%, transparent);
 }
 
 /* --- Browser surfaces ---------------------------------------------------- */
 
-/* The app strips focus rings globally with !important, which is an
-   accessibility defect on any keyboard-driven surface. Restored inside the
-   drawing set, in the set's own ink. */
-.sheetset :is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-usermark) !important;
+/* The app strips every focus ring globally with !important. Restored here, in
+   ink, square, because a keyboard is a first-class way through this document. */
+.editorial
+  :is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ink) !important;
   outline-offset: 3px !important;
   border-radius: 0;
 }
 
-.sheetset ::selection {
-  background: color-mix(in oklab, var(--color-usermark) 20%, var(--color-sheet));
-  color: var(--color-graphite);
+.editorial .inverted
+  :is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
+  outline-color: var(--color-chalk) !important;
 }
 
-.sheetset {
-  caret-color: var(--color-usermark);
+.editorial ::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
 }
 
-.sheetset a {
-  text-underline-offset: 0.22em;
-  text-decoration-thickness: from-font;
+.editorial .inverted ::selection {
+  background: var(--color-chalk);
+  color: var(--color-obsidian);
 }
 
-/* Struck-out Echos in the rejection register: ruled out, still readable. */
-.sheetset .struck {
-  text-decoration: line-through;
-  text-decoration-color: color-mix(in oklab, var(--color-revision) 70%, transparent);
+.editorial :is(a, button).link-rule {
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-rule);
   text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  transition: text-decoration-color 200ms ease-out;
+}
+
+.editorial :is(a, button).link-rule:hover {
+  text-decoration-color: var(--color-ink);
+}
+
+.editorial .inverted :is(a, button).link-rule {
+  text-decoration-color: var(--color-chalk-dim);
+}
+
+.editorial .inverted :is(a, button).link-rule:hover {
+  text-decoration-color: var(--color-chalk);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sheetset,
-  .sheetset * {
-    --draw: 1 !important;
-    animation-duration: 0.01ms !important;
+  .editorial *,
+  .editorial *::before,
+  .editorial *::after {
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

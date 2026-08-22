@@ -1,140 +1,114 @@
-import React, { useState } from "react";
-import useAuthStore from "../store/useAuthStore.js";
-import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore.js';
+import AuthSheet, { Field } from '../components/auth/AuthSheet.jsx';
+
+/**
+ * Create an account — the same spread, one page further on.
+ *
+ * A handle claimed in §04 of the landing sheet arrives here in the URL and is
+ * already typed into the field, so the visitor is never asked the same question
+ * twice. The old page validated silently and simply refused to submit; this one
+ * names what is missing beside the field that is missing it.
+ */
+
+const TERMS = [
+    { term: 'Identifier', detail: 'Username only' },
+    { term: 'Email address', detail: 'None required' },
+    { term: 'Verification', detail: 'No step' },
+    { term: 'Username', detail: '3 characters minimum' },
+    { term: 'Password', detail: '4 characters minimum' },
+];
 
 const SignUpPage = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({
-        userName: "",
-        password: ""
-    });
-
     const { signup, isSigningUp } = useAuthStore();
+    const [params] = useSearchParams();
+    const [form, setForm] = useState({
+        userName: (params.get('u') ?? '').trim().slice(0, 32),
+        password: '',
+    });
+    const [errors, setErrors] = useState({});
 
-    const validateForm = () => {
-        if (!formData.userName.trim()) return false;
-        if (!formData.password) return false;
-        if (formData.password.length < 4) return false;
-        return true;
+    const edit = (key) => (event) => {
+        setForm((current) => ({ ...current, [key]: event.target.value }));
+        if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            signup(formData);
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        const userName = form.userName.trim();
+        const next = {};
+
+        if (!userName) next.userName = 'Pick a username — it is the only name Echo will know you by.';
+        else if (userName.length < 3) {
+            next.userName = `A username needs at least 3 characters, and this one has ${userName.length}.`;
         }
-    };
 
-    const isFormValid = formData.userName.trim() && formData.password.length >= 4;
+        if (!form.password) next.password = 'Choose a password, 4 characters or more.';
+        else if (form.password.length < 4) {
+            next.password = `Passwords need at least 4 characters, and this one has ${form.password.length}.`;
+        }
+
+        setErrors(next);
+        if (Object.keys(next).length > 0) return;
+
+        signup({ userName, password: form.password });
+    };
 
     return (
-        <div className="min-h-screen bg-base-100 flex flex-col">
-            {/* Main Content */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-sm">
-                    {/* Logo & Welcome */}
-                    <div className="text-center mb-10">
-                        <h1 className="text-3xl font-light tracking-tight text-base-content mb-2">
-                            echo<span className="text-base-content/30">.</span>
-                        </h1>
-                        <p className="text-base-content/40 text-sm">
-                            Create your space
-                        </p>
-                    </div>
+        <AuthSheet
+            reference="Create an account"
+            statement="A handle, a password, and nothing else."
+            deck="That is the whole account. There is no email address on file and no verification step to sit through — so keep your password somewhere you trust."
+            terms={TERMS}
+            footer="Set in Playfair Display and Inter."
+        >
+            <form onSubmit={handleSubmit} noValidate className="space-y-10">
+                <Field
+                    label="Choose a username"
+                    prefix="@"
+                    value={form.userName}
+                    onChange={edit('userName')}
+                    error={errors.userName}
+                    hint="3 characters or more. This is how everyone will see you."
+                    autoComplete="username"
+                    placeholder="yourname"
+                    disabled={isSigningUp}
+                />
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Username */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                                Username
-                            </label>
-                            <input
-                                type="text"
-                                className="w-full px-0 py-3 bg-transparent border-0 border-b border-base-300/50 text-base-content text-lg placeholder:text-base-content/25 focus:outline-none focus:border-base-content/30 transition-colors"
-                                placeholder="Choose a unique username"
-                                value={formData.userName}
-                                onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                                autoComplete="username"
-                            />
-                        </div>
+                <Field
+                    label="Choose a password"
+                    type="password"
+                    reveal
+                    value={form.password}
+                    onChange={edit('password')}
+                    error={errors.password}
+                    hint="4 characters or more."
+                    autoComplete="new-password"
+                    disabled={isSigningUp}
+                />
 
-                        {/* Password */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    className="w-full px-0 py-3 pr-10 bg-transparent border-0 border-b border-base-300/50 text-base-content text-lg placeholder:text-base-content/25 focus:outline-none focus:border-base-content/30 transition-colors"
-                                    placeholder="Create a password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    autoComplete="new-password"
-                                />
-                                <button
-                                    type="button"
-                                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-base-content/30 hover:text-base-content/50 transition-colors"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className="w-4 h-4" />
-                                    ) : (
-                                        <Eye className="w-4 h-4" />
-                                    )}
-                                </button>
-                            </div>
-                            <p className="text-xs text-base-content/30">
-                                At least 4 characters
-                            </p>
-                        </div>
-
-                        {/* Submit */}
-                        <div className="pt-4">
-                            <button
-                                type="submit"
-                                disabled={!isFormValid || isSigningUp}
-                                className="w-full py-3.5 bg-base-content text-base-100 rounded-full font-medium text-sm transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isSigningUp ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        <span>Creating account...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Get started</span>
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-
-                    {/* Switch to Login */}
-                    <div className="mt-8 text-center">
-                        <p className="text-sm text-base-content/40">
-                            Already have an account?{' '}
-                            <Link
-                                to="/login"
-                                className="text-base-content/70 hover:text-base-content underline underline-offset-2 transition-colors"
-                            >
-                                Sign in
-                            </Link>
-                        </p>
-                    </div>
+                <div>
+                    <button type="submit" disabled={isSigningUp} className="act h-12 w-full px-8">
+                        {isSigningUp ? 'Creating your account' : 'Create account'}
+                    </button>
+                    <p aria-live="polite" className="t-label mt-4 h-4 normal-case tracking-[0.04em]">
+                        {isSigningUp ? 'Claiming your username…' : ''}
+                    </p>
                 </div>
-            </div>
+            </form>
 
-            {/* Footer */}
-            <div className="py-6 text-center">
-                <p className="text-xs text-base-content/25">
-                    Your thoughts, amplified.
+            <div className="mt-12 border-t border-ink pt-5">
+                <p className="t-body text-ink-soft">
+                    Already have an account?{' '}
+                    <Link to="/login" className="link-rule font-medium text-ink">
+                        Sign in
+                    </Link>
+                    .
                 </p>
             </div>
-        </div>
+        </AuthSheet>
     );
 };
 
