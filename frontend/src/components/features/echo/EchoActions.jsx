@@ -1,74 +1,56 @@
 import React, { memo } from 'react';
-import { Heart, Share2, Bookmark, MessageCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const ActionButton = memo(({ onClick, children, count, isActive, isAnimating, label }) => (
-    <button
-        onClick={onClick}
-        className={`
-            group/btn flex items-center gap-1.5 py-1.5 px-2.5 -ml-2 rounded-full
-            transition-colors duration-150
-            ${isActive
-                ? 'text-base-content/60'
-                : 'text-base-content/25 hover:text-base-content/45 hover:bg-base-content/[0.03]'
-            }
-        `}
-        aria-label={label}
-    >
-        {children}
-        {typeof count === 'number' && count > 0 && (
-            <span className={`text-[11px] sm:text-xs tabular-nums font-medium transition-transform duration-200 ${isAnimating ? 'scale-110' : ''}`}>
-                {count}
-            </span>
-        )}
-    </button>
-));
+/**
+ * What you can do with an entry, printed as words.
+ *
+ * The icon set is gone. `Like` next to a numeral says the same thing a heart says
+ * and says it in one reading, and the held state changes the word itself — `Like`
+ * becomes `Liked`, at full ink, ruled underneath — so the state never rests on
+ * colour or on a fill. Every target is 44px tall; the words sit inside that height
+ * rather than being padded out to it.
+ */
+const ROW = 't-label flex h-11 items-center gap-2 transition-colors duration-200';
 
-ActionButton.displayName = 'ActionButton';
-
-const EchoActions = memo(({ echo, isLiked, isLikeAnimating, onLike, onBookmark }) => {
-    const navigate = useNavigate();
+const EchoActions = memo(({ echo, isLiked, onLike, onToggleMenu, onSave, menuOpen }) => {
     const replyCount = echo.replies?.length || 0;
     const likeCount = echo.likes || 0;
 
-    const handleCommentClick = () => {
-        navigate(`/echo/${echo._id}`);
-    };
-
     return (
-        <div className="flex items-center justify-between pt-0.5">
-            <div className="flex items-center gap-0.5">
-                {/* Like */}
-                <ActionButton
+        <div className="-mb-2 mt-2 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+                <button
+                    type="button"
                     onClick={onLike}
-                    count={likeCount}
-                    isActive={isLiked}
-                    isAnimating={isLikeAnimating}
-                    label="Like"
+                    aria-pressed={isLiked}
+                    className={`${ROW} ${
+                        isLiked
+                            ? 't-label--ink underline decoration-1 underline-offset-4'
+                            : 'hover:text-ink'
+                    }`}
                 >
-                    <Heart
-                        className={`cursor-pointer w-[17px] h-[17px] sm:w-[18px] sm:h-[18px] transition-all duration-200 ${isLiked ? 'fill-current' : ''
-                            } ${isLikeAnimating ? 'scale-125' : ''}`}
-                        strokeWidth={isLiked ? 0 : 1.5}
-                    />
-                </ActionButton>
+                    <span>{isLiked ? 'Liked' : 'Like'}</span>
+                    <span className="t-readout">{likeCount}</span>
+                </button>
 
-                {/* Reply */}
-                <ActionButton onClick={handleCommentClick} count={replyCount} label="Reply">
-                    <MessageCircle className="cursor-pointer w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
-                </ActionButton>
+                <Link to={`/echo/${echo._id}`} className={`${ROW} hover:text-ink`}>
+                    <span>Reply</span>
+                    <span className="t-readout">{replyCount}</span>
+                </Link>
             </div>
 
-            <div className="flex items-center gap-0.5">
-                {/* Bookmark */}
-                <ActionButton onClick={onBookmark} label="Save to scroll">
-                    <Bookmark className="cursor-pointer w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
-                </ActionButton>
-
-                {/* Share */}
-                <ActionButton label="Share">
-                    <Share2 className="cursor-pointer w-[17px] h-[17px] sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
-                </ActionButton>
+            <div className="flex items-center gap-6">
+                <button type="button" onClick={onSave} className={`${ROW} hover:text-ink`}>
+                    Save
+                </button>
+                <button
+                    type="button"
+                    onClick={onToggleMenu}
+                    aria-expanded={menuOpen}
+                    className={`${ROW} hover:text-ink`}
+                >
+                    More
+                </button>
             </div>
         </div>
     );

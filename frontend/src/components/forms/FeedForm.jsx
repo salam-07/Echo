@@ -1,150 +1,172 @@
 import React, { useState } from 'react';
 import { useScrollStore } from '../../store/useScrollStore';
 import { useNavigate } from 'react-router-dom';
-import { X, Hash, Users, Calendar, ArrowUpDown, Sparkles, Lock, Globe, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { UserAutocomplete } from '../ui';
+
+/**
+ * Writing a rule. This is the sheet the whole product is an argument for, so it is
+ * laid out as a specification: numbered clauses, every one of them open.
+ *
+ * The accordions are gone. A rule you cannot see all of is a rule you cannot check,
+ * and four collapsed panels meant the only way to know what your feed would do was
+ * to open all four and hold them in your head. Instead, everything is on the sheet
+ * and the last clause prints the rule back to you as a sentence — the reader's own
+ * words, in the document's voice, before they commit it.
+ *
+ * Every either/or is the same control: a rail of hard-edged stops with the held one
+ * inverted. Tags are stamps — admitted stamps are inverted, refused stamps are
+ * struck through — so include and exclude are told apart by shape, not by colour.
+ */
+
+const TIME_LABEL = {
+    '1day': 'in the last 24 hours',
+    '1month': 'in the last month',
+    '1year': 'in the last year',
+    allTime: 'of all time',
+};
+
+/** A numbered clause of the specification. */
+const Clause = ({ reference, name, note, children }) => (
+    <section className="mt-10 border-t border-rule pt-5">
+        <div className="flex items-baseline gap-3">
+            <span className="t-label text-rule-strong">{reference}</span>
+            <h2 className="t-label t-label--ink">{name}</h2>
+        </div>
+        {note && <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">{note}</p>}
+        <div className="mt-5">{children}</div>
+    </section>
+);
+
+/** A rail of stops. One held, always; the held one is inverted and at weight 600. */
+const Rail = ({ legend, options, value, onChange, name }) => (
+    <fieldset>
+        {legend && <legend className="t-label mb-2">{legend}</legend>}
+        <div className="flex flex-wrap border border-rule">
+            {options.map((option, index) => (
+                <label
+                    key={option.value}
+                    data-held={value === option.value || undefined}
+                    className={`stop t-label h-11 flex-1 whitespace-nowrap px-4 ${
+                        index > 0 ? 'border-l border-rule' : ''
+                    }`}
+                >
+                    <input
+                        type="radio"
+                        name={name}
+                        className="sr-only"
+                        checked={value === option.value}
+                        onChange={() => onChange(option.value)}
+                    />
+                    {option.label}
+                </label>
+            ))}
+        </div>
+    </fieldset>
+);
+
+/** A tag entry line and the stamps it has produced. */
+const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
+    const [draft, setDraft] = useState('');
+
+    const commit = (raw) => {
+        const clean = raw.replace(/^#/, '').replace(/[, ]+/g, '').trim().toLowerCase();
+        if (clean && !tags.includes(clean)) onAdd(clean);
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' || event.key === ' ' || event.key === ',') {
+            event.preventDefault();
+            commit(draft);
+            setDraft('');
+        } else if (event.key === 'Backspace' && draft === '' && tags.length > 0) {
+            onRemove(tags[tags.length - 1]);
+        }
+    };
+
+    return (
+        <div>
+            <label htmlFor={id} className="t-label block">
+                {label}
+            </label>
+            <input
+                id={id}
+                type="text"
+                value={draft}
+                onChange={(event) => {
+                    const value = event.target.value;
+                    if (value.includes(' ') || value.includes(',')) {
+                        commit(value);
+                        setDraft('');
+                        return;
+                    }
+                    setDraft(value);
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                className="field field-sm mt-1"
+                autoComplete="off"
+            />
+            {tags.length > 0 && (
+                <ul className="mt-3 flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                        <li key={tag} data-state={state} className="stamp px-3 py-1.5">
+                            <span className="text-[0.8125rem] leading-[1.4]">#{tag}</span>
+                            <button
+                                type="button"
+                                onClick={() => onRemove(tag)}
+                                aria-label={`Remove #${tag}`}
+                                className="stamp-state t-label text-[0.625rem] opacity-70 transition-opacity hover:opacity-100"
+                            >
+                                {state === 'out' ? 'Keep' : 'Remove'}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
 
 const FeedForm = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPrivate, setIsPrivate] = useState(false);
 
-    // Tag filtering
     const [tagMatchType, setTagMatchType] = useState('any');
     const [includedTags, setIncludedTags] = useState([]);
     const [excludedTags, setExcludedTags] = useState([]);
-    const [includedTagInput, setIncludedTagInput] = useState('');
-    const [excludedTagInput, setExcludedTagInput] = useState('');
 
-    // Author filtering
     const [selectedAuthors, setSelectedAuthors] = useState([]);
 
-    // Date range
     const [useDateRange, setUseDateRange] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
-    // Sorting
     const [sortBy, setSortBy] = useState('newestFirst');
     const [sortTimeRange, setSortTimeRange] = useState('allTime');
-
-    // Options
     const [excludeLikedEchos, setExcludeLikedEchos] = useState(false);
-
-    // Section expansion states
-    const [expandedSections, setExpandedSections] = useState({
-        tags: true,
-        authors: false,
-        date: false,
-        sorting: false
-    });
 
     const { createScroll, isCreatingScroll } = useScrollStore();
     const navigate = useNavigate();
 
-    const toggleSection = (section) => {
-        setExpandedSections(prev => ({
-            ...prev,
-            [section]: !prev[section]
-        }));
-    };
-
-    // Tag handlers for included tags
-    const handleIncludedTagInput = (e) => {
-        const value = e.target.value;
-        if (value.includes(' ') || value.includes(',')) {
-            e.preventDefault();
-            addIncludedTag(value.replace(/[, ]+/g, ''));
-            setIncludedTagInput('');
-            return;
-        }
-        setIncludedTagInput(value);
-    };
-
-    const handleIncludedTagKeyDown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
-            e.preventDefault();
-            addIncludedTag(includedTagInput.trim());
-            setIncludedTagInput('');
-        } else if (e.key === 'Backspace' && includedTagInput === '' && includedTags.length > 0) {
-            setIncludedTags(includedTags.slice(0, -1));
-        }
-    };
-
-    const addIncludedTag = (tag) => {
-        const cleanTag = tag.replace(/^#/, '').trim().toLowerCase();
-        if (cleanTag && !includedTags.includes(cleanTag)) {
-            setIncludedTags([...includedTags, cleanTag]);
-        }
-    };
-
-    const removeIncludedTag = (tagToRemove) => {
-        setIncludedTags(includedTags.filter(tag => tag !== tagToRemove));
-    };
-
-    // Tag handlers for excluded tags
-    const handleExcludedTagInput = (e) => {
-        const value = e.target.value;
-        if (value.includes(' ') || value.includes(',')) {
-            e.preventDefault();
-            addExcludedTag(value.replace(/[, ]+/g, ''));
-            setExcludedTagInput('');
-            return;
-        }
-        setExcludedTagInput(value);
-    };
-
-    const handleExcludedTagKeyDown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
-            e.preventDefault();
-            addExcludedTag(excludedTagInput.trim());
-            setExcludedTagInput('');
-        } else if (e.key === 'Backspace' && excludedTagInput === '' && excludedTags.length > 0) {
-            setExcludedTags(excludedTags.slice(0, -1));
-        }
-    };
-
-    const addExcludedTag = (tag) => {
-        const cleanTag = tag.replace(/^#/, '').trim().toLowerCase();
-        if (cleanTag && !excludedTags.includes(cleanTag)) {
-            setExcludedTags([...excludedTags, cleanTag]);
-        }
-    };
-
-    const removeExcludedTag = (tagToRemove) => {
-        setExcludedTags(excludedTags.filter(tag => tag !== tagToRemove));
-    };
-
-    // Author handlers
-    const handleAuthorAdd = (user) => {
-        setSelectedAuthors([...selectedAuthors, user]);
-    };
-
-    const handleAuthorRemove = (userId) => {
-        setSelectedAuthors(selectedAuthors.filter(author => author._id !== userId));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!name.trim()) {
-            return;
-        }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (!name.trim()) return;
 
         const feedConfig = {
             tagMatchType: includedTags.length > 0 ? tagMatchType : 'any',
-            includedTags: includedTags,
-            excludedTags: excludedTags,
-            authors: selectedAuthors.map(author => author._id),
+            includedTags,
+            excludedTags,
+            authors: selectedAuthors.map((author) => author._id),
             sortBy,
             sortTimeRange,
-            excludeLikedEchos
+            excludeLikedEchos,
         };
 
         if (useDateRange) {
             feedConfig.dateRange = {
                 startDate: startDate || undefined,
-                endDate: endDate || undefined
+                endDate: endDate || undefined,
             };
         }
 
@@ -154,9 +176,8 @@ const FeedForm = () => {
                 description: description.trim(),
                 type: 'feed',
                 feedConfig,
-                isPrivate
+                isPrivate,
             });
-
             navigate('/scrolls');
         } catch (error) {
             console.log('Error creating feed:', error);
@@ -165,419 +186,239 @@ const FeedForm = () => {
 
     const canSubmit = name.trim().length > 0 && !isCreatingScroll;
 
-    // Count active filters for summary
-    const activeFilters = [
-        includedTags.length > 0 && `${includedTags.length} tag${includedTags.length > 1 ? 's' : ''}`,
-        excludedTags.length > 0 && `${excludedTags.length} excluded`,
-        selectedAuthors.length > 0 && `${selectedAuthors.length} author${selectedAuthors.length > 1 ? 's' : ''}`,
-        useDateRange && 'date range'
-    ].filter(Boolean);
+    /* The rule, read back. Assembled from the same state the request is built
+       from, so what is printed here cannot drift from what is saved. */
+    const clauses = [
+        sortBy === 'newestFirst'
+            ? 'Newest first'
+            : sortBy === 'oldestFirst'
+              ? 'Oldest first'
+              : `Most liked ${TIME_LABEL[sortTimeRange]}`,
+    ];
+
+    if (includedTags.length > 0) {
+        clauses.push(
+            `tagged ${includedTags.map((tag) => `#${tag}`).join(tagMatchType === 'all' ? ' and ' : ' or ')}`,
+        );
+    }
+    if (excludedTags.length > 0) {
+        clauses.push(`never ${excludedTags.map((tag) => `#${tag}`).join(' or ')}`);
+    }
+    if (selectedAuthors.length > 0) {
+        clauses.push(`by ${selectedAuthors.map((author) => `@${author.userName}`).join(', ')}`);
+    } else {
+        clauses.push('from anyone');
+    }
+    if (useDateRange && (startDate || endDate)) {
+        if (startDate && endDate) clauses.push(`written between ${startDate} and ${endDate}`);
+        else if (startDate) clauses.push(`written after ${startDate}`);
+        else clauses.push(`written before ${endDate}`);
+    }
+    if (excludeLikedEchos) clauses.push('nothing you have already liked');
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Name Input */}
-            <div className="space-y-2">
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name your feed"
-                    className="w-full bg-transparent text-lg text-base-content placeholder:text-base-content/25 border-b border-base-content/10 pb-3 outline-none focus:border-base-content/30 transition-colors"
-                    maxLength={50}
-                    autoFocus
-                />
-                <div className="flex justify-end">
-                    <span className="text-xs text-base-content/30">{name.length}/50</span>
-                </div>
-            </div>
-
-            {/* Description Input */}
-            <div className="space-y-2">
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="What will this feed contain? (optional)"
-                    className="w-full bg-transparent text-sm text-base-content placeholder:text-base-content/25 border-b border-base-content/10 pb-3 outline-none focus:border-base-content/30 transition-colors resize-none leading-relaxed"
-                    rows={2}
-                    maxLength={200}
-                />
-                <div className="flex justify-end">
-                    <span className="text-xs text-base-content/30">{description.length}/200</span>
-                </div>
-            </div>
-
-            {/* Filter Sections */}
-            <div className="space-y-1">
-                <p className="text-xs text-base-content/40 mb-3">Configure filters (all optional)</p>
-
-                {/* Tags Section */}
-                <div className="border border-base-content/5 rounded-lg overflow-hidden">
-                    <button
-                        type="button"
-                        onClick={() => toggleSection('tags')}
-                        className="w-full flex items-center justify-between p-4 text-left hover:bg-base-content/[0.02] transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <Hash className="w-4 h-4 text-base-content/40" />
-                            <span className="text-sm text-base-content/70">Tags</span>
-                            {includedTags.length > 0 && (
-                                <span className="text-xs text-base-content/40">
-                                    {includedTags.length} selected
-                                </span>
-                            )}
-                        </div>
-                        {expandedSections.tags ? (
-                            <ChevronUp className="w-4 h-4 text-base-content/30" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4 text-base-content/30" />
-                        )}
-                    </button>
-
-                    {expandedSections.tags && (
-                        <div className="px-4 pb-4 pt-0 space-y-4 border-t border-base-content/5">
-                            {/* Include Tags */}
-                            <div className="pt-4">
-                                <label className="text-xs text-base-content/50 mb-2 block">Include</label>
-                                <div className="flex flex-wrap items-center gap-2 min-h-[36px] px-3 py-2 bg-base-content/[0.02] rounded-lg">
-                                    {includedTags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-base-content/10 text-base-content/70 text-xs rounded-full"
-                                        >
-                                            #{tag}
-                                            <button
-                                                type="button"
-                                                onClick={() => removeIncludedTag(tag)}
-                                                className="p-0.5 hover:text-base-content transition-colors"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </span>
-                                    ))}
-                                    <input
-                                        type="text"
-                                        value={includedTagInput}
-                                        onChange={handleIncludedTagInput}
-                                        onKeyDown={handleIncludedTagKeyDown}
-                                        placeholder={includedTags.length === 0 ? "Type tags, press space to add..." : ""}
-                                        className="flex-1 min-w-[120px] bg-transparent text-sm text-base-content placeholder:text-base-content/30 outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Tag Match Type */}
-                            {includedTags.length > 1 && (
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs text-base-content/40">Match:</span>
-                                    <div className="flex gap-1">
-                                        <button
-                                            type="button"
-                                            onClick={() => setTagMatchType('any')}
-                                            className={`px-3 py-1 text-xs rounded-full transition-colors ${tagMatchType === 'any'
-                                                ? 'bg-base-content/10 text-base-content'
-                                                : 'text-base-content/40 hover:text-base-content/60'
-                                                }`}
-                                        >
-                                            Any
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setTagMatchType('all')}
-                                            className={`px-3 py-1 text-xs rounded-full transition-colors ${tagMatchType === 'all'
-                                                ? 'bg-base-content/10 text-base-content'
-                                                : 'text-base-content/40 hover:text-base-content/60'
-                                                }`}
-                                        >
-                                            All
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Exclude Tags */}
-                            <div>
-                                <label className="text-xs text-base-content/50 mb-2 block">Exclude</label>
-                                <div className="flex flex-wrap items-center gap-2 min-h-[36px] px-3 py-2 bg-base-content/[0.02] rounded-lg">
-                                    {excludedTags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/10 text-red-400/80 text-xs rounded-full"
-                                        >
-                                            #{tag}
-                                            <button
-                                                type="button"
-                                                onClick={() => removeExcludedTag(tag)}
-                                                className="p-0.5 hover:text-red-400 transition-colors"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </button>
-                                        </span>
-                                    ))}
-                                    <input
-                                        type="text"
-                                        value={excludedTagInput}
-                                        onChange={handleExcludedTagInput}
-                                        onKeyDown={handleExcludedTagKeyDown}
-                                        placeholder={excludedTags.length === 0 ? "Tags to hide..." : ""}
-                                        className="flex-1 min-w-[120px] bg-transparent text-sm text-base-content placeholder:text-base-content/30 outline-none"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+        <form onSubmit={handleSubmit}>
+            <Clause reference="§1" name="Name">
+                <div>
+                    <label htmlFor="feed-name" className="sr-only">
+                        Feed name
+                    </label>
+                    <input
+                        id="feed-name"
+                        type="text"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        placeholder="Name this rule"
+                        className="field"
+                        maxLength={50}
+                        autoFocus
+                    />
+                    <p className="t-readout mt-2 text-right text-rule-strong">{name.length}/50</p>
                 </div>
 
-                {/* Authors Section */}
-                <div className="border border-base-content/5 rounded-lg overflow-hidden">
-                    <button
-                        type="button"
-                        onClick={() => toggleSection('authors')}
-                        className="w-full flex items-center justify-between p-4 text-left hover:bg-base-content/[0.02] transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <Users className="w-4 h-4 text-base-content/40" />
-                            <span className="text-sm text-base-content/70">Authors</span>
-                            {selectedAuthors.length > 0 && (
-                                <span className="text-xs text-base-content/40">
-                                    {selectedAuthors.length} selected
-                                </span>
-                            )}
-                        </div>
-                        {expandedSections.authors ? (
-                            <ChevronUp className="w-4 h-4 text-base-content/30" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4 text-base-content/30" />
-                        )}
-                    </button>
-
-                    {expandedSections.authors && (
-                        <div className="px-4 pb-4 pt-0 border-t border-base-content/5">
-                            <div className="pt-4">
-                                <p className="text-xs text-base-content/40 mb-3">
-                                    Only show echos from these users
-                                </p>
-                                <UserAutocomplete
-                                    selectedUsers={selectedAuthors}
-                                    onUserAdd={handleAuthorAdd}
-                                    onUserRemove={handleAuthorRemove}
-                                    placeholder="Search users..."
-                                />
-                            </div>
-                        </div>
-                    )}
+                <div className="mt-6">
+                    <label htmlFor="feed-description" className="t-label block">
+                        Description <span className="font-normal normal-case tracking-normal">— optional</span>
+                    </label>
+                    <textarea
+                        id="feed-description"
+                        value={description}
+                        onChange={(event) => setDescription(event.target.value)}
+                        placeholder="What this feed is for"
+                        className="field field-sm mt-1 resize-none"
+                        rows={2}
+                        maxLength={200}
+                    />
+                    <p className="t-readout mt-2 text-right text-rule-strong">{description.length}/200</p>
                 </div>
+            </Clause>
 
-                {/* Date Range Section */}
-                <div className="border border-base-content/5 rounded-lg overflow-hidden">
-                    <button
-                        type="button"
-                        onClick={() => toggleSection('date')}
-                        className="w-full flex items-center justify-between p-4 text-left hover:bg-base-content/[0.02] transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <Calendar className="w-4 h-4 text-base-content/40" />
-                            <span className="text-sm text-base-content/70">Date Range</span>
-                            {useDateRange && (
-                                <span className="text-xs text-base-content/40">
-                                    enabled
-                                </span>
-                            )}
-                        </div>
-                        {expandedSections.date ? (
-                            <ChevronUp className="w-4 h-4 text-base-content/30" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4 text-base-content/30" />
-                        )}
-                    </button>
-
-                    {expandedSections.date && (
-                        <div className="px-4 pb-4 pt-0 border-t border-base-content/5">
-                            <div className="pt-4 space-y-4">
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={useDateRange}
-                                        onChange={(e) => setUseDateRange(e.target.checked)}
-                                        className="w-4 h-4 rounded border-base-content/20 bg-transparent"
-                                    />
-                                    <span className="text-xs text-base-content/60">
-                                        Limit to specific dates
-                                    </span>
-                                </label>
-
-                                {useDateRange && (
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs text-base-content/40 mb-2 block">From</label>
-                                            <input
-                                                type="date"
-                                                value={startDate}
-                                                onChange={(e) => setStartDate(e.target.value)}
-                                                className="w-full px-3 py-2 bg-base-content/[0.02] border border-base-content/5 rounded-lg text-sm text-base-content"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-base-content/40 mb-2 block">To</label>
-                                            <input
-                                                type="date"
-                                                value={endDate}
-                                                onChange={(e) => setEndDate(e.target.value)}
-                                                className="w-full px-3 py-2 bg-base-content/[0.02] border border-base-content/5 rounded-lg text-sm text-base-content"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Sorting Section */}
-                <div className="border border-base-content/5 rounded-lg overflow-hidden">
-                    <button
-                        type="button"
-                        onClick={() => toggleSection('sorting')}
-                        className="w-full flex items-center justify-between p-4 text-left hover:bg-base-content/[0.02] transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <ArrowUpDown className="w-4 h-4 text-base-content/40" />
-                            <span className="text-sm text-base-content/70">Sorting</span>
-                            <span className="text-xs text-base-content/40">
-                                {sortBy === 'newestFirst' ? 'Newest' : sortBy === 'oldestFirst' ? 'Oldest' : 'Popular'}
-                            </span>
-                        </div>
-                        {expandedSections.sorting ? (
-                            <ChevronUp className="w-4 h-4 text-base-content/30" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4 text-base-content/30" />
-                        )}
-                    </button>
-
-                    {expandedSections.sorting && (
-                        <div className="px-4 pb-4 pt-0 border-t border-base-content/5">
-                            <div className="pt-4 space-y-4">
-                                <div className="flex gap-2">
-                                    {[
-                                        { value: 'newestFirst', label: 'Newest' },
-                                        { value: 'oldestFirst', label: 'Oldest' },
-                                        { value: 'mostLiked', label: 'Popular' }
-                                    ].map(option => (
-                                        <button
-                                            key={option.value}
-                                            type="button"
-                                            onClick={() => setSortBy(option.value)}
-                                            className={`flex-1 px-3 py-2 text-xs rounded-lg transition-colors ${sortBy === option.value
-                                                ? 'bg-base-content/10 text-base-content'
-                                                : 'text-base-content/40 hover:text-base-content/60'
-                                                }`}
-                                        >
-                                            {option.label}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {sortBy === 'mostLiked' && (
-                                    <div>
-                                        <label className="text-xs text-base-content/40 mb-2 block">Time range</label>
-                                        <select
-                                            value={sortTimeRange}
-                                            onChange={(e) => setSortTimeRange(e.target.value)}
-                                            className="w-full px-3 py-2 bg-base-content/[0.02] border border-base-content/5 rounded-lg text-sm text-base-content"
-                                        >
-                                            <option value="1day">Last 24 hours</option>
-                                            <option value="1month">Last month</option>
-                                            <option value="1year">Last year</option>
-                                            <option value="allTime">All time</option>
-                                        </select>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Hide Liked Option */}
-            <div
-                className="flex items-center gap-3 cursor-pointer py-2"
-                onClick={() => setExcludeLikedEchos(!excludeLikedEchos)}
-                role="checkbox"
-                aria-checked={excludeLikedEchos}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === ' ' || e.key === 'Enter') {
-                        e.preventDefault();
-                        setExcludeLikedEchos(!excludeLikedEchos);
-                    }
-                }}
+            <Clause
+                reference="§2"
+                name="Tags"
+                note="Type a tag and press space. Admitted tags are set solid; refused tags are struck."
             >
-                {excludeLikedEchos ? (
-                    <EyeOff className="w-4 h-4 text-base-content/40" />
-                ) : (
-                    <Eye className="w-4 h-4 text-base-content/40" />
-                )}
-                <span className={`text-sm transition-colors ${excludeLikedEchos ? 'text-base-content/70' : 'text-base-content/40'}`}>
-                    Hide echos I've already liked
-                </span>
-            </div>
+                <TagField
+                    id="feed-include-tags"
+                    label="Admit"
+                    placeholder="poetry, notation, cities"
+                    tags={includedTags}
+                    state="in"
+                    onAdd={(tag) => setIncludedTags([...includedTags, tag])}
+                    onRemove={(tag) => setIncludedTags(includedTags.filter((t) => t !== tag))}
+                />
 
-            {/* Privacy Toggle */}
-            <div className="flex items-center justify-between py-4 border-y border-base-content/5">
-                <div className="flex items-center gap-3">
-                    {isPrivate ? (
-                        <Lock className="w-4 h-4 text-base-content/40" />
-                    ) : (
-                        <Globe className="w-4 h-4 text-base-content/40" />
-                    )}
-                    <div>
-                        <p className="text-sm text-base-content/80">
-                            {isPrivate ? 'Private' : 'Public'}
-                        </p>
-                        <p className="text-xs text-base-content/40">
-                            {isPrivate
-                                ? 'Only you can view this feed'
-                                : 'Anyone can discover this feed'}
-                        </p>
+                {includedTags.length > 1 && (
+                    <div className="mt-6">
+                        <Rail
+                            legend="An entry must carry"
+                            name="tagMatchType"
+                            value={tagMatchType}
+                            onChange={setTagMatchType}
+                            options={[
+                                { value: 'any', label: 'Any of them' },
+                                { value: 'all', label: 'All of them' },
+                            ]}
+                        />
                     </div>
-                </div>
-                <button
-                    type="button"
-                    onClick={() => setIsPrivate(!isPrivate)}
-                    className={`relative w-11 h-6 rounded-full transition-colors ${isPrivate ? 'bg-base-content/20' : 'bg-base-content/10'
-                        }`}
-                >
-                    <span className={`absolute top-1 w-4 h-4 bg-base-content rounded-full transition-all ${isPrivate ? 'left-6' : 'left-1'
-                        }`} />
-                </button>
-            </div>
-
-            {/* Filter Summary */}
-            {activeFilters.length > 0 && (
-                <div className="text-xs text-base-content/40 text-center">
-                    Filtering by: {activeFilters.join(' • ')}
-                </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-                type="submit"
-                disabled={!canSubmit}
-                className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all ${canSubmit
-                    ? 'bg-base-content text-base-100 hover:bg-base-content/90'
-                    : 'bg-base-content/5 text-base-content/30 cursor-not-allowed'
-                    }`}
-            >
-                {isCreatingScroll ? (
-                    <>
-                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        Creating...
-                    </>
-                ) : (
-                    <>
-                        <Sparkles className="w-4 h-4" />
-                        Create Feed
-                    </>
                 )}
+
+                <div className="mt-8">
+                    <TagField
+                        id="feed-exclude-tags"
+                        label="Refuse"
+                        placeholder="tags to keep out"
+                        tags={excludedTags}
+                        state="out"
+                        onAdd={(tag) => setExcludedTags([...excludedTags, tag])}
+                        onRemove={(tag) => setExcludedTags(excludedTags.filter((t) => t !== tag))}
+                    />
+                </div>
+            </Clause>
+
+            <Clause reference="§3" name="Authors" note="Leave this empty to admit everyone.">
+                <UserAutocomplete
+                    label="Admit only"
+                    selectedUsers={selectedAuthors}
+                    onUserAdd={(user) => setSelectedAuthors([...selectedAuthors, user])}
+                    onUserRemove={(userId) =>
+                        setSelectedAuthors(selectedAuthors.filter((author) => author._id !== userId))
+                    }
+                    placeholder="Search by username"
+                />
+            </Clause>
+
+            <Clause reference="§4" name="Window">
+                <Rail
+                    name="window"
+                    value={useDateRange ? 'between' : 'any'}
+                    onChange={(value) => setUseDateRange(value === 'between')}
+                    options={[
+                        { value: 'any', label: 'Any time' },
+                        { value: 'between', label: 'Between dates' },
+                    ]}
+                />
+
+                {useDateRange && (
+                    <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                        <div>
+                            <label htmlFor="feed-start" className="t-label block">
+                                From
+                            </label>
+                            <input
+                                id="feed-start"
+                                type="date"
+                                value={startDate}
+                                onChange={(event) => setStartDate(event.target.value)}
+                                className="field field-sm mt-1"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="feed-end" className="t-label block">
+                                To
+                            </label>
+                            <input
+                                id="feed-end"
+                                type="date"
+                                value={endDate}
+                                onChange={(event) => setEndDate(event.target.value)}
+                                className="field field-sm mt-1"
+                            />
+                        </div>
+                    </div>
+                )}
+            </Clause>
+
+            <Clause reference="§5" name="Order">
+                <Rail
+                    name="sortBy"
+                    value={sortBy}
+                    onChange={setSortBy}
+                    options={[
+                        { value: 'newestFirst', label: 'Newest' },
+                        { value: 'oldestFirst', label: 'Oldest' },
+                        { value: 'mostLiked', label: 'Most liked' },
+                    ]}
+                />
+
+                {sortBy === 'mostLiked' && (
+                    <div className="mt-5">
+                        <Rail
+                            legend="Measured over"
+                            name="sortTimeRange"
+                            value={sortTimeRange}
+                            onChange={setSortTimeRange}
+                            options={[
+                                { value: '1day', label: '24 hours' },
+                                { value: '1month', label: 'Month' },
+                                { value: '1year', label: 'Year' },
+                                { value: 'allTime', label: 'All time' },
+                            ]}
+                        />
+                    </div>
+                )}
+            </Clause>
+
+            <Clause reference="§6" name="Terms">
+                <Rail
+                    legend="Echoes you have already liked"
+                    name="excludeLiked"
+                    value={excludeLikedEchos ? 'hide' : 'show'}
+                    onChange={(value) => setExcludeLikedEchos(value === 'hide')}
+                    options={[
+                        { value: 'show', label: 'Show them' },
+                        { value: 'hide', label: 'Hide them' },
+                    ]}
+                />
+
+                <div className="mt-6">
+                    <Rail
+                        legend="Visibility"
+                        name="visibility"
+                        value={isPrivate ? 'private' : 'public'}
+                        onChange={(value) => setIsPrivate(value === 'private')}
+                        options={[
+                            { value: 'public', label: 'Public' },
+                            { value: 'private', label: 'Private' },
+                        ]}
+                    />
+                    <p className="mt-3 text-[0.8125rem] leading-[1.5] text-ink-quiet">
+                        {isPrivate
+                            ? 'Only you can open this Feed.'
+                            : 'Anyone can find this Feed and follow it.'}
+                    </p>
+                </div>
+            </Clause>
+
+            <section className="mt-12 border-t border-ink pt-6">
+                <h2 className="t-label t-label--ink">The rule</h2>
+                <p aria-live="polite" className="t-title mt-4">
+                    {clauses.join(', ')}.
+                </p>
+            </section>
+
+            <button type="submit" disabled={!canSubmit} className="act mt-10 h-12 w-full px-8">
+                {isCreatingScroll ? 'Committing' : 'Commit this rule'}
             </button>
         </form>
     );

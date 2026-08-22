@@ -1,50 +1,53 @@
 import React, { useState } from 'react';
-import { Send } from 'lucide-react';
+
+/**
+ * A reply, written on one line. The field is a hairline; the action beside it is a
+ * word. The counter only appears once you are close enough to the limit for it to
+ * be news.
+ */
+const MAX = 500;
 
 const ReplyInput = ({ onSubmit, isSubmitting }) => {
     const [comment, setComment] = useState('');
-    const maxLength = 500;
+    const remaining = MAX - comment.length;
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = (event) => {
+        event.preventDefault();
         if (comment.trim() && !isSubmitting) {
             onSubmit(comment.trim());
             setComment('');
         }
     };
 
-    const handleKeyDown = (e) => {
-        // Submit on Enter
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit(e);
-        }
-    };
-
-    const remainingChars = maxLength - comment.length;
-    const isOverLimit = remainingChars < 0;
-
     return (
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
-            <input
-                type="text"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Write a reply..."
-                className="flex-1 px-3 py-2 bg-base-100 border border-base-300 rounded-lg text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:border-primary/50 transition-colors"
-                disabled={isSubmitting}
-                maxLength={maxLength}
-            />
-
-            <button
-                type="submit"
-                disabled={!comment.trim() || isSubmitting || isOverLimit}
-                className="p-2 rounded-lg bg-primary text-primary-content hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Send reply"
-            >
-                <Send className="w-4 h-4" />
-            </button>
+        <form onSubmit={handleSubmit}>
+            <label htmlFor="reply-field" className="sr-only">
+                Write a reply
+            </label>
+            <div className="flex items-end gap-4">
+                <input
+                    id="reply-field"
+                    type="text"
+                    value={comment}
+                    onChange={(event) => setComment(event.target.value)}
+                    placeholder="Write a reply"
+                    disabled={isSubmitting}
+                    maxLength={MAX}
+                    className="field field-sm"
+                />
+                <button
+                    type="submit"
+                    disabled={!comment.trim() || isSubmitting}
+                    className="act h-10 shrink-0 px-6"
+                >
+                    {isSubmitting ? 'Sending' : 'Reply'}
+                </button>
+            </div>
+            {remaining <= 80 && (
+                <p aria-live="polite" className="t-readout mt-2 text-rule-strong">
+                    {remaining} characters left
+                </p>
+            )}
         </form>
     );
 };

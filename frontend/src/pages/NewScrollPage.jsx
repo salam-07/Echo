@@ -1,101 +1,61 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { CurationForm, FeedForm } from '../components/forms';
-import { Layers, Filter, BookMarked, Sparkles } from 'lucide-react';
+import { Measure, SheetHead } from '../components/editorial/Apparatus';
+
+/**
+ * Choosing what kind of Scroll to make, then making it.
+ *
+ * The choice is a two-stop rail, the same control the rule itself is built from, so
+ * the form's first decision looks like all the ones that follow. The sentence under
+ * the rail says what the held stop means — a card grid with an icon in each tile
+ * looked like a purchase, and it never said which one filled itself.
+ */
+const KINDS = [
+    { value: 'feed', label: 'Feed', note: 'A rule. You set the terms once and it gathers whatever satisfies them.' },
+    { value: 'curation', label: 'Curation', note: 'A shelf. Nothing appears in it that you have not filed yourself.' },
+];
 
 const NewScrollPage = () => {
-    const [scrollType, setScrollType] = useState('feed');
+    const [params] = useSearchParams();
+    const [kind, setKind] = useState(params.get('type') === 'curation' ? 'curation' : 'feed');
+    const held = KINDS.find((option) => option.value === kind);
 
     return (
         <Layout>
-            <div className="max-w-xl mx-auto px-6 py-8">
-                {/* Header */}
-                <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-base-200/50 mb-3">
-                        <Layers className="w-5 h-5 text-base-content/70" />
+            <Measure>
+                <SheetHead label="New scroll" subject="What should decide what you read?" />
+
+                <fieldset>
+                    <legend className="sr-only">Kind of scroll</legend>
+                    <div className="flex border border-rule">
+                        {KINDS.map((option, index) => (
+                            <label
+                                key={option.value}
+                                data-held={kind === option.value || undefined}
+                                className={`stop t-label h-12 flex-1 ${index > 0 ? 'border-l border-rule' : ''}`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="scrollKind"
+                                    className="sr-only"
+                                    checked={kind === option.value}
+                                    onChange={() => setKind(option.value)}
+                                />
+                                {option.label}
+                            </label>
+                        ))}
                     </div>
-                    <h1 className="text-xl font-light text-base-content tracking-tight mb-1">
-                        Create a Scroll
-                    </h1>
-                    <p className="text-xs text-base-content/40">
-                        Organize your echos, your way
-                    </p>
-                </div>
+                    <p className="mt-3 text-[0.8125rem] leading-[1.5] text-ink-quiet">{held.note}</p>
+                </fieldset>
 
-                {/* Type Selector */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                    <button
-                        type="button"
-                        onClick={() => setScrollType('feed')}
-                        className={`group relative p-4 rounded-xl border transition-all duration-200 text-left ${scrollType === 'feed'
-                            ? 'border-base-content/20 bg-base-200/30'
-                            : 'border-base-content/5 hover:border-base-content/10'
-                            }`}
-                    >
-                        <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2 transition-colors ${scrollType === 'feed'
-                            ? 'bg-base-content/10'
-                            : 'bg-base-200/50'
-                            }`}>
-                            <Filter className={`w-4 h-4 ${scrollType === 'feed'
-                                ? 'text-base-content'
-                                : 'text-base-content/40'
-                                }`} />
-                        </div>
-                        <h3 className={`text-sm font-medium mb-0.5 transition-colors ${scrollType === 'feed'
-                            ? 'text-base-content'
-                            : 'text-base-content/60'
-                            }`}>
-                            Feed
-                        </h3>
-                        <p className="text-xs text-base-content/40 leading-relaxed">
-                            Auto-updates with filters
-                        </p>
-                        {scrollType === 'feed' && (
-                            <div className="absolute top-2 right-2">
-                                <Sparkles className="w-3 h-3 text-base-content/30" />
-                            </div>
-                        )}
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setScrollType('curation')}
-                        className={`group relative p-4 rounded-xl border transition-all duration-200 text-left ${scrollType === 'curation'
-                            ? 'border-base-content/20 bg-base-200/30'
-                            : 'border-base-content/5 hover:border-base-content/10'
-                            }`}
-                    >
-                        <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2 transition-colors ${scrollType === 'curation'
-                            ? 'bg-base-content/10'
-                            : 'bg-base-200/50'
-                            }`}>
-                            <BookMarked className={`w-4 h-4 ${scrollType === 'curation'
-                                ? 'text-base-content'
-                                : 'text-base-content/40'
-                                }`} />
-                        </div>
-                        <h3 className={`text-sm font-medium mb-0.5 transition-colors ${scrollType === 'curation'
-                            ? 'text-base-content'
-                            : 'text-base-content/60'
-                            }`}>
-                            Curation
-                        </h3>
-                        <p className="text-xs text-base-content/40 leading-relaxed">
-                            Hand-pick your favorites
-                        </p>
-                        {scrollType === 'curation' && (
-                            <div className="absolute top-2 right-2">
-                                <Sparkles className="w-3 h-3 text-base-content/30" />
-                            </div>
-                        )}
-                    </button>
+                {/* The rule sheet opens each clause with its own rule and margin; the
+                    curation sheet starts straight into a field and needs the gap. */}
+                <div className={kind === 'feed' ? 'pb-16' : 'mt-10 pb-16'}>
+                    {kind === 'feed' ? <FeedForm /> : <CurationForm />}
                 </div>
-
-                {/* Form */}
-                <div className="pb-8">
-                    {scrollType === 'feed' ? <FeedForm /> : <CurationForm />}
-                </div>
-            </div>
+            </Measure>
         </Layout>
     );
 };

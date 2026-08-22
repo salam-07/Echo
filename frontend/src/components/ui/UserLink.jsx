@@ -2,9 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 
+/**
+ * A byline. The `@` stays, because it is how the product names people, and the
+ * hairline under it on hover is the same underline the whole document uses for a
+ * link.
+ */
 const UserLink = ({
     user,
-    className = 'text-sm font-medium text-base-content hover:text-base-content/70 transition-colors',
+    className = 'text-[0.875rem] font-medium tracking-[0.01em] text-ink',
     prefix = '@',
     showPrefix = true,
     ...props
@@ -14,8 +19,9 @@ const UserLink = ({
 
     if (!userId) {
         return (
-            <span className={cn(className, 'cursor-default')} {...props}>
-                {showPrefix && prefix}{displayName}
+            <span className={cn(className, 'cursor-default text-ink-quiet')} {...props}>
+                {showPrefix && prefix}
+                {displayName}
             </span>
         );
     }
@@ -23,11 +29,12 @@ const UserLink = ({
     return (
         <Link
             to={`/user/${userId}`}
-            className={className}
+            className={cn(className, 'link-rule')}
             onClick={(e) => e.stopPropagation()}
             {...props}
         >
-            {showPrefix && prefix}{displayName}
+            {showPrefix && prefix}
+            {displayName}
         </Link>
     );
 };

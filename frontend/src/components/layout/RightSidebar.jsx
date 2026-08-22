@@ -1,8 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollStore } from '../../store/useScrollStore';
-import { Scroll, Bookmark, Plus, ArrowRight } from 'lucide-react';
 
+/**
+ * The margin column — notes beside the sheet, not a second navigation.
+ *
+ * The index column already carries every route, so repeating routes here would
+ * spend a whole column saying what is already said two columns left. What only
+ * this column says is *contents*: which collections you keep by hand, and how
+ * much is in each. The counts are read off the records, never invented.
+ *
+ * Desktop only. Below `lg` there is no margin to write in, and everything here
+ * is reachable from the index.
+ */
 const RightSidebar = () => {
     const { scrolls, getScrolls } = useScrollStore();
 
@@ -10,115 +20,65 @@ const RightSidebar = () => {
         getScrolls();
     }, [getScrolls]);
 
-    const feedScrolls = scrolls
-        .filter(scroll => scroll.type === 'feed')
-        .slice(0, 4);
-
-    const curationScrolls = scrolls
-        .filter(scroll => scroll.type === 'curation')
-        .slice(0, 3);
+    const curations = useMemo(
+        () => scrolls.filter((scroll) => scroll.type === 'curation').slice(0, 6),
+        [scrolls],
+    );
 
     return (
-        <aside className="hidden lg:block w-56 py-4 px-3 border-l border-base-200/60">
-            <div className="space-y-6">
-                {/* Feed Scrolls */}
-                <div>
-                    <div className="flex items-center justify-between px-2 mb-2">
-                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
-                            Feeds
-                        </span>
-                        <Link
-                            to="/scroll/new"
-                            className="text-base-content/30 hover:text-base-content/60 transition-colors"
-                        >
-                            <Plus className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
+        <aside className="hidden w-[15.5rem] shrink-0 px-5 py-6 lg:block">
+            <p className="t-label flex items-baseline justify-between gap-3 border-b border-rule pb-2">
+                <span>Curations</span>
+                <Link to="/scrolls/curations" className="link-rule transition-colors hover:text-ink">
+                    All
+                </Link>
+            </p>
 
-                    <div className="space-y-0.5">
-                        {feedScrolls.length > 0 ? (
-                            feedScrolls.map((scroll) => (
-                                <Link
-                                    key={scroll._id}
-                                    to={`/scroll/${scroll._id}`}
-                                    className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
-                                >
-                                    <Scroll className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
-                                    <span className="truncate">{scroll.name}</span>
-                                </Link>
-                            ))
-                        ) : (
-                            <p className="px-2 py-3 text-xs text-base-content/30">
-                                No feed scrolls yet
-                            </p>
-                        )}
-
-                        {feedScrolls.length > 0 && (
+            {curations.length > 0 ? (
+                <ul className="mt-1">
+                    {curations.map((scroll) => (
+                        <li key={scroll._id} className="border-b border-rule/60">
                             <Link
-                                to="/scrolls/feeds"
-                                className="flex items-center gap-1 px-2 py-1.5 text-xs text-base-content/40 hover:text-base-content/60 transition-colors"
+                                to={`/scroll/${scroll._id}`}
+                                className="group flex items-baseline justify-between gap-3 py-2.5"
                             >
-                                View all <ArrowRight className="w-3 h-3" />
+                                <span className="truncate text-[0.875rem] leading-[1.45] text-ink-soft transition-colors group-hover:text-ink">
+                                    {scroll.name}
+                                </span>
+                                <span className="t-readout shrink-0 text-rule-strong">
+                                    {scroll.echos?.length ?? 0}
+                                </span>
                             </Link>
-                        )}
-                    </div>
-                </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="mt-3 text-[0.8125rem] leading-[1.5] text-ink-quiet">
+                    Nothing collected by hand yet.{' '}
+                    <Link to="/scroll/new" className="link-rule text-ink">
+                        Start a curation
+                    </Link>
+                    .
+                </p>
+            )}
 
-                {/* Curation Scrolls */}
-                <div>
-                    <div className="flex items-center justify-between px-2 mb-2">
-                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
-                            Curations
-                        </span>
-                    </div>
-
-                    <div className="space-y-0.5">
-                        {curationScrolls.length > 0 ? (
-                            curationScrolls.map((scroll) => (
-                                <Link
-                                    key={scroll._id}
-                                    to={`/scroll/${scroll._id}`}
-                                    className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
-                                >
-                                    <Bookmark className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
-                                    <span className="truncate">{scroll.name}</span>
-                                </Link>
-                            ))
-                        ) : (
-                            <p className="px-2 py-3 text-xs text-base-content/30">
-                                No curations yet
-                            </p>
-                        )}
-
-                        {curationScrolls.length > 0 && (
-                            <Link
-                                to="/scrolls/curations"
-                                className="flex items-center gap-1 px-2 py-1.5 text-xs text-base-content/40 hover:text-base-content/60 transition-colors"
-                            >
-                                View all <ArrowRight className="w-3 h-3" />
-                            </Link>
-                        )}
-                    </div>
-                </div>
-
-                {/* Trending Tags */}
-                <div>
-                    <div className="px-2 mb-2">
-                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
-                            Explore
-                        </span>
-                    </div>
-
-                    <div className="space-y-0.5">
+            <p className="t-label mt-9 border-b border-rule pb-2">Elsewhere</p>
+            <ul className="mt-1">
+                {[
+                    { to: '/browse/tags', label: 'Tags' },
+                    { to: '/browse-community', label: 'Community' },
+                    { to: '/browse/popular', label: 'Most liked' },
+                ].map((item) => (
+                    <li key={item.to} className="border-b border-rule/60">
                         <Link
-                            to="/browse/tags"
-                            className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-base-content/60 hover:text-base-content hover:bg-base-200/50 transition-colors"
+                            to={item.to}
+                            className="block py-2.5 text-[0.875rem] leading-[1.45] text-ink-soft transition-colors hover:text-ink"
                         >
-                            Browse Tags
+                            {item.label}
                         </Link>
-                    </div>
-                </div>
-            </div>
+                    </li>
+                ))}
+            </ul>
         </aside>
     );
 };

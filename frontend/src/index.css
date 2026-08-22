@@ -5,166 +5,64 @@
 
 @import 'tailwindcss';
 @plugin "daisyui";
+
+/* ==========================================================================
+   ECHO EDITORIAL  ·  the whole application  ·  key ECHO-EDIT-01
+   --------------------------------------------------------------------------
+   Every route is a page of one printed document: a specification sheet for a
+   feed. Tokens are DESIGN.md's, unaltered. The world is achromatic on purpose —
+   every mark is ink, paper, or a hairline rule, and emphasis comes only from
+   scale, weight, and inversion. No shadow, no gradient, no blur, no radius,
+   anywhere. There is one stock: paper. Dark mode was retired with the seam it
+   used to sit on.
+
+   This file used to scope the world under `.editorial` so it could sit beside a
+   DaisyUI light/dark app. That app is gone, so the scope is gone: the registers
+   and controls below are simply the application's own vocabulary. The class name
+   survives on the landing and auth roots, where it now costs nothing.
+   ========================================================================== */
+
+/* DaisyUI's ramp is kept only as a floor: it is what an unconverted `base-200`
+   or `base-content` reference lands on, so nothing can fall back to grey. The
+   radii are zeroed at the source — a squared world cannot afford one component
+   that rounds itself. */
 @plugin "daisyui/theme" {
   name: "light";
   default: true;
   prefersdark: false;
   color-scheme: light;
-  --color-base-50:  #fafafa;
-  --color-base-100: #f5f5f5;
-  --color-base-200: #e5e5e5;
-  --color-base-300: #d4d4d4;
-  --color-base-400: #a3a3a3;
-  --color-base-500: #737373;
-  --color-base-600: #525252;
-  --color-base-700: #404040;
-  --color-base-800: #262626;
-  --color-base-900: #171717;
-  --color-base-950: #0a0a0a;
-  --color-primary: #737373;
-  --color-primary-content: #fafafa;
-  --color-secondary: #a3a3a3;
-  --color-secondary-content: #fafafa;
-  --color-accent: #d4d4d4;
-  --color-accent-content: #171717;
-  --color-neutral: #171717;
-  --color-neutral-content: #fafafa;
-}
 
-@plugin "daisyui/theme" {
-  name: "dark";
-  default: false;
-  prefersdark: true;
-  color-scheme: dark;
-  --color-base-50:  #fafafa;
-  --color-base-100: #0a0a0a;
-  --color-base-200: #262626;
-  --color-base-300: #404040;
-  --color-base-400: #525252;
-  --color-base-500: #737373;
-  --color-base-600: #a3a3a3;
-  --color-base-700: #d4d4d4;
-  --color-base-800: #e5e5e5;
-  --color-base-900: #f5f5f5;
-  --color-base-950: #0a0a0a;
-  --color-primary: #fafafa;
-  --color-primary-content: #171717;
-  --color-secondary: #d4d4d4;
-  --color-secondary-content: #171717;
-  --color-accent: #a3a3a3;
-  --color-accent-content: #171717;
-  --color-neutral: #fafafa;
-  --color-neutral-content: #171717;
-}
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+  --color-base-50: #ffffff;
+  --color-base-100: #f9f9f9;
+  --color-base-200: #f3f3f4;
+  --color-base-300: #eeeeee;
+  --color-base-400: #e2e2e2;
+  --color-base-500: #c4c7c7;
+  --color-base-600: #747878;
+  --color-base-700: #5d5f5f;
+  --color-base-800: #444748;
+  --color-base-900: #1a1c1c;
+  --color-base-950: #000000;
+  --color-base-content: #1a1c1c;
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
+  --color-primary: #1a1c1c;
+  --color-primary-content: #f9f9f9;
+  --color-secondary: #5d5f5f;
+  --color-secondary-content: #f9f9f9;
+  --color-accent: #1a1c1c;
+  --color-accent-content: #f9f9f9;
+  --color-neutral: #1a1c1c;
+  --color-neutral-content: #f9f9f9;
+  --color-error: #ba1a1a;
+  --color-error-content: #ffffff;
 
-/* Remove all focus outlines and rings */
-*:focus,
-*:focus-visible {
-	outline: none !important;
-	box-shadow: none !important;
-	border-color: inherit !important;
+  --radius-selector: 0;
+  --radius-field: 0;
+  --radius-box: 0;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
 }
-
-/* Remove focus ring from inputs, textareas, selects */
-input:focus,
-textarea:focus,
-select:focus,
-button:focus {
-	outline: none !important;
-	box-shadow: none !important;
-}
-
-/* Remove focus ring from checkboxes and radio buttons */
-input[type="checkbox"]:focus,
-input[type="radio"]:focus {
-	outline: none !important;
-	box-shadow: none !important;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* For WebKit browsers (Chrome, Safari, Edge, Opera) */
-}
-.no-scrollbar {
-  -ms-overflow-style: none; /* For IE and Edge */
-  scrollbar-width: none; /* For Firefox */
-}
-
-* {
-  font-family: 'Figtree', Arial, sans-serif;
-}
-
-/* Custom minimal scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-base-400, #a3a3a3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-base-500, #737373);
-}
-
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-base-400, #a3a3a3) transparent;
-}
-
-/* Subtle animations */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.25s ease-out forwards;
-}
-
-/* ==========================================================================
-   ECHO EDITORIAL  ·  unauthenticated surfaces  ·  key ECHO-EDIT-01
-   --------------------------------------------------------------------------
-   The landing and auth pages are one printed document: a specification sheet
-   for a feed. Tokens are DESIGN.md's, unaltered. The world is achromatic on
-   purpose — every mark is ink, paper, or a hairline rule, and emphasis comes
-   only from scale, weight, and inversion. No shadow, no gradient, no blur, no
-   radius, anywhere.
-
-   Everything is scoped under `.editorial` so the authenticated app's DaisyUI
-   light/dark themes are untouched. The app declares `* { font-family: Figtree }`,
-   which defeats inheritance, so the two faces are re-asserted at class
-   specificity below — and the app's global `outline: none !important` is an
-   accessibility defect that this scope reverses with equal force.
-   ========================================================================== */
 
 @theme {
   /* Paper — DESIGN.md surface ramp */
@@ -193,74 +91,77 @@ input[type="radio"]:focus {
 
   --font-display: 'Playfair Display', 'Iowan Old Style', Georgia, serif;
   --font-text: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* The press ease. Every transition in this file uses it, so motion authored in
+     GSAP and motion authored in CSS decelerate identically. */
+  --ease-press: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.editorial {
-  position: relative;
-  background-color: var(--color-paper);
-  color: var(--color-ink);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  caret-color: var(--color-ink);
-  scrollbar-color: var(--color-rule-strong) transparent;
+/* --- The ground ---------------------------------------------------------- */
+
+@layer base {
+  /* Tailwind v4 defaults every border to `currentcolor`, which in an achromatic
+     world means every unspecified border is full-strength ink. The hairline is
+     the default here because the hairline is what this document is made of. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-rule);
+  }
+
+  html {
+    background-color: var(--color-paper);
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    caret-color: var(--color-ink);
+  }
 }
 
-/* --- Faces --------------------------------------------------------------- */
-
-/* The app declares `* { font-family: 'Figtree', Arial, sans-serif }` at document
-   level. A bare `*` carries no specificity, so any element's own declaration
-   beats it — but inheritance does not, because a declaration that matches an
-   element always outranks a value the element would have inherited. The text face
-   therefore has to be re-asserted on every element in this scope, not just on the
-   root. */
-.editorial,
-.editorial * {
-  font-family: var(--font-text);
-}
-
-/* That blanket has a cost worth naming, because it cost us twice: matching every
-   element means it also outranks inheritance *inside* the scope. Anything a
-   script injects into a Playfair heading matches it and comes out in Inter —
-   which is precisely what SplitText's line and mask wrappers are, so every
-   statement animated in the text face and snapped to the display face at the
-   instant the split was reverted. Restoring inheritance beneath the display
-   registers fixes that for whatever face a register sets, now or later; the
-   registers below all name their own, so this only ever reaches the unclassed
-   wrappers and inline spans that should have inherited in the first place. */
-.editorial :is(.t-display, .t-headline, .t-title, .font-display) * {
-  font-family: inherit;
-}
-
-/* Tailwind's own `font-display` utility loses to the blanket for the same reason
-   — one class against one class, and the utility is in a layer while the blanket
-   is not — so the wordmark and the two Scroll captions were quietly set in Inter
-   as well. Re-asserted here, unlayered, where it can win. */
-.editorial .font-display {
-  font-family: var(--font-display);
-}
+/* Everything from here to the end of the corpus column is wrapped in the
+   components layer, and that wrapper is load-bearing. Tailwind's own utilities
+   live in a later layer, so a layered `.t-label` can be overridden by `text-paper`
+   on the same element — which is exactly what an inverted index entry needs.
+   Unlayered, these registers would outrank every utility in the app and every
+   override would have to be fought with `!important`. */
+@layer components {
 
 /* --- Registers ----------------------------------------------------------- */
+
+/* The landing and auth roots still carry this class. All it does now is give
+   their skip link a positioned ancestor to be absolute against. */
+.editorial {
+  position: relative;
+}
 
 /* Measures on the display registers are written in em, never ch. A ch is the
    advance width of "0" in the face that is currently active, so a measure in ch
    silently changes width when the webfont arrives and re-breaks the headline
    underneath the reader. An em is measured against the font size, which is known
    before any font is. Playfair's zero happens to be 0.6em, if a character count
-   ever needs converting. See the note on the cover statement.
+   ever needs converting.
 
-   And no display register asks for `text-wrap: balance`, because every one of
-   them is set line by line (see motion.js, SET). A split freezes the ordinary
-   greedy layout into its masks; balancing minimises the longest line instead. The
-   two cannot both hold, so a balanced heading was being set to one set of breaks
-   and reverted to another — visibly re-ragging the instant its reveal finished.
-   The measure is what chooses the break here: each one is set so the greedy rag
-   is the intended rag, which is one layout rather than two, and is how type was
-   set before an algorithm offered to do it. Because the measure is in em and the
-   font size is fluid, that rag holds at every width in the clamp. */
+   And no display register asks for `text-wrap: balance`, because the landing
+   page sets every one of them line by line (see components/editorial/motion.js,
+   SET). A split freezes the ordinary greedy layout into its masks; balancing
+   minimises the longest line instead. The two cannot both hold, so a balanced
+   heading was being set to one set of breaks and reverted to another — visibly
+   re-ragging the instant its reveal finished. The measure is what chooses the
+   break here. */
 
 /* DISPLAY — Playfair at anchor scale, tight tracking, bleeding into the air
-   above and below it. The one voice allowed to be large. */
-.editorial .t-display {
+   above and below it. The one voice allowed to be large. Reserved for the
+   landing sheet: no screen inside the app speaks at this size. */
+.t-display {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(2.625rem, 7.4vw, 6rem);
@@ -268,7 +169,7 @@ input[type="radio"]:focus {
   letter-spacing: -0.022em;
 }
 
-.editorial .t-headline {
+.t-headline {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(2rem, 3.6vw, 3rem);
@@ -276,7 +177,7 @@ input[type="radio"]:focus {
   letter-spacing: -0.014em;
 }
 
-.editorial .t-title {
+.t-title {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(1.5rem, 2.2vw, 2rem);
@@ -284,8 +185,20 @@ input[type="radio"]:focus {
   letter-spacing: -0.008em;
 }
 
+/* SUBJECT — the app's own heading size. One per screen, in the running head's
+   subject position. Smaller than `t-title` because an Operate screen is read
+   many times a day and a 32px serif at the top of every one of them stops being
+   structure and becomes furniture. */
+.t-subject {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  letter-spacing: -0.006em;
+}
+
 /* DECK — the sentence under a headline. 20/32, light. */
-.editorial .t-deck {
+.t-deck {
   font-family: var(--font-text);
   font-size: 1.25rem;
   font-weight: 300;
@@ -294,7 +207,7 @@ input[type="radio"]:focus {
   text-wrap: pretty;
 }
 
-.editorial .t-body {
+.t-body {
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 400;
@@ -305,7 +218,7 @@ input[type="radio"]:focus {
 /* LABEL — the document's own apparatus: field names, sheet references, cell
    counts. Uppercase and widely tracked so it reads as structure, never as
    ornament, and it always carries information the reader needs. */
-.editorial .t-label {
+.t-label {
   font-family: var(--font-text);
   font-size: 0.75rem;
   font-weight: 600;
@@ -316,13 +229,13 @@ input[type="radio"]:focus {
   font-variant-numeric: tabular-nums lining-nums;
 }
 
-.editorial .t-label--ink {
+.t-label--ink {
   color: var(--color-ink);
 }
 
 /* READOUT — measured quantities. Tabular so the numbers do not shift width
    as the rule changes them. */
-.editorial .t-readout {
+.t-readout {
   font-family: var(--font-text);
   font-size: 0.75rem;
   font-weight: 500;
@@ -331,21 +244,13 @@ input[type="radio"]:focus {
   font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* --- Rules --------------------------------------------------------------- */
-
-/* Hairlines are drawn, not faded, but the striking is authored in GSAP (see
-   components/editorial/motion.js) so a rule, the type beneath it and the
-   apparatus beside it share one timeline instead of three separate observers.
-   Nothing about a rule's painted state lives here: it is always visible, and
-   motion decides only when it is drawn — never whether it exists. */
-
 /* --- Controls ------------------------------------------------------------ */
 
 /* A position rail, not a pill group: hard-edged stops sharing hairlines, the
    held stop inverted to solid ink. Each stop is a label around a real radio, so
    arrow keys work and the group announces itself; selection is never colour
    alone — the held stop is also the only one at weight 600. */
-.editorial .stop {
+.stop {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -354,40 +259,43 @@ input[type="radio"]:focus {
   color: var(--color-ink-quiet);
   cursor: pointer;
   transition:
-    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    color 200ms var(--ease-press),
+    background-color 200ms var(--ease-press);
 }
 
-.editorial .stop:hover:not([data-held='true']) {
+.stop:hover:not([data-held='true']):not([aria-current='page']) {
   color: var(--color-ink);
   background-color: var(--color-paper-dim);
 }
 
-.editorial .stop[data-held='true'] {
+/* A `NavLink` marks the route it points at with `aria-current`, so a rail of
+   routes and a rail of radios reach the held state the same way. */
+.stop[data-held='true'],
+.stop[aria-current='page'] {
   background-color: var(--color-ink);
   color: var(--color-paper);
   font-weight: 600;
 }
 
 /* The focus ring belongs on the stop, not on the visually-hidden radio. */
-.editorial .stop:has(input:focus-visible) {
+.stop:has(input:focus-visible) {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
 
 /* A disabled rail keeps its held position legible but stops soliciting: the
    note beneath it says which parameter has to move first. */
-.editorial fieldset:disabled .stop {
+fieldset:disabled .stop {
   cursor: not-allowed;
   color: var(--color-rule-strong);
 }
 
-.editorial fieldset:disabled .stop:hover {
+fieldset:disabled .stop:hover {
   background-color: transparent;
   color: var(--color-rule-strong);
 }
 
-.editorial fieldset:disabled .stop[data-held='true'] {
+fieldset:disabled .stop[data-held='true'] {
   background-color: var(--color-paper-dim);
   color: var(--color-ink-quiet);
 }
@@ -395,7 +303,7 @@ input[type="radio"]:focus {
 /* A tag is a three-state stamp: admitted (inverted), refused (struck), or
    unset. State is carried three ways over — ground, strike, and the printed
    word beside the tag — so it never rests on colour. */
-.editorial .stamp {
+.stamp {
   display: inline-flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -404,23 +312,23 @@ input[type="radio"]:focus {
   color: var(--color-ink-quiet);
   cursor: pointer;
   transition:
-    color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    color 200ms var(--ease-press),
+    background-color 200ms var(--ease-press),
+    border-color 200ms var(--ease-press);
 }
 
-.editorial .stamp:hover {
+.stamp:hover {
   border-color: var(--color-ink);
   color: var(--color-ink);
 }
 
-.editorial .stamp[data-state='in'] {
+.stamp[data-state='in'] {
   background-color: var(--color-ink);
   border-color: var(--color-ink);
   color: var(--color-paper);
 }
 
-.editorial .stamp[data-state='out'] {
+.stamp[data-state='out'] {
   border-color: var(--color-ink-quiet);
   color: var(--color-ink-quiet);
   text-decoration: line-through;
@@ -429,7 +337,7 @@ input[type="radio"]:focus {
 
 /* The strike belongs to the tag name, not to the word that explains it. An
    atomic inline box is the only thing a propagated decoration will not cross. */
-.editorial .stamp > .stamp-state {
+.stamp > .stamp-state {
   display: inline-block;
   text-decoration: none;
 }
@@ -438,7 +346,7 @@ input[type="radio"]:focus {
 
 /* Solid ink, inverted text, sharp. Hover inverts rather than lifts: this
    world has no elevation to lift into. */
-.editorial .act {
+.act {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -452,56 +360,78 @@ input[type="radio"]:focus {
   font-size: 0.75rem;
   cursor: pointer;
   transition:
-    background-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color 200ms var(--ease-press),
+    color 200ms var(--ease-press);
 }
 
-.editorial .act:hover:not(:disabled) {
+.act:hover:not(:disabled) {
   background-color: transparent;
   color: var(--color-ink);
 }
 
-.editorial .act:disabled {
+.act:disabled {
   cursor: not-allowed;
   border-color: var(--color-rule);
   background-color: var(--color-rule);
   color: var(--color-paper);
 }
 
-.editorial .act-outline {
+.act-outline {
   background-color: transparent;
   color: var(--color-ink);
 }
 
-.editorial .act-outline:hover:not(:disabled) {
+.act-outline:hover:not(:disabled) {
   background-color: var(--color-ink);
   color: var(--color-paper);
 }
 
+.act-quiet {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-ink-quiet);
+}
+
+.act-quiet:hover:not(:disabled) {
+  background-color: transparent;
+  color: var(--color-ink);
+}
+
+.act-alarm {
+  border-color: var(--color-alarm);
+  background-color: transparent;
+  color: var(--color-alarm);
+}
+
+.act-alarm:hover:not(:disabled) {
+  background-color: var(--color-alarm);
+  color: var(--color-chalk);
+}
+
 /* The same two actions on an inverted ground. */
-.editorial .inverted .act {
+.inverted .act {
   border-color: var(--color-chalk);
   background-color: var(--color-chalk);
   color: var(--color-obsidian);
 }
 
-.editorial .inverted .act:hover:not(:disabled) {
+.inverted .act:hover:not(:disabled) {
   background-color: transparent;
   color: var(--color-chalk);
 }
 
-.editorial .inverted .act:disabled {
+.inverted .act:disabled {
   border-color: var(--color-chalk-dim);
   background-color: var(--color-chalk-dim);
   color: var(--color-obsidian);
 }
 
-.editorial .inverted .act-outline {
+.inverted .act-outline {
   background-color: transparent;
   color: var(--color-chalk);
 }
 
-.editorial .inverted .act-outline:hover:not(:disabled) {
+.inverted .act-outline:hover:not(:disabled) {
   background-color: var(--color-chalk);
   color: var(--color-obsidian);
 }
@@ -509,9 +439,11 @@ input[type="radio"]:focus {
 /* --- Fields -------------------------------------------------------------- */
 
 /* One hairline underneath, nothing else. Focus thickens that line to 2px and
-   darkens it to ink; the label above is the field's only chrome. */
-.editorial .field {
+   darkens it to ink; the label above is the field's only chrome. The padding
+   compensates so the box never changes height when the line thickens. */
+.field {
   width: 100%;
+  min-height: 2.75rem;
   padding: 0.75rem 0 0.6875rem;
   border: 0;
   border-bottom: 1px solid var(--color-rule-strong);
@@ -522,39 +454,58 @@ input[type="radio"]:focus {
   font-weight: 300;
   line-height: 1.5;
   transition:
-    border-bottom-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    padding-bottom 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-bottom-color 200ms var(--ease-press),
+    padding-bottom 200ms var(--ease-press);
 }
 
-.editorial .field::placeholder {
+.field::placeholder {
   color: var(--color-ink-quiet);
   font-weight: 300;
 }
 
-.editorial .field:focus,
-.editorial .field:focus-visible {
-  border-bottom-color: var(--color-ink) !important;
-  border-bottom-width: 2px !important;
+.field:focus,
+.field:focus-visible {
+  border-bottom-color: var(--color-ink);
+  border-bottom-width: 2px;
   padding-bottom: 0.625rem;
-  outline: none !important;
+  outline: none;
 }
 
-.editorial .field[aria-invalid='true'] {
-  border-bottom-color: var(--color-alarm) !important;
+.field[aria-invalid='true'] {
+  border-bottom-color: var(--color-alarm);
 }
 
-.editorial .inverted .field {
+/* The same field at apparatus scale — search bars, inline renames, reply
+   boxes. Same hairline, same focus behaviour, text-register size. */
+.field-sm {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  padding: 0.5rem 0 0.4375rem;
+}
+
+.field-sm:focus,
+.field-sm:focus-visible {
+  padding-bottom: 0.375rem;
+}
+
+.field:disabled {
+  color: var(--color-ink-quiet);
+  border-bottom-color: var(--color-rule);
+  cursor: not-allowed;
+}
+
+.inverted .field {
   border-bottom-color: var(--color-chalk-dim);
   color: var(--color-chalk);
 }
 
-.editorial .inverted .field::placeholder {
+.inverted .field::placeholder {
   color: var(--color-chalk-dim);
 }
 
-.editorial .inverted .field:focus,
-.editorial .inverted .field:focus-visible {
-  border-bottom-color: var(--color-chalk) !important;
+.inverted .field:focus,
+.inverted .field:focus-visible {
+  border-bottom-color: var(--color-chalk);
 }
 
 /* --- The corpus column --------------------------------------------------- */
@@ -567,74 +518,160 @@ input[type="radio"]:focus {
    first-view reveal — and to the FLIP in TheRule.jsx, which writes `transform`
    directly. Transitioning opacity here as well would put two systems on the same
    property and make both of them late. */
-.editorial .entry {
+.entry {
   color: var(--color-ink);
-  transition: color 480ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 480ms var(--ease-press);
   transition-delay: calc(var(--i, 0) * 18ms);
 }
 
-.editorial .entry[data-admitted='false'] {
+.entry[data-admitted='false'] {
   color: var(--color-ink-quiet);
 }
 
-.editorial .entry[data-admitted='false'] .entry-body {
+.entry[data-admitted='false'] .entry-body {
   text-decoration: line-through;
   text-decoration-thickness: 1px;
   text-decoration-color: color-mix(in oklab, var(--color-ink-quiet) 45%, transparent);
 }
 
+}
+/* end @layer components */
+
 /* --- Browser surfaces ---------------------------------------------------- */
 
-/* The app strips every focus ring globally with !important. Restored here, in
-   ink, square, because a keyboard is a first-class way through this document. */
-.editorial
-  :is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-ink) !important;
-  outline-offset: 3px !important;
+/* The parts nobody draws still carry the design. A keyboard is a first-class way
+   through this document, so the ring is ink, square, and offset clear of the
+   hairline it sits beside. */
+:is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
   border-radius: 0;
 }
 
-.editorial .inverted
+.inverted
   :is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
-  outline-color: var(--color-chalk) !important;
+  outline-color: var(--color-chalk);
 }
 
-.editorial ::selection {
+::selection {
   background: var(--color-ink);
   color: var(--color-paper);
 }
 
-.editorial .inverted ::selection {
+.inverted ::selection {
   background: var(--color-chalk);
   color: var(--color-obsidian);
 }
 
-.editorial :is(a, button).link-rule {
+:is(a, button).link-rule {
   text-decoration-line: underline;
   text-decoration-color: var(--color-rule);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.24em;
-  transition: text-decoration-color 200ms ease-out;
+  transition: text-decoration-color 200ms var(--ease-press);
 }
 
-.editorial :is(a, button).link-rule:hover {
+:is(a, button).link-rule:hover {
   text-decoration-color: var(--color-ink);
 }
 
-.editorial .inverted :is(a, button).link-rule {
+.inverted :is(a, button).link-rule {
   text-decoration-color: var(--color-chalk-dim);
 }
 
-.editorial .inverted :is(a, button).link-rule:hover {
+.inverted :is(a, button).link-rule:hover {
   text-decoration-color: var(--color-chalk);
 }
 
+/* A hairline scrollbar, drawn in the same two values as everything else. */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-rule-strong);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-rule-strong) transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* --- Motion -------------------------------------------------------------- */
+
+/* The app's one authored moment: a screen arrives already legible and settles
+   the last few pixels onto its baseline. Everything else in the app is a state
+   change, and state changes are transitions, not animations. */
+@keyframes set-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-set-in {
+  animation: set-in 320ms var(--ease-press) both;
+}
+
+/* STRIKE — a hairline drawn left to right, the same press verb the landing sheet
+   uses. The element must have `origin-left`. */
+@keyframes strike {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-strike {
+  animation: strike 640ms var(--ease-press) both;
+}
+
+/* Kept for the two places that still ask for it by name. */
+.animate-fade-in {
+  animation: set-in 250ms var(--ease-press) both;
+}
+
+/* The reader's own setting, honoured whether it comes from the OS or from
+   Settings — which writes `data-motion="reduce"` on the root. */
 @media (prefers-reduced-motion: reduce) {
-  .editorial *,
-  .editorial *::before,
-  .editorial *::after {
+  *,
+  *::before,
+  *::after {
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+[data-motion='reduce'] *,
+[data-motion='reduce'] *::before,
+[data-motion='reduce'] *::after {
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  animation-duration: 0.01ms !important;
 }

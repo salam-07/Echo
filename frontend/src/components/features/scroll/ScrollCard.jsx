@@ -1,104 +1,75 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, User as UserIcon } from 'lucide-react';
-import { Card, Badge, UserLink } from '../../ui';
+import { UserLink } from '../../ui';
+import useAuthStore from '../../../store/useAuthStore';
 import FollowButton from './FollowButton';
 
-const ScrollCard = ({
-    scroll,
-    compact = false,
-    showIcon = false,
-    icon: IconComponent = BookOpen,
-    showTags = false
-}) => {
-    const bodyClasses = compact ? "p-4" : "p-6";
+/**
+ * A Scroll, printed as a record rather than a card in a grid. Name, kind, whose it
+ * is, and — for a Feed — the first few terms of the rule that fills it, so the row
+ * says what the Scroll *does* and not merely that it exists.
+ *
+ * The kind comes off the record (`scroll.type`), not from a prop. A row that has to
+ * be told what it is showing is a row that can be told wrong.
+ *
+ * No count is printed unless it is stored: a Feed has no fixed number of entries,
+ * so it does not claim one.
+ */
+const ScrollCard = ({ scroll, compact = false, action = null }) => {
+    const { authUser } = useAuthStore();
+    const isFeed = scroll.type === 'feed';
+    const isMine = scroll.creator?._id === authUser?._id;
+    const tags = scroll.feedConfig?.includedTags ?? [];
+    const authors = scroll.feedConfig?.authors ?? [];
+    const followers = scroll.savedBy?.length ?? 0;
 
     return (
-        <Link to={`/scroll/${scroll._id}`} className="block">
-            <Card hover className="h-full flex flex-col">
-                <Card.Body className={`${bodyClasses} flex-1 flex flex-col min-h-[10rem]`}>
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                                {showIcon && (
-                                    <IconComponent className="w-4 h-4 text-primary flex-shrink-0" />
-                                )}
-                                <h3 className={`${compact ? "font-medium text-sm" : "font-semibold text-lg"} line-clamp-1`}>
-                                    {scroll.name}
-                                </h3>
-                            </div>
-                            <div className="text-xs text-base-content/60 mb-2">
-                                by <UserLink user={scroll.creator} showPrefix={true} />
-                            </div>
-                        </div>
-                        <div className="flex-shrink-0 ml-2">
-                            <FollowButton scroll={scroll} size="xs" />
-                        </div>
-                    </div>
+        <article className="border-b border-rule py-5">
+            <div className="flex items-baseline justify-between gap-5">
+                <h3 className={compact ? 'min-w-0 text-[0.9375rem] font-medium' : 'min-w-0 t-subject'}>
+                    <Link to={`/scroll/${scroll._id}`} className="link-rule text-ink">
+                        {scroll.name}
+                    </Link>
+                </h3>
+                <div className="flex shrink-0 items-center gap-4">
+                    {action}
+                    <FollowButton scroll={scroll} size="xs" />
+                </div>
+            </div>
 
-                    {scroll.description && (
-                        <p className={`text-base-content/70 mb-3 ${compact ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'}`}>
-                            {scroll.description}
-                        </p>
-                    )}
+            <p className="t-readout mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-rule-strong">
+                <span className="t-label text-[0.625rem]">{isFeed ? 'Feed' : 'Curation'}</span>
+                {scroll.isPrivate && <span className="t-label text-[0.625rem]">Private</span>}
+                {!isMine && (
+                    <span className="flex items-baseline gap-1">
+                        by <UserLink user={scroll.creator} className="text-[0.75rem] font-medium text-ink-quiet" />
+                    </span>
+                )}
+                {!isFeed && <span>{scroll.echos?.length ?? 0} entries</span>}
+                <span>
+                    {followers} {followers === 1 ? 'follower' : 'followers'}
+                </span>
+            </p>
 
-                    {/* Tags and Authors for feed scrolls */}
-                    {showTags && !compact && (
-                        <div className="space-y-2 mb-3 overflow-hidden">
-                            {/* Tags */}
-                            {scroll.feedConfig?.includedTags && scroll.feedConfig.includedTags.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                    {scroll.feedConfig.includedTags.slice(0, 3).map((tag) => (
-                                        <Badge key={tag._id} variant="primary" size="xs">
-                                            #{tag.name}
-                                        </Badge>
-                                    ))}
-                                    {scroll.feedConfig.includedTags.length > 3 && (
-                                        <Badge variant="ghost" size="xs">
-                                            +{scroll.feedConfig.includedTags.length - 3}
-                                        </Badge>
-                                    )}
-                                </div>
-                            )}
+            {scroll.description && (
+                <p className="mt-3 line-clamp-2 text-[0.9375rem] leading-[1.55] text-ink-soft">
+                    {scroll.description}
+                </p>
+            )}
 
-                            {/* Authors */}
-                            {scroll.feedConfig?.authors && scroll.feedConfig.authors.length > 0 && (
-                                <div className="flex flex-wrap gap-1 items-center">
-                                    <UserIcon className="w-3 h-3 text-base-content/50 flex-shrink-0" />
-                                    {scroll.feedConfig.authors.slice(0, 2).map((author) => (
-                                        <Badge key={author._id} variant="secondary" size="xs">
-                                            @{author.userName}
-                                        </Badge>
-                                    ))}
-                                    {scroll.feedConfig.authors.length > 2 && (
-                                        <Badge variant="ghost" size="xs">
-                                            +{scroll.feedConfig.authors.length - 2}
-                                        </Badge>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    <div className="flex items-center justify-between mt-auto pt-2">
-                        <div className="flex items-center gap-3 text-xs text-base-content/50 flex-wrap">
-                            {showTags && <span className="whitespace-nowrap">Auto-feed</span>}
-                            {!showTags && <span className="whitespace-nowrap">{scroll.echos?.length || 0} echos</span>}
-                            <span className="whitespace-nowrap">{scroll.savedBy?.length || 0} followers</span>
-                            <span className="whitespace-nowrap">{new Date(scroll.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        {!compact && !showTags && (
-                            <div className="flex flex-col items-center ml-2 flex-shrink-0">
-                                <span className="text-lg font-bold text-primary">
-                                    {scroll.echos?.length || 0}
-                                </span>
-                                <span className="text-xs text-base-content/50">echos</span>
-                            </div>
-                        )}
-                    </div>
-                </Card.Body>
-            </Card>
-        </Link>
+            {isFeed && (tags.length > 0 || authors.length > 0) && (
+                <p className="t-readout mt-3 flex flex-wrap gap-x-3 gap-y-1 text-rule-strong">
+                    {tags.slice(0, 3).map((tag) => (
+                        <span key={tag._id}>#{tag.name}</span>
+                    ))}
+                    {tags.length > 3 && <span>+{tags.length - 3} more tags</span>}
+                    {authors.slice(0, 2).map((author) => (
+                        <span key={author._id}>@{author.userName}</span>
+                    ))}
+                    {authors.length > 2 && <span>+{authors.length - 2} more authors</span>}
+                </p>
+            )}
+        </article>
     );
 };
 

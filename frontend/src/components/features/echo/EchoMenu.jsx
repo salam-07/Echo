@@ -1,81 +1,66 @@
 import React, { useRef, useEffect } from 'react';
-import { Trash2, Bookmark, Copy, Flag } from 'lucide-react';
-import useAuthStore from '../../../store/useAuthStore';
 
-const EchoMenu = ({
-    showMenu,
-    setShowMenu,
-    setShowAddToScroll,
-    handleDelete,
-    handleCopyLink,
-    isOwnEcho
-}) => {
+/**
+ * The rest of what you can do with an entry, on a small sheet laid over the row.
+ * Ink border, no shadow — the border is what says "over", the same as the modal.
+ *
+ * Destructive work is the one place colour is allowed, and it is still a word
+ * first: `Delete echo`, in alarm, ruled off from the rest.
+ */
+const ITEM =
+    'flex min-h-11 w-full items-center px-4 text-left text-[0.875rem] text-ink transition-colors hover:bg-ink hover:text-paper';
+
+const EchoMenu = ({ setShowMenu, setShowAddToScroll, handleDelete, handleCopyLink, isOwnEcho }) => {
     const menuRef = useRef(null);
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setShowMenu(false);
-            }
+            if (menuRef.current && !menuRef.current.contains(event.target)) setShowMenu(false);
         };
-        if (showMenu) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') setShowMenu(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [showMenu, setShowMenu]);
+    }, [setShowMenu]);
 
     return (
-        <div ref={menuRef} className="absolute right-5 top-16 w-48 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 py-1">
-            <button
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCopyLink();
-                }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-base-content hover:bg-base-200 transition-colors"
-            >
-                <Copy className="w-4 h-4" />
-                <span>Copy Link</span>
+        <div
+            ref={menuRef}
+            className="absolute bottom-12 right-0 z-30 w-56 border border-ink bg-paper"
+        >
+            <button type="button" onClick={handleCopyLink} className={ITEM}>
+                Copy link
             </button>
             <button
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                type="button"
+                onClick={() => {
                     setShowMenu(false);
                     setShowAddToScroll(true);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-base-content hover:bg-base-200 transition-colors"
+                className={`${ITEM} border-t border-rule`}
             >
-                <Bookmark className="w-4 h-4" />
-                <span>Save to Scroll</span>
+                Save to a Scroll
             </button>
             {isOwnEcho ? (
                 <button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDelete();
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
+                    type="button"
+                    onClick={handleDelete}
+                    className="flex min-h-11 w-full items-center border-t border-rule px-4 text-left text-[0.875rem] text-alarm transition-colors hover:bg-alarm hover:text-chalk"
                 >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete Echo</span>
+                    Delete echo
                 </button>
             ) : (
                 <button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowMenu(false);
-                        // TODO: Implement report
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-base-content hover:bg-base-200 transition-colors"
+                    type="button"
+                    onClick={() => setShowMenu(false)}
+                    className={`${ITEM} border-t border-rule`}
                 >
-                    <Flag className="w-4 h-4" />
-                    <span>Report</span>
+                    Report
                 </button>
             )}
         </div>

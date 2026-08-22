@@ -1,132 +1,129 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, Hash } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import EchoCard from '../components/features/echo/EchoCard';
+import { Measure, SheetHead, Notice, Placeholder, Coda } from '../components/editorial/Apparatus';
 import { useEchoStore } from '../store/useEchoStore';
 
+const ORDERS = [
+    { value: 'newest', label: 'Newest' },
+    { value: 'oldest', label: 'Oldest' },
+    { value: 'likes', label: 'Most liked' },
+];
+
+const WINDOWS = [
+    { value: 'all', label: 'All time' },
+    { value: '1hour', label: 'Last hour' },
+    { value: '1day', label: 'Last day' },
+    { value: '1week', label: 'Last week' },
+    { value: '1month', label: 'Last month' },
+    { value: '1year', label: 'Last year' },
+];
+
+/**
+ * Everything filed under one tag.
+ *
+ * Order is a rail — three stops, one held. The window is a select, because six
+ * options is a menu and not an either/or, and a six-stop rail on a phone is a
+ * wrapped mess. Both replace anchored popovers whose menus were unlabelled lists
+ * of anchor tags.
+ */
 const TagsPage = () => {
     const { tagName } = useParams();
-    const navigate = useNavigate();
     const { echos, isLoadingEchos, getEchosByTag } = useEchoStore();
 
     const [orderBy, setOrderBy] = useState('newest');
     const [timeframe, setTimeframe] = useState('all');
 
     useEffect(() => {
-        if (tagName) {
-            getEchosByTag(tagName, orderBy, timeframe);
-        }
+        if (tagName) getEchosByTag(tagName, orderBy, timeframe);
     }, [tagName, orderBy, timeframe, getEchosByTag]);
-
-    const handleBack = () => {
-        navigate(-1);
-    };
-
-    const handleOrderChange = (newOrder) => {
-        setOrderBy(newOrder);
-    };
-
-    const handleTimeframeChange = (newTimeframe) => {
-        setTimeframe(newTimeframe);
-    };
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto p-3 sm:p-6">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-6">
-                    <button
-                        onClick={handleBack}
-                        className="p-2 rounded-full hover:bg-base-200 transition-colors"
-                        aria-label="Go back"
-                    >
-                        <ArrowLeft className="w-5 h-5 text-base-content" />
-                    </button>
-                    <div className="flex items-center gap-2">
-                        <Hash className="w-6 h-6 text-primary" />
-                        <h1 className="text-xl font-semibold text-base-content">
-                            {tagName}
-                        </h1>
-                    </div>
-                </div>
-
-                {/* Sorting Controls */}
-                <div className="flex gap-3 mb-6">
-                    <button className="btn btn-sm btn-ghost"
-                        popoverTarget="order-popover"
-                        style={{ anchorName: "--order-anchor" }}>
-                        {orderBy === 'newest' ? 'Newest First' : orderBy === 'oldest' ? 'Oldest First' : 'Most Liked'}
-                        <ChevronDown />
-                    </button>
-
-                    <ul className="dropdown menu w-44 rounded-box bg-base-100 shadow-sm"
-                        popover="auto"
-                        id="order-popover"
-                        style={{ positionAnchor: "--order-anchor" }}>
-                        <li><a onClick={() => handleOrderChange('newest')}>Newest First</a></li>
-                        <li><a onClick={() => handleOrderChange('oldest')}>Oldest First</a></li>
-                        <li><a onClick={() => handleOrderChange('likes')}>Most Liked</a></li>
-                    </ul>
-
-                    <button className="btn btn-sm btn-ghost"
-                        popoverTarget="time-popover"
-                        style={{ anchorName: "--time-anchor" }}>
-                        {timeframe === 'all' ? 'All Time' :
-                            timeframe === '1hour' ? 'Last Hour' :
-                                timeframe === '1day' ? 'Last Day' :
-                                    timeframe === '1week' ? 'Last Week' :
-                                        timeframe === '1month' ? 'Last Month' : 'Last Year'}
-                        <ChevronDown />
-                    </button>
-
-                    <ul className="dropdown menu w-44 rounded-box bg-base-100 shadow-sm"
-                        popover="auto"
-                        id="time-popover"
-                        style={{ positionAnchor: "--time-anchor" }}>
-                        <li><a onClick={() => handleTimeframeChange('all')}>All Time</a></li>
-                        <li><a onClick={() => handleTimeframeChange('1hour')}>Last Hour</a></li>
-                        <li><a onClick={() => handleTimeframeChange('1day')}>Last Day</a></li>
-                        <li><a onClick={() => handleTimeframeChange('1week')}>Last Week</a></li>
-                        <li><a onClick={() => handleTimeframeChange('1month')}>Last Month</a></li>
-                        <li><a onClick={() => handleTimeframeChange('1year')}>Last Year</a></li>
-                    </ul>
-                </div>
-
-                {/* Content */}
-                {isLoadingEchos ? (
-                    <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-base-100 border border-base-300 rounded-lg p-6 animate-pulse">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="h-4 bg-base-300 rounded w-24"></div>
-                                    <div className="h-3 bg-base-300 rounded w-12"></div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="h-4 bg-base-300 rounded w-full"></div>
-                                    <div className="h-4 bg-base-300 rounded w-3/4"></div>
-                                </div>
+            <Measure>
+                <SheetHead
+                    label="Tag"
+                    subject={`#${tagName}`}
+                    readout={echos?.length ? `${echos.length} shown` : undefined}
+                >
+                    <div className="mt-8 grid gap-5 sm:grid-cols-2">
+                        <fieldset>
+                            <legend className="t-label">Order</legend>
+                            <div className="mt-1 flex border border-rule">
+                                {ORDERS.map((option, index) => (
+                                    <label
+                                        key={option.value}
+                                        data-held={orderBy === option.value || undefined}
+                                        className={`stop t-label h-10 flex-1 whitespace-nowrap px-3 ${
+                                            index > 0 ? 'border-l border-rule' : ''
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="tagOrder"
+                                            className="sr-only"
+                                            checked={orderBy === option.value}
+                                            onChange={() => setOrderBy(option.value)}
+                                        />
+                                        {option.label}
+                                    </label>
+                                ))}
                             </div>
-                        ))}
+                        </fieldset>
+
+                        <div>
+                            <label htmlFor="tag-window" className="t-label block">
+                                Written within
+                            </label>
+                            <select
+                                id="tag-window"
+                                value={timeframe}
+                                onChange={(event) => setTimeframe(event.target.value)}
+                                className="field field-sm mt-1"
+                            >
+                                {WINDOWS.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                ) : echos && echos.length > 0 ? (
-                    <div className="space-y-0">
+                </SheetHead>
+
+                {isLoadingEchos && (!echos || echos.length === 0) ? (
+                    <Placeholder rows={4} />
+                ) : !echos || echos.length === 0 ? (
+                    <Notice
+                        statement={`Nothing is filed under #${tagName} in this window.`}
+                        note="Widen the window, or write the first one yourself."
+                        actions={
+                            <>
+                                {timeframe !== 'all' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setTimeframe('all')}
+                                        className="act act-outline h-11 px-6"
+                                    >
+                                        Open it to all time
+                                    </button>
+                                )}
+                                <Link to="/new" className="act act-quiet h-11 px-6">
+                                    Write an echo
+                                </Link>
+                            </>
+                        }
+                    />
+                ) : (
+                    <div className="border-t border-ink">
                         {echos.map((echo) => (
                             <EchoCard key={echo._id} echo={echo} />
                         ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-12">
-                        <Hash className="w-12 h-12 text-base-content/30 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-base-content mb-2">
-                            No echos found
-                        </h3>
-                        <p className="text-base-content/60">
-                            No one has posted with #{tagName} yet.
-                        </p>
+                        <Coda />
                     </div>
                 )}
-            </div>
+            </Measure>
         </Layout>
     );
 };

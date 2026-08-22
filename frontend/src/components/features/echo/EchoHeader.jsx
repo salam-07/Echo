@@ -1,37 +1,24 @@
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Timestamp } from '../../ui';
-import { MoreHorizontal } from 'lucide-react';
 
-const EchoHeader = memo(({ echo, onToggleMenu }) => {
+/**
+ * The byline. Who wrote it and when — nothing else, because the entry's controls
+ * all sit together at the foot of the row where a hand can reach them.
+ */
+const EchoHeader = memo(({ echo }) => {
     const author = echo.author;
 
     return (
-        <header className="flex items-center justify-between gap-3">
-            {/* Author info */}
-            <div className="flex items-center gap-2 min-w-0">
-                <Link
-                    to={`/user/${author?._id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="font-medium text-[13px] sm:text-sm text-base-content/70 hover:text-base-content transition-colors truncate"
-                >
-                    @{author?.userName || 'anonymous'}
-                </Link>
-                <span className="text-base-content/20 text-xs">·</span>
-                <Timestamp
-                    date={echo.createdAt}
-                    className="text-xs text-base-content/35 flex-shrink-0"
-                />
-            </div>
-
-            {/* Menu button */}
-            <button
-                onClick={onToggleMenu}
-                className="flex-shrink-0 p-1.5 -mr-1 rounded-full text-base-content/20 hover:text-base-content/50 hover:bg-base-200/50 transition-colors"
-                aria-label="More options"
+        <header className="flex min-w-0 items-baseline gap-3">
+            <Link
+                to={`/user/${author?._id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="link-rule truncate text-[0.875rem] font-medium tracking-[0.01em] text-ink"
             >
-                <MoreHorizontal className="w-4 h-4" strokeWidth={1.5} />
-            </button>
+                @{author?.userName || 'anonymous'}
+            </Link>
+            <Timestamp date={echo.createdAt} className="t-readout shrink-0 text-rule-strong" />
         </header>
     );
 });

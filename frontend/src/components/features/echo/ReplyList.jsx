@@ -1,53 +1,42 @@
 import React from 'react';
 import { UserLink, Timestamp } from '../../ui';
-import { Trash2 } from 'lucide-react';
-import { useAuthStore } from '../../../store/useAuthStore';
+import useAuthStore from '../../../store/useAuthStore';
 
+/**
+ * Replies, ruled one under another. Your own reply is the only one with `Delete`
+ * beside it, and that word is always printed rather than revealed on hover — a
+ * control you can only find by pointing at it does not exist on a touch screen.
+ */
 const ReplyList = ({ replies, onDeleteReply }) => {
     const { authUser } = useAuthStore();
 
     if (!replies || replies.length === 0) {
-        return (
-            <div className="text-center py-8">
-                <p className="text-xs text-base-content/30">No replies yet</p>
-            </div>
-        );
+        return <p className="t-body py-8 text-ink-quiet">No replies yet.</p>;
     }
 
     return (
-        <div className="space-y-0">
+        <ul>
             {replies.map((reply) => (
-                <div key={reply._id} className="py-3 border-b border-base-200/30 last:border-0 group">
-                    {/* Reply header */}
-                    <div className="flex items-center gap-2 mb-1.5">
-                        <UserLink
-                            user={reply.user}
-                            showPrefix={true}
-                            className="text-[13px] font-medium text-base-content/60"
-                        />
-                        <span className="text-xs text-base-content/20">·</span>
-                        <Timestamp
-                            date={reply.createdAt}
-                            className="text-xs text-base-content/30"
-                        />
-
-                        {/* Delete button - only show for reply author */}
+                <li key={reply._id} className="border-b border-rule py-5 last:border-b-0">
+                    <div className="flex items-baseline gap-3">
+                        <UserLink user={reply.user} />
+                        <Timestamp date={reply.createdAt} className="t-readout text-rule-strong" />
                         {authUser?._id === reply.user?._id && onDeleteReply && (
                             <button
+                                type="button"
                                 onClick={() => onDeleteReply(reply._id)}
-                                className="ml-auto text-base-content/20 hover:text-red-400 p-1 transition-colors"
-                                title="Delete reply"
+                                className="t-label ml-auto shrink-0 py-1 text-[0.625rem] transition-colors hover:text-alarm"
                             >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                Delete
                             </button>
                         )}
                     </div>
-                    <p className="text-sm text-base-content/80 whitespace-pre-wrap break-words leading-relaxed">
+                    <p className="mt-2 whitespace-pre-wrap break-words text-[0.9375rem] leading-[1.55] text-ink-soft">
                         {reply.comment}
                     </p>
-                </div>
+                </li>
             ))}
-        </div>
+        </ul>
     );
 };
 

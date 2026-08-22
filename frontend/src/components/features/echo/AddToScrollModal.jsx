@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useScrollStore } from '../../../store/useScrollStore';
 import useAuthStore from '../../../store/useAuthStore';
+import { Modal } from '../../ui';
 
+/**
+ * Filing an entry into a Curation — the collections you keep by hand, as opposed
+ * to the Feeds a rule fills for you. Only your own Curations are offered, because
+ * only they are yours to add to.
+ *
+ * Selection is inversion, as everywhere else in the document.
+ */
 const AddToScrollModal = ({ echoId, onClose }) => {
     const { scrolls, getScrolls, addEchoToCuration } = useScrollStore();
     const { authUser } = useAuthStore();
+    const navigate = useNavigate();
     const [selectedScrollId, setSelectedScrollId] = useState('');
     const [isAdding, setIsAdding] = useState(false);
 
-    // Filter only curation type scrolls that the current user owns
-    const curationScrolls = scrolls.filter(scroll =>
-        scroll.type === 'curation' && scroll.creator._id === authUser?._id
+    const curationScrolls = scrolls.filter(
+        (scroll) => scroll.type === 'curation' && scroll.creator?._id === authUser?._id,
     );
 
     useEffect(() => {
@@ -20,7 +28,6 @@ const AddToScrollModal = ({ echoId, onClose }) => {
 
     const handleAdd = async () => {
         if (!selectedScrollId) return;
-
         setIsAdding(true);
         try {
             await addEchoToCuration(selectedScrollId, echoId);
@@ -33,80 +40,65 @@ const AddToScrollModal = ({ echoId, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-base-100 rounded-lg max-w-md w-full p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-base-content">
-                        Add to Scroll
-                    </h3>
+        <Modal isOpen onClose={onClose} title="File this echo" size="sm">
+            {curationScrolls.length === 0 ? (
+                <Modal.Body>
+                    <p className="t-body text-ink-soft">
+                        You keep no Curations yet. A Curation is a Scroll you fill by hand.
+                    </p>
                     <button
-                        onClick={onClose}
-                        className="p-1 rounded-lg hover:bg-base-200 transition-colors"
+                        type="button"
+                        onClick={() => {
+                            onClose();
+                            navigate('/scroll/new');
+                        }}
+                        className="act mt-6 h-11 px-6"
                     >
-                        <X className="w-5 h-5" />
+                        New Scroll
                     </button>
-                </div>
+                </Modal.Body>
+            ) : (
+                <>
+                    <ul className="max-h-72 overflow-y-auto">
+                        {curationScrolls.map((scroll) => {
+                            const held = selectedScrollId === scroll._id;
+                            return (
+                                <li key={scroll._id} className="border-b border-rule last:border-b-0">
+                                    <button
+                                        type="button"
+                                        aria-pressed={held}
+                                        data-held={held || undefined}
+                                        onClick={() => setSelectedScrollId(scroll._id)}
+                                        className="stop w-full flex-col items-start gap-1 px-6 py-4 text-left"
+                                    >
+                                        <span className="text-[0.9375rem] font-medium">{scroll.name}</span>
+                                        {scroll.description && (
+                                            <span className="text-[0.8125rem] leading-[1.5] opacity-80">
+                                                {scroll.description}
+                                            </span>
+                                        )}
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
 
-                {/* Content */}
-                {curationScrolls.length === 0 ? (
-                    <div className="text-center py-8">
-                        <p className="text-sm text-base-content/60 mb-4">
-                            You don't have any curation scrolls yet.
-                        </p>
-                        <button
-                            onClick={() => {
-                                onClose();
-                                window.location.href = '/scroll/new';
-                            }}
-                            className="px-4 py-2 bg-primary text-primary-content rounded-lg hover:bg-primary/90 transition-colors"
-                        >
-                            Create Curation
+                    <Modal.Footer>
+                        <button type="button" onClick={onClose} className="act act-quiet h-11 px-4">
+                            Cancel
                         </button>
-                    </div>
-                ) : (
-                    <>
-                        <div className="space-y-2 mb-4 max-h-64 overflow-y-auto">
-                            {curationScrolls.map((scroll) => (
-                                <button
-                                    key={scroll._id}
-                                    onClick={() => setSelectedScrollId(scroll._id)}
-                                    className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedScrollId === scroll._id
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-base-300 hover:border-base-400 hover:bg-base-200/50'
-                                        }`}
-                                >
-                                    <div className="font-medium text-base-content">
-                                        {scroll.name}
-                                    </div>
-                                    {scroll.description && (
-                                        <div className="text-xs text-base-content/60 mt-1">
-                                            {scroll.description}
-                                        </div>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="flex gap-2">
-                            <button
-                                onClick={onClose}
-                                className="flex-1 px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleAdd}
-                                disabled={!selectedScrollId || isAdding}
-                                className="flex-1 px-4 py-2 bg-primary text-primary-content rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {isAdding ? 'Adding...' : 'Add'}
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
+                        <button
+                            type="button"
+                            onClick={handleAdd}
+                            disabled={!selectedScrollId || isAdding}
+                            className="act h-11 px-6"
+                        >
+                            {isAdding ? 'Filing' : 'File it'}
+                        </button>
+                    </Modal.Footer>
+                </>
+            )}
+        </Modal>
     );
 };
 

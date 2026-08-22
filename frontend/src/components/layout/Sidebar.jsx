@@ -1,108 +1,99 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-    Home,
-    Users,
-    Scroll,
-    Bookmark,
-    User,
-    Plus,
-    Hash,
-    TrendingUp,
-    Compass,
-    Settings,
-    PlusSquare
-} from 'lucide-react';
 import { NavigationItem } from '../ui';
 import ScrollSelector from '../features/scroll/ScrollSelector';
 import useAuthStore from '../../store/useAuthStore';
 
-const Sidebar = () => {
-    const { authUser } = useAuthStore();
+/**
+ * The index column — the document's contents page, kept open beside whatever
+ * sheet you are reading.
+ *
+ * The §-numbers are not ornament and not a sequence to be admired: they are the
+ * addresses the running head prints back at you, so the place you are is named
+ * the same way in two places at once. Held is inversion. Nothing here is an icon.
+ *
+ * `onNavigate` closes the mobile contents overlay; on desktop it is not passed.
+ */
+const Sidebar = ({ onNavigate }) => {
+    const { authUser, logout } = useAuthStore();
 
     return (
-        <aside className="flex flex-col h-full w-56 bg-base-100 border-r border-base-200/60">
-            {/* Scroll Selector */}
-            <div className="px-3 py-4 border-b border-base-200/60">
-                <ScrollSelector />
+        <div className="flex h-full flex-col bg-paper">
+            <div className="px-3 pt-5">
+                <Link to="/new" onClick={onNavigate} className="act h-11 w-full px-5">
+                    New Echo
+                </Link>
+                <Link
+                    to="/scroll/new"
+                    onClick={onNavigate}
+                    className="act act-outline mt-2 h-11 w-full px-5"
+                >
+                    New Scroll
+                </Link>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto py-4 px-3">
-                {/* Primary Actions */}
-                <div className="mb-4">
-                    <NavigationItem to="/new" icon={Plus} variant="primary">
-                        New Echo
-                    </NavigationItem>
-                    <NavigationItem className="mt-1" to="/scroll/new" icon={PlusSquare}>
-                        Create Scroll
-                    </NavigationItem>
-                </div>
-
-                {/* Main */}
-                <div className="space-y-0.5 mb-6">
-                    <NavigationItem to="/" icon={Home}>
+            <nav className="mt-7 flex-1 overflow-y-auto pb-6">
+                <p className="t-label border-b border-rule px-3 pb-2">Contents</p>
+                <div className="mt-2">
+                    <NavigationItem to="/" end reference="§01" onNavigate={onNavigate}>
                         Feed
                     </NavigationItem>
-                    <NavigationItem to="/scrolls" icon={Scroll}>
-                        My Scrolls
+                    <NavigationItem to="/scrolls" reference="§02" onNavigate={onNavigate}>
+                        Scrolls
                     </NavigationItem>
-                    <NavigationItem to="/browse-community" icon={Compass}>
-                        Explore
+                    <NavigationItem to="/browse-community" reference="§03" onNavigate={onNavigate}>
+                        Community
+                    </NavigationItem>
+                    <NavigationItem to="/search" reference="§04" onNavigate={onNavigate}>
+                        Search
                     </NavigationItem>
                 </div>
 
-                {/* Scrolls */}
-                <div className="mb-6">
-                    <div className="flex items-center justify-between px-2 mb-2">
-                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
-                            Scrolls
-                        </span>
+                <div className="mt-8">
+                    <div className="flex items-baseline justify-between gap-3 border-b border-rule px-3 pb-2">
+                        <p className="t-label">Your rules</p>
                         <Link
-                            to="/scroll/new"
-                            className="text-base-content/30 hover:text-base-content/60 transition-colors"
+                            to="/scrolls/feeds"
+                            onClick={onNavigate}
+                            className="t-label link-rule transition-colors hover:text-ink"
                         >
-                            <Plus className="w-3.5 h-3.5" />
+                            All
                         </Link>
                     </div>
-                    <div className="space-y-0.5">
-                        <NavigationItem to="/scrolls/feeds" icon={Scroll}>
-                            Feeds
-                        </NavigationItem>
-                        <NavigationItem to="/scrolls/curations" icon={Bookmark}>
-                            Curations
-                        </NavigationItem>
+                    <div className="mt-2">
+                        <ScrollSelector onNavigate={onNavigate} />
                     </div>
                 </div>
 
-                {/* Discover */}
-                <div className="mb-6">
-                    <div className="px-2 mb-2">
-                        <span className="text-xs font-medium text-base-content/40 uppercase tracking-wider">
-                            Discover
-                        </span>
-                    </div>
-                    <div className="space-y-0.5">
-                        <NavigationItem to="/browse-community" icon={Users}>
-                            Community
+                <div className="mt-8">
+                    <p className="t-label border-b border-rule px-3 pb-2">Curations</p>
+                    <div className="mt-2">
+                        <NavigationItem to="/scrolls/curations" onNavigate={onNavigate}>
+                            Your curations
                         </NavigationItem>
-                        <NavigationItem to="/browse/tags" icon={Hash}>
+                        <NavigationItem to="/browse/tags" onNavigate={onNavigate}>
                             Tags
                         </NavigationItem>
                     </div>
                 </div>
             </nav>
 
-            {/* User */}
-            <div className="p-3 border-t border-base-200/60">
-                <NavigationItem to={`/user/${authUser?._id}`} icon={User}>
+            <div className="border-t border-rule py-3">
+                <NavigationItem to={`/user/${authUser?._id}`} onNavigate={onNavigate}>
                     @{authUser?.userName}
                 </NavigationItem>
-                <NavigationItem to="/settings" icon={Settings}>
+                <NavigationItem to="/settings" onNavigate={onNavigate}>
                     Settings
                 </NavigationItem>
+                <button
+                    type="button"
+                    onClick={logout}
+                    className="t-label flex min-h-11 w-full items-center px-3 text-left text-ink-quiet transition-colors duration-200 hover:bg-paper-dim hover:text-ink"
+                >
+                    Sign out
+                </button>
             </div>
-        </aside>
+        </div>
     );
 };
 

@@ -1,204 +1,156 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ArrowLeft, Sparkles } from 'lucide-react';
 import Layout from '../layouts/Layout';
+import { Measure, SheetHead } from '../components/editorial/Apparatus';
 import { useEchoStore } from '../store/useEchoStore';
 
+const LIMIT = 1000;
+const MAX_TAGS = 5;
+
+/**
+ * Writing an echo. The sheet is the page: no framed box around the text, because a
+ * box would make the writing an input rather than a manuscript. A hairline holds
+ * the bottom of the measure, the count sits in the margin of that rule, and the
+ * tags are stamps below it.
+ */
 const NewEcho = () => {
     const navigate = useNavigate();
     const { postEcho, isPostingEcho } = useEchoStore();
     const textareaRef = useRef(null);
 
     const [content, setContent] = useState('');
-    const [tagInput, setTagInput] = useState('');
+    const [draft, setDraft] = useState('');
     const [tags, setTags] = useState([]);
 
-    // Auto-focus and auto-resize textarea
     useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.focus();
-        }
+        textareaRef.current?.focus();
     }, []);
 
-    const handleContentChange = (e) => {
-        setContent(e.target.value);
-        // Auto-resize textarea
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    const handleContentChange = (event) => {
+        setContent(event.target.value);
+        const field = textareaRef.current;
+        if (field) {
+            field.style.height = 'auto';
+            field.style.height = `${field.scrollHeight}px`;
         }
     };
 
-    const handleTagKeyDown = (e) => {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
-            e.preventDefault();
-            addTag(tagInput.trim());
-            setTagInput('');
-        } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
+    const addTag = (raw) => {
+        const clean = raw.replace(/^#/, '').replace(/[, ]+/g, '').trim().toLowerCase();
+        if (clean && !tags.includes(clean) && tags.length < MAX_TAGS) setTags([...tags, clean]);
+    };
+
+    const handleTagKeyDown = (event) => {
+        if (event.key === 'Enter' || event.key === ' ' || event.key === ',') {
+            event.preventDefault();
+            addTag(draft);
+            setDraft('');
+        } else if (event.key === 'Backspace' && draft === '' && tags.length > 0) {
             setTags(tags.slice(0, -1));
         }
     };
 
-    const addTag = (tag) => {
-        const cleanTag = tag.replace(/^#/, '').replace(/[, ]+/g, '').trim().toLowerCase();
-        if (cleanTag && !tags.includes(cleanTag) && tags.length < 5) {
-            setTags([...tags, cleanTag]);
-        }
-    };
-
-    const removeTag = (tagToRemove) => {
-        setTags(tags.filter(tag => tag !== tagToRemove));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
         if (!content.trim()) return;
 
         try {
-            await postEcho({
-                content: content.trim(),
-                tags: tags
-            });
-            setContent('');
-            setTags([]);
-            setTagInput('');
+            await postEcho({ content: content.trim(), tags });
             navigate('/');
         } catch (error) {
             console.log('Error posting echo:', error);
         }
     };
 
-    const remainingChars = 1000 - content.length;
+    const remaining = LIMIT - content.length;
     const canSubmit = content.trim().length > 0 && !isPostingEcho;
-    const charPercentage = (content.length / 1000) * 100;
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto px-4 py-4 sm:py-6">
-                {/* Minimal Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2 -ml-2 text-base-content/40 hover:text-base-content/70 transition-colors"
-                        aria-label="Go back"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
+            <Measure>
+                <SheetHead label="New echo" subject="Say it once, plainly." />
 
-                    <button
-                        onClick={handleSubmit}
-                        disabled={!canSubmit}
-                        className="px-5 py-2 bg-base-content text-base-100 rounded-full text-sm font-medium transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                        {isPostingEcho ? (
-                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                            <Sparkles className="w-4 h-4" />
-                        )}
-                        <span>{isPostingEcho ? 'Posting...' : 'Echo'}</span>
-                    </button>
-                </div>
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="echo-content" className="sr-only">
+                        Your echo
+                    </label>
+                    <textarea
+                        ref={textareaRef}
+                        id="echo-content"
+                        value={content}
+                        onChange={handleContentChange}
+                        placeholder="Write here."
+                        maxLength={LIMIT}
+                        className="min-h-[13rem] w-full resize-none border-none bg-transparent text-[1.0625rem] leading-[1.7] text-ink outline-none placeholder:text-rule-strong sm:text-[1.125rem]"
+                    />
 
-                {/* Writing Area */}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Main Textarea */}
-                    <div className="relative">
-                        <textarea
-                            ref={textareaRef}
-                            value={content}
-                            onChange={handleContentChange}
-                            placeholder="What's on your mind?"
-                            className="w-full bg-transparent text-base-content text-lg sm:text-xl leading-relaxed placeholder:text-base-content/25 resize-none border-none outline-none min-h-[200px]"
-                            maxLength={1000}
+                    <div className="flex items-baseline justify-between gap-6 border-t border-rule pt-3">
+                        <p className="t-label">{tags.length ? `${tags.length} of ${MAX_TAGS} tags` : 'No tags'}</p>
+                        <p className={`t-readout ${remaining <= 80 ? 'text-ink' : 'text-rule-strong'}`}>
+                            {content.length}/{LIMIT}
+                        </p>
+                    </div>
+
+                    <div className="mt-8">
+                        <label htmlFor="echo-tags" className="t-label t-label--ink block">
+                            Tags
+                        </label>
+                        <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">
+                            Up to five. Type one and press space. Tags are how a rule finds this echo.
+                        </p>
+                        <input
+                            id="echo-tags"
+                            type="text"
+                            value={draft}
+                            onChange={(event) => {
+                                const value = event.target.value;
+                                if (value.includes(' ') || value.includes(',')) {
+                                    addTag(value);
+                                    setDraft('');
+                                    return;
+                                }
+                                setDraft(value);
+                            }}
+                            onKeyDown={handleTagKeyDown}
+                            placeholder={tags.length >= MAX_TAGS ? 'Five is the limit' : 'poetry, cities'}
+                            disabled={tags.length >= MAX_TAGS}
+                            className="field field-sm mt-3"
+                            autoComplete="off"
                         />
 
-                        {/* Character Progress Ring */}
-                        {content.length > 0 && (
-                            <div className="absolute bottom-0 right-0 flex items-center gap-2">
-                                <div className="relative w-8 h-8">
-                                    <svg className="w-8 h-8 -rotate-90">
-                                        <circle
-                                            cx="16"
-                                            cy="16"
-                                            r="12"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            fill="none"
-                                            className="text-base-200"
-                                        />
-                                        <circle
-                                            cx="16"
-                                            cy="16"
-                                            r="12"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            fill="none"
-                                            strokeDasharray={75.4}
-                                            strokeDashoffset={75.4 - (75.4 * charPercentage) / 100}
-                                            className={`transition-all ${remainingChars < 50
-                                                ? 'text-warning'
-                                                : remainingChars < 0
-                                                    ? 'text-error'
-                                                    : 'text-base-content/30'
-                                                }`}
-                                        />
-                                    </svg>
-                                    {remainingChars <= 100 && (
-                                        <span className={`absolute inset-0 flex items-center justify-center text-[10px] font-medium ${remainingChars < 50 ? 'text-warning' : 'text-base-content/40'
-                                            }`}>
-                                            {remainingChars}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+                        {tags.length > 0 && (
+                            <ul className="mt-4 flex flex-wrap gap-2">
+                                {tags.map((tag) => (
+                                    <li key={tag} data-state="in" className="stamp px-3 py-1.5">
+                                        <span className="text-[0.8125rem] leading-[1.4]">#{tag}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setTags(tags.filter((item) => item !== tag))}
+                                            aria-label={`Remove #${tag}`}
+                                            className="stamp-state t-label text-[0.625rem] opacity-70 transition-opacity hover:opacity-100"
+                                        >
+                                            Remove
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
                         )}
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-px bg-base-200/50" />
-
-                    {/* Tags Section */}
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-3 flex-wrap">
-                            {/* Existing Tags */}
-                            {tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-200/50 text-base-content/70 text-sm rounded-full"
-                                >
-                                    <span className="text-base-content/40">#</span>
-                                    {tag}
-                                    <button
-                                        type="button"
-                                        onClick={() => removeTag(tag)}
-                                        className="p-0.5 hover:text-base-content transition-colors"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            ))}
-
-                            {/* Tag Input */}
-                            {tags.length < 20 && (
-                                <input
-                                    type="text"
-                                    value={tagInput}
-                                    onChange={(e) => setTagInput(e.target.value.replace(/[, ]+/g, ''))}
-                                    onKeyDown={handleTagKeyDown}
-                                    placeholder={tags.length === 0 ? "Add tags..." : "Add more..."}
-                                    className="flex-1 min-w-[100px] bg-transparent text-sm text-base-content placeholder:text-base-content/30 outline-none"
-                                />
-                            )}
-                        </div>
-
-                        {tags.length === 0 && (
-                            <p className="text-xs text-base-content/30">
-                                Tags help others discover your echo. Press space or comma to add.
-                            </p>
-                        )}
+                    <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-ink pt-6">
+                        <button type="submit" disabled={!canSubmit} className="act h-12 px-8">
+                            {isPostingEcho ? 'Posting' : 'Post this echo'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => navigate(-1)}
+                            className="act act-quiet h-12 px-6"
+                        >
+                            Discard
+                        </button>
                     </div>
                 </form>
-            </div>
+            </Measure>
         </Layout>
     );
 };

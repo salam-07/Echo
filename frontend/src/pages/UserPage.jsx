@@ -1,32 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import EchoCard from '../components/features/echo/EchoCard';
-import { FollowButton } from '../components/features/scroll';
-import {
-    MessageCircle,
-    Scroll,
-    Edit3,
-    Users,
-    UserPlus,
-    UserMinus,
-    Layers,
-    Filter,
-    ArrowRight
-} from 'lucide-react';
+import { ScrollCard } from '../components/features/scroll';
+import { Avatar } from '../components/ui';
+import useAuthStore from '../store/useAuthStore';
 import { useProfileStore } from '../store/useProfileStore';
-import { useAuthStore } from '../store/useAuthStore';
+import { Measure, SheetHead, Notice, Placeholder, Coda, More } from '../components/editorial/Apparatus';
 
+const REGISTERS = [
+    { value: 'echos', label: 'Echos' },
+    { value: 'scrolls', label: 'Scrolls' },
+];
+
+/** A counted quantity in the masthead. The numeral leads; the word explains it. */
+const Count = ({ value, label }) => (
+    <div>
+        <p className="font-display text-[1.75rem] leading-none tracking-[-0.01em] text-ink">{value}</p>
+        <p className="t-label mt-2">{label}</p>
+    </div>
+);
+
+/**
+ * A person's own sheet: the masthead, then everything they have written or built.
+ *
+ * This is the one screen where the square plate appears — a name at masthead scale
+ * wants a mark beside it, and here the name is the subject of the page rather than
+ * a byline inside a row. The old page set the username at 72px and put a Follow
+ * button beside it that only wrote to the console; there is no endpoint behind
+ * following a person, so the button is gone rather than pretending.
+ *
+ * Counts come from the paginated totals, not from `list.length`, which only ever
+ * knew about the first ten.
+ */
 const UserPage = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('echos');
     const { authUser } = useAuthStore();
+    const [register, setRegister] = useState('echos');
+
     const {
         profile,
         myProfile,
         userEchos,
         userScrolls,
+        echosPagination,
+        scrollsPagination,
         isLoadingProfile,
         isLoadingMyProfile,
         isLoadingUserEchos,
@@ -35,267 +53,192 @@ const UserPage = () => {
         getMyProfile,
         getUserEchos,
         getUserScrolls,
-        clearProfile
+        loadMoreEchos,
+        loadMoreScrolls,
+        clearProfile,
     } = useProfileStore();
 
-    // Determine if viewing own profile
-    const isOwnProfile = !id || id === authUser?._id;
-    const targetUserId = isOwnProfile ? authUser?._id : id;
+    const isOwn = !id || id === authUser?._id;
+    const userId = isOwn ? authUser?._id : id;
 
     useEffect(() => {
-        if (isOwnProfile && authUser?._id) {
-            // Viewing own profile
-            getMyProfile();
-            getUserEchos(authUser._id);
-            getUserScrolls(authUser._id, 'created');
-        } else if (id) {
-            // Viewing someone else's profile
-            getProfile(id);
-            getUserEchos(id);
-            getUserScrolls(id, 'created');
-        }
-
+        if (!userId) return;
+        if (isOwn) getMyProfile();
+        else getProfile(userId);
+        getUserEchos(userId);
+        getUserScrolls(userId, 'created');
         return () => clearProfile();
-    }, [id, authUser?._id, isOwnProfile]);
+    }, [userId, isOwn, getMyProfile, getProfile, getUserEchos, getUserScrolls, clearProfile]);
 
-    // Get the appropriate profile data
-    const profileData = isOwnProfile ? (myProfile || authUser) : profile;
-    const isLoading = isOwnProfile ? isLoadingMyProfile : isLoadingProfile;
+    const person = isOwn ? myProfile || authUser : profile;
+    const isLoading = isOwn ? isLoadingMyProfile : isLoadingProfile;
 
-    // Handle loading state
-    if (isLoading || !profileData) {
+    if (isLoading && !person) {
         return (
             <Layout>
-                <div className="min-h-[60vh] flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="w-8 h-8 border-2 border-base-content/20 border-t-base-content/60 rounded-full animate-spin mx-auto mb-4" />
-                        <p className="text-base-content/40 text-sm">Loading profile...</p>
-                    </div>
-                </div>
+                <Measure>
+                    <SheetHead label="Account" />
+                    <Placeholder rows={3} />
+                </Measure>
             </Layout>
         );
     }
 
-    const isFollowing = authUser?.following?.includes(id);
+    if (!person) {
+        return (
+            <Layout>
+                <Measure>
+                    <SheetHead label="Account" subject="No such account." />
+                    <Notice
+                        statement="This name is not in the record."
+                        note="It may have been closed, or the address may be wrong."
+                        actions={
+                            <Link to="/search/users" className="act act-outline h-11 px-6">
+                                Search for a name
+                            </Link>
+                        }
+                    />
+                </Measure>
+            </Layout>
+        );
+    }
 
-    const handleFollowToggle = () => {
-        // TODO: Implement follow/unfollow functionality
-        console.log(isFollowing ? 'Unfollow' : 'Follow', profileData.userName);
-    };
+    const echoCount = echosPagination?.totalEchos ?? userEchos.length;
+    const scrollCount = scrollsPagination?.totalScrolls ?? userScrolls.length;
+    const joined = person.createdAt
+        ? new Date(person.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        : null;
 
-    const stats = [
-        { label: 'Echos', value: userEchos?.length || 0 },
-        { label: 'Scrolls', value: userScrolls?.length || 0 },
-        { label: 'Followers', value: profileData?.followers?.length || 0 },
-        { label: 'Following', value: profileData?.following?.length || 0 },
-    ];
-
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case 'echos':
-                return (
-                    <div className="space-y-0">
-                        {isLoadingUserEchos ? (
-                            <div className="space-y-0">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="py-6 border-b border-base-content/5 animate-pulse">
-                                        <div className="h-4 bg-base-content/5 rounded w-1/4 mb-3"></div>
-                                        <div className="h-3 bg-base-content/5 rounded w-3/4 mb-2"></div>
-                                        <div className="h-3 bg-base-content/5 rounded w-1/2"></div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : userEchos?.length > 0 ? (
-                            userEchos.map((echo) => (
-                                <EchoCard key={echo._id} echo={echo} />
-                            ))
-                        ) : (
-                            <div className="py-16 text-center">
-                                <MessageCircle className="w-10 h-10 mx-auto text-base-content/10 mb-4" strokeWidth={1} />
-                                <p className="text-base-content/40 text-sm mb-6">
-                                    {isOwnProfile ? 'No echos yet' : `@${profileData.userName} hasn't posted any echos yet`}
-                                </p>
-                                {isOwnProfile && (
-                                    <Link
-                                        to="/new"
-                                        className="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content transition-colors"
-                                    >
-                                        Create your first echo
-                                        <ArrowRight className="w-4 h-4" />
-                                    </Link>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                );
-
-            case 'scrolls':
-                return (
-                    <div className="space-y-0">
-                        {isLoadingUserScrolls ? (
-                            <div className="space-y-0">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="py-6 border-b border-base-content/5 animate-pulse">
-                                        <div className="h-4 bg-base-content/5 rounded w-1/3 mb-3"></div>
-                                        <div className="h-3 bg-base-content/5 rounded w-2/3"></div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : userScrolls?.length > 0 ? (
-                            userScrolls.map((scroll) => (
-                                <Link
-                                    key={scroll._id}
-                                    to={`/scroll/${scroll._id}`}
-                                    className="group block py-5 border-b border-base-content/5 last:border-0"
-                                >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-base-content/5 shrink-0">
-                                                {scroll.type === 'feed' ? (
-                                                    <Filter className="w-4 h-4 text-base-content/40" />
-                                                ) : (
-                                                    <Layers className="w-4 h-4 text-base-content/40" />
-                                                )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-medium text-base-content group-hover:text-base-content/70 transition-colors truncate">
-                                                    {scroll.name}
-                                                </h4>
-                                                {scroll.description && (
-                                                    <p className="text-sm text-base-content/40 line-clamp-1 mt-0.5">
-                                                        {scroll.description}
-                                                    </p>
-                                                )}
-                                                <span className="text-xs text-base-content/30 mt-1 inline-block">
-                                                    {scroll.type === 'feed' ? 'Feed' : `${scroll.echos?.length || 0} echos`}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        {!isOwnProfile && (
-                                            <FollowButton scroll={scroll} size="sm" />
-                                        )}
-                                    </div>
-                                </Link>
-                            ))
-                        ) : (
-                            <div className="py-16 text-center">
-                                <Scroll className="w-10 h-10 mx-auto text-base-content/10 mb-4" strokeWidth={1} />
-                                <p className="text-base-content/40 text-sm mb-6">
-                                    {isOwnProfile ? 'No scrolls yet' : `@${profileData.userName} hasn't created any scrolls yet`}
-                                </p>
-                                {isOwnProfile && (
-                                    <Link
-                                        to="/create-scroll"
-                                        className="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-base-content transition-colors"
-                                    >
-                                        Create your first scroll
-                                        <ArrowRight className="w-4 h-4" />
-                                    </Link>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                );
-
-            default:
-                return null;
-        }
-    };
+    const rail = REGISTERS.map((item) => ({
+        ...item,
+        count: item.value === 'echos' ? echoCount : scrollCount,
+    }));
 
     return (
         <Layout>
-            <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-                {/* Hero Section - Large Username */}
-                <div className="mb-12">
-                    {/* Username - Hero Element */}
-                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-base-content tracking-tight mb-4">
-                        @{profileData?.userName}
-                    </h1>
-
-                    {/* Bio */}
-                    <p className="text-lg text-base-content/50 max-w-xl leading-relaxed mb-8">
-                        {profileData?.bio || (isOwnProfile ? "No bio yet" : "")}
-                    </p>
-
-                    {/* Stats Row */}
-                    <div className="flex flex-wrap gap-6 sm:gap-10 mb-8">
-                        {stats.map((stat) => (
-                            <div key={stat.label} className="group">
-                                <div className="text-2xl sm:text-3xl font-semibold text-base-content mb-1">
-                                    {stat.value}
-                                </div>
-                                <div className="text-xs text-base-content/30 uppercase tracking-wider">
-                                    {stat.label}
-                                </div>
-                            </div>
-                        ))}
+            <Measure>
+                <SheetHead
+                    label={isOwn ? 'Your account' : 'Account'}
+                    readout={joined ? `Writing since ${joined}` : undefined}
+                >
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+                        <div className="flex min-w-0 items-center gap-4">
+                            <Avatar size="lg" fallback={person.userName?.charAt(0)?.toUpperCase() || '?'} />
+                            <h1 className="t-subject min-w-0 break-all">@{person.userName}</h1>
+                        </div>
+                        {isOwn && (
+                            <Link to="/settings" className="act act-outline h-10 shrink-0 px-5">
+                                Settings
+                            </Link>
+                        )}
                     </div>
 
-                    {/* Action Button */}
-                    {isOwnProfile ? (
-                        <Link
-                            to="/settings"
-                            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm text-base-content/70 border border-base-content/10 rounded-full hover:border-base-content/20 hover:text-base-content transition-all"
-                        >
-                            <Edit3 className="w-4 h-4" />
-                            Edit Profile
-                        </Link>
+                    {person.bio && <p className="t-body mt-4 max-w-[52ch] text-ink-soft">{person.bio}</p>}
+
+                    <div className="mt-8 flex flex-wrap gap-x-12 gap-y-6 border-t border-rule pt-6">
+                        <Count value={echoCount} label="Echos" />
+                        <Count value={scrollCount} label="Scrolls" />
+                        <Count value={person.followers?.length ?? 0} label="Followers" />
+                        <Count value={person.following?.length ?? 0} label="Following" />
+                    </div>
+
+                    <fieldset className="mt-8">
+                        <legend className="sr-only">Which register to read</legend>
+                        <div className="flex border border-rule">
+                            {rail.map((item, index) => (
+                                <label
+                                    key={item.value}
+                                    data-held={register === item.value || undefined}
+                                    className={`stop t-label h-11 flex-1 gap-2 whitespace-nowrap px-4 ${
+                                        index > 0 ? 'border-l border-rule' : ''
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="register"
+                                        className="sr-only"
+                                        checked={register === item.value}
+                                        onChange={() => setRegister(item.value)}
+                                    />
+                                    {item.label} <span aria-hidden="true">{item.count}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
+                </SheetHead>
+
+                {register === 'echos' ? (
+                    isLoadingUserEchos && userEchos.length === 0 ? (
+                        <Placeholder rows={3} />
+                    ) : userEchos.length === 0 ? (
+                        <Notice
+                            statement={isOwn ? 'You have not written anything yet.' : `@${person.userName} has not written anything yet.`}
+                            note={
+                                isOwn
+                                    ? 'An echo is at most a thousand characters. That is the whole form.'
+                                    : 'When they do, it will appear here in order.'
+                            }
+                            actions={
+                                isOwn ? (
+                                    <Link to="/new" className="act h-11 px-6">
+                                        Write your first echo
+                                    </Link>
+                                ) : null
+                            }
+                        />
                     ) : (
-                        <button
-                            onClick={handleFollowToggle}
-                            className={`inline-flex items-center gap-2 px-5 py-2.5 text-sm rounded-full transition-all ${isFollowing
-                                ? 'text-base-content/70 border border-base-content/10 hover:border-base-content/20 hover:text-base-content'
-                                : 'bg-base-content text-base-100 hover:bg-base-content/90'
-                                }`}
-                        >
-                            {isFollowing ? (
-                                <>
-                                    <UserMinus className="w-4 h-4" />
-                                    Unfollow
-                                </>
+                        <div key="echos" className="animate-set-in border-t border-ink">
+                            {userEchos.map((echo) => (
+                                <EchoCard key={echo._id} echo={echo} />
+                            ))}
+                            {echosPagination?.hasNext ? (
+                                <More
+                                    shown={userEchos.length}
+                                    total={echoCount}
+                                    isLoading={isLoadingUserEchos}
+                                    onMore={() => loadMoreEchos(userId, echosPagination.currentPage + 1)}
+                                />
                             ) : (
-                                <>
-                                    <UserPlus className="w-4 h-4" />
-                                    Follow
-                                </>
+                                <Coda />
                             )}
-                        </button>
-                    )}
-                </div>
-
-                {/* Divider */}
-                <div className="h-px bg-base-content/5 mb-8" />
-
-                {/* Tabs */}
-                <div className="flex gap-8 mb-8">
-                    {[
-                        { id: 'echos', label: 'Echos', count: userEchos?.length || 0 },
-                        { id: 'scrolls', label: 'Scrolls', count: userScrolls?.length || 0 }
-                    ].map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`relative pb-2 text-sm font-medium transition-colors ${activeTab === tab.id
-                                ? 'text-base-content'
-                                : 'text-base-content/30 hover:text-base-content/50'
-                                }`}
-                        >
-                            {tab.label}
-                            <span className={`ml-2 ${activeTab === tab.id ? 'text-base-content/50' : 'text-base-content/20'}`}>
-                                {tab.count}
-                            </span>
-                            {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-base-content" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Tab Content */}
-                <div>
-                    {renderTabContent()}
-                </div>
-            </div>
+                        </div>
+                    )
+                ) : isLoadingUserScrolls && userScrolls.length === 0 ? (
+                    <Placeholder rows={2} />
+                ) : userScrolls.length === 0 ? (
+                    <Notice
+                        statement={isOwn ? 'You have not built a Scroll yet.' : `@${person.userName} has not built a Scroll yet.`}
+                        note={
+                            isOwn
+                                ? 'A Feed is a rule that fills itself. A Curation is a list you keep by hand.'
+                                : 'A Scroll is a rule, or a list kept by hand. Theirs will appear here.'
+                        }
+                        actions={
+                            isOwn ? (
+                                <Link to="/scroll/new" className="act h-11 px-6">
+                                    Write a rule
+                                </Link>
+                            ) : null
+                        }
+                    />
+                ) : (
+                    <div key="scrolls" className="animate-set-in border-t border-ink">
+                        {userScrolls.map((scroll) => (
+                            <ScrollCard key={scroll._id} scroll={scroll} />
+                        ))}
+                        {scrollsPagination?.hasNext ? (
+                            <More
+                                shown={userScrolls.length}
+                                total={scrollCount}
+                                isLoading={isLoadingUserScrolls}
+                                onMore={() => loadMoreScrolls(userId, 'created', scrollsPagination.currentPage + 1)}
+                            />
+                        ) : (
+                            <Coda />
+                        )}
+                    </div>
+                )}
+            </Measure>
         </Layout>
     );
 };

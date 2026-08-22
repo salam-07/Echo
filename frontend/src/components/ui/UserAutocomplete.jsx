@@ -1,34 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Search, User as UserIcon } from 'lucide-react';
 import { axiosInstance } from '../../lib/axios';
 
 /**
- * UserAutocomplete - A component for searching and selecting users
- * @param {Array} selectedUsers - Array of selected user objects {_id, userName}
- * @param {Function} onUserAdd - Callback when a user is added
- * @param {Function} onUserRemove - Callback when a user is removed
- * @param {string} placeholder - Input placeholder text
+ * Naming the authors a rule admits.
+ *
+ * Each chosen author is a stamp — the same three-state control the tag filters
+ * use, held here in its admitted state — and the way to take one out is the word
+ * `Remove`, not a glyph. The suggestion list is paper on paper, separated by a
+ * full ink border rather than a shadow, because a shadow implies a light source
+ * and there is none in this document.
  */
-const UserAutocomplete = ({ selectedUsers = [], onUserAdd, onUserRemove, placeholder = "Search users by username..." }) => {
+const UserAutocomplete = ({
+    selectedUsers = [],
+    onUserAdd,
+    onUserRemove,
+    placeholder = 'Search by username',
+    label = 'Authors',
+}) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const wrapperRef = useRef(null);
+    const fieldId = React.useId();
 
-    // Close suggestions when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
                 setShowSuggestions(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Debounced search
     useEffect(() => {
         const delayTimer = setTimeout(() => {
             if (searchQuery.trim().length > 0) {
@@ -45,9 +50,8 @@ const UserAutocomplete = ({ selectedUsers = [], onUserAdd, onUserRemove, placeho
         setIsLoading(true);
         try {
             const res = await axiosInstance.get(`/search/users?q=${encodeURIComponent(query)}`);
-            // Filter out already selected users
             const filteredUsers = res.data.users.filter(
-                user => !selectedUsers.some(selected => selected._id === user._id)
+                (user) => !selectedUsers.some((selected) => selected._id === user._id),
             );
             setSuggestions(filteredUsers);
             setShowSuggestions(true);
@@ -66,74 +70,66 @@ const UserAutocomplete = ({ selectedUsers = [], onUserAdd, onUserRemove, placeho
         setShowSuggestions(false);
     };
 
-    const handleInputChange = (e) => {
-        setSearchQuery(e.target.value);
-        setShowSuggestions(true);
-    };
-
     return (
-        <div className="space-y-3">
-            {/* Selected Users */}
+        <div>
             {selectedUsers.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <ul className="mb-4 flex flex-wrap gap-2">
                     {selectedUsers.map((user) => (
-                        <div
-                            key={user._id}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm"
-                        >
-                            <UserIcon className="w-3.5 h-3.5" />
-                            <span>@{user.userName}</span>
+                        <li key={user._id} className="stamp px-3 py-1.5" data-state="in">
+                            <span className="text-[0.8125rem] leading-[1.4]">@{user.userName}</span>
                             <button
                                 type="button"
                                 onClick={() => onUserRemove(user._id)}
-                                className="p-0.5 hover:bg-primary/20 rounded-full transition-colors"
+                                aria-label={`Remove @${user.userName}`}
+                                className="t-label text-[0.625rem] text-chalk-quiet transition-colors hover:text-chalk"
                             >
-                                <X className="w-3.5 h-3.5" />
+                                Remove
                             </button>
-                        </div>
+                        </li>
                     ))}
-                </div>
+                </ul>
             )}
 
-            {/* Search Input */}
             <div ref={wrapperRef} className="relative">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleInputChange}
-                        onFocus={() => searchQuery && setShowSuggestions(true)}
-                        placeholder={placeholder}
-                        className="w-full pl-10 pr-4 py-2 bg-base-100 border border-base-300 rounded-lg text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:border-primary/50"
-                    />
-                </div>
+                <label htmlFor={fieldId} className="t-label t-label--ink block">
+                    {label}
+                </label>
+                <input
+                    id={fieldId}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(event) => {
+                        setSearchQuery(event.target.value);
+                        setShowSuggestions(true);
+                    }}
+                    onFocus={() => searchQuery && setShowSuggestions(true)}
+                    placeholder={placeholder}
+                    autoComplete="off"
+                    className="field field-sm mt-1"
+                />
 
-                {/* Suggestions Dropdown */}
-                {showSuggestions && (searchQuery.length > 0) && (
-                    <div className="absolute z-10 w-full mt-1 bg-base-100 border border-base-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {showSuggestions && searchQuery.length > 0 && (
+                    <div className="absolute z-20 mt-px max-h-64 w-full overflow-y-auto border border-ink bg-paper">
                         {isLoading ? (
-                            <div className="px-4 py-3 text-sm text-base-content/60 text-center">
-                                Searching...
-                            </div>
+                            <p className="px-4 py-3 text-[0.8125rem] text-ink-quiet">Searching…</p>
                         ) : suggestions.length > 0 ? (
-                            suggestions.map((user) => (
-                                <button
-                                    key={user._id}
-                                    type="button"
-                                    onClick={() => handleUserSelect(user)}
-                                    className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-base-200 transition-colors text-left"
-                                >
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        <UserIcon className="w-4 h-4 text-primary" />
-                                    </div>
-                                    <span className="text-sm text-base-content">@{user.userName}</span>
-                                </button>
-                            ))
+                            <ul>
+                                {suggestions.map((user) => (
+                                    <li key={user._id} className="border-b border-rule last:border-b-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleUserSelect(user)}
+                                            className="flex min-h-11 w-full items-center px-4 text-left text-[0.875rem] text-ink transition-colors hover:bg-ink hover:text-paper"
+                                        >
+                                            @{user.userName}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
                         ) : (
-                            <div className="px-4 py-3 text-sm text-base-content/60 text-center">
-                                No users found
-                            </div>
+                            <p className="px-4 py-3 text-[0.8125rem] text-ink-quiet">
+                                No user by that name.
+                            </p>
                         )}
                     </div>
                 )}

@@ -1,171 +1,94 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { PanelLeft, Search, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { ReactSVG } from "react-svg";
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+
+/**
+ * The running head. It sits above every sheet in the document and carries three
+ * things: whose document this is, which sheet you are on, and the one control
+ * that reaches any sheet at all.
+ *
+ * The address is derived here rather than passed in, because twenty screens
+ * passing their own §-number is twenty chances for the index column and the
+ * running head to disagree about where you are.
+ */
+
+const ADDRESS = [
+    ['/settings', '§05', 'Settings'],
+    ['/profile', '§05', 'Account'],
+    ['/user/', '§05', 'Account'],
+    ['/search', '§04', 'Search'],
+    ['/browse', '§03', 'Community'],
+    ['/community', '§03', 'Community'],
+    ['/tag/', '§03', 'Tags'],
+    ['/scrolls', '§02', 'Scrolls'],
+    ['/scroll/new', '§02', 'New scroll'],
+    ['/scroll/', '§02', 'Scrolls'],
+    ['/new', '§01', 'New echo'],
+    ['/echo/', '§01', 'Echo'],
+];
+
+export const addressFor = (pathname) => {
+    const match = ADDRESS.find(([prefix]) => pathname.startsWith(prefix));
+    return match ? { reference: match[1], name: match[2] } : { reference: '§01', name: 'Feed' };
+};
 
 const Navbar = ({ onToggleSidebar }) => {
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const searchInputRef = useRef(null);
-    const searchContainerRef = useRef(null);
+    const { pathname } = useLocation();
     const navigate = useNavigate();
+    const [query, setQuery] = useState('');
+    const { reference, name } = addressFor(pathname);
 
-    // Focus input when search opens
-    useEffect(() => {
-        if (isSearchOpen && searchInputRef.current) {
-            searchInputRef.current.focus();
-        }
-    }, [isSearchOpen]);
-
-    // Close search when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-                setIsSearchOpen(false);
-            }
-        };
-
-        if (isSearchOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isSearchOpen]);
-
-    const handleSearchSubmit = (e) => {
-        e?.preventDefault();
-        if (searchQuery.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-            setIsSearchOpen(false);
-            setSearchQuery('');
-        }
-    };
-
-    const handleSearchIconClick = () => {
-        if (isSearchOpen && searchQuery.trim()) {
-            handleSearchSubmit();
-        } else {
-            setIsSearchOpen(true);
-        }
-    };
-
-    const handleCloseSearch = () => {
-        setIsSearchOpen(false);
-        setSearchQuery('');
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const trimmed = query.trim();
+        if (!trimmed) return;
+        navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+        setQuery('');
     };
 
     return (
-        <div className="navbar bg-transparent px-3 relative z-20">
-            {/* Mobile: Full-width search bar when open */}
-            {isSearchOpen && (
-                <div
-                    ref={searchContainerRef}
-                    className="absolute inset-x-0 top-0 h-full bg-base-100 flex items-center px-3 lg:hidden z-50"
-                >
-                    <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center gap-2">
-                        <button
-                            type="submit"
-                            className="p-2 rounded text-base-content/50 hover:text-base-content transition-colors"
-                        >
-                            <Search className="w-5 h-5" strokeWidth={1.5} />
-                        </button>
-                        <input
-                            ref={searchInputRef}
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search echos, scrolls, users..."
-                            className="flex-1 bg-transparent text-base-content placeholder:text-base-content/30 outline-none text-sm"
-                        />
-                        <button
-                            type="button"
-                            onClick={handleCloseSearch}
-                            className="p-2 rounded text-base-content/50 hover:text-base-content transition-colors"
-                        >
-                            <X className="w-5 h-5" strokeWidth={1.5} />
-                        </button>
-                    </form>
-                </div>
-            )}
-
-            <div className="navbar-start">
+        <header className="sticky top-0 z-30 h-14 border-b border-rule bg-paper">
+            <div className="mx-auto flex h-full max-w-[1440px] items-center gap-4 px-4 lg:px-6">
                 <button
-                    className="lg:hidden p-2 rounded text-base-content/50 hover:text-base-content hover:bg-base-200/50 transition-colors"
+                    type="button"
                     onClick={onToggleSidebar}
-                    aria-label="Toggle sidebar"
+                    className="t-label -ml-2 flex h-11 items-center px-2 transition-colors hover:text-ink lg:hidden"
                 >
-                    <PanelLeft className="w-5 h-5" strokeWidth={1.5} />
+                    Index
                 </button>
-            </div>
 
-            <Link to="/" className="navbar-center">
-                <ReactSVG src="/logo.svg" className="h-5 w-auto opacity-80 hover:opacity-100 transition-opacity" />
-            </Link>
-
-            <div className="navbar-end">
-                {/* Desktop: Expandable search */}
-                <div
-                    ref={searchContainerRef}
-                    className="hidden lg:flex items-center"
-                    onMouseLeave={() => {
-                        if (!searchQuery.trim()) {
-                            setIsSearchOpen(false);
-                        }
-                    }}
+                <Link
+                    to="/"
+                    className="font-display text-[1.25rem] leading-none tracking-[-0.01em] text-ink"
                 >
-                    <div className={`
-                        flex items-center overflow-hidden transition-all duration-200 ease-out
-                        ${isSearchOpen
-                            ? 'w-64 bg-base-200/50 rounded-full'
-                            : 'w-9'
-                        }
-                    `}>
-                        {isSearchOpen && (
-                            <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center">
-                                <input
-                                    ref={searchInputRef}
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search..."
-                                    className="flex-1 bg-transparent text-base-content placeholder:text-base-content/30 outline-none text-sm pl-4 py-2"
-                                    onBlur={(e) => {
-                                        // Don't close if clicking the search button
-                                        if (!searchContainerRef.current?.contains(e.relatedTarget)) {
-                                            if (!searchQuery.trim()) {
-                                                setIsSearchOpen(false);
-                                            }
-                                        }
-                                    }}
-                                />
-                            </form>
-                        )}
-                        <button
-                            onClick={handleSearchIconClick}
-                            onMouseEnter={() => setIsSearchOpen(true)}
-                            className={`
-                                p-2 rounded-full text-base-content/50 hover:text-base-content transition-colors flex-shrink-0
-                                ${isSearchOpen ? '' : 'hover:bg-base-200/50'}
-                            `}
-                            aria-label="Search"
-                        >
-                            <Search className="w-5 h-5" strokeWidth={1.5} />
-                        </button>
-                    </div>
+                    Echo
+                </Link>
+
+                <p className="t-label hidden shrink-0 items-baseline gap-2 sm:flex">
+                    <span className="text-rule-strong">{reference}</span>
+                    <span className="t-label--ink">{name}</span>
+                </p>
+
+                <div className="flex flex-1 justify-end">
+                    <form onSubmit={handleSubmit} className="hidden w-full max-w-[18rem] md:block">
+                        <label htmlFor="running-search" className="sr-only">
+                            Search Echos, Scrolls, users, and tags
+                        </label>
+                        <input
+                            id="running-search"
+                            type="search"
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            placeholder="Search"
+                            className="field field-sm"
+                        />
+                    </form>
+
+                    <Link to="/search" className="t-label flex h-11 items-center px-2 md:hidden">
+                        Search
+                    </Link>
                 </div>
-
-                {/* Mobile: Search icon */}
-                <button
-                    onClick={() => setIsSearchOpen(true)}
-                    className="lg:hidden p-2 rounded text-base-content/50 hover:text-base-content hover:bg-base-200/50 transition-colors"
-                    aria-label="Search"
-                >
-                    <Search className="w-5 h-5" strokeWidth={1.5} />
-                </button>
             </div>
-        </div>
+        </header>
     );
 };
 

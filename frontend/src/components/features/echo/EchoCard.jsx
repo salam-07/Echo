@@ -7,25 +7,26 @@ import EchoActions from './EchoActions';
 import EchoMenu from './EchoMenu';
 import AddToScrollModal from './AddToScrollModal';
 
+/**
+ * One entry in the corpus. Byline, then the text, then the tags it was filed
+ * under, then what you can do about it — in that order, ruled off below.
+ *
+ * No box, no avatar, no hover lift. The row is a row of a printed document, and
+ * the only thing in it that changes appearance is the word you are pointing at.
+ */
 const EchoCard = memo(({ echo }) => {
     const { toggleLike, deleteEcho } = useEchoStore();
     const { authUser } = useAuthStore();
-    const isLiked = echo.isLiked;
     const [showMenu, setShowMenu] = useState(false);
     const [showAddToScroll, setShowAddToScroll] = useState(false);
-    const [isLikeAnimating, setIsLikeAnimating] = useState(false);
     const isOwnEcho = authUser?._id === echo.author?._id;
 
-    const handleLike = useCallback((e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsLikeAnimating(true);
+    const handleLike = useCallback(() => {
         toggleLike(echo._id);
-        setTimeout(() => setIsLikeAnimating(false), 300);
     }, [echo._id, toggleLike]);
 
     const handleDelete = useCallback(async () => {
-        if (window.confirm('Are you sure you want to delete this echo?')) {
+        if (window.confirm('Delete this echo? This cannot be undone.')) {
             try {
                 await deleteEcho(echo._id);
                 setShowMenu(false);
@@ -36,47 +37,25 @@ const EchoCard = memo(({ echo }) => {
     }, [echo._id, deleteEcho]);
 
     const handleCopyLink = useCallback(() => {
-        const link = `${window.location.origin}/echo/${echo._id}`;
-        navigator.clipboard.writeText(link);
+        navigator.clipboard.writeText(`${window.location.origin}/echo/${echo._id}`);
         setShowMenu(false);
     }, [echo._id]);
 
-    const handleToggleMenu = useCallback((e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setShowMenu(prev => !prev);
-    }, []);
-
-    const handleBookmark = useCallback((e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setShowAddToScroll(true);
-    }, []);
-
-    const handleCloseAddToScroll = useCallback(() => {
-        setShowAddToScroll(false);
-    }, []);
-
     return (
-        <article className="group relative w-full">
-            <div className="py-4 sm:py-5 border-b border-base-200/40">
-                <div className="space-y-2.5 sm:space-y-3">
-                    <EchoHeader echo={echo} onToggleMenu={handleToggleMenu} />
-                    <EchoContent echo={echo} />
-                    <EchoActions
-                        echo={echo}
-                        isLiked={isLiked}
-                        isLikeAnimating={isLikeAnimating}
-                        onLike={handleLike}
-                        onToggleMenu={handleToggleMenu}
-                        onBookmark={handleBookmark}
-                    />
-                </div>
-            </div>
+        <article className="relative border-b border-rule py-6">
+            <EchoHeader echo={echo} />
+            <EchoContent echo={echo} />
+            <EchoActions
+                echo={echo}
+                isLiked={echo.isLiked}
+                onLike={handleLike}
+                onToggleMenu={() => setShowMenu((prev) => !prev)}
+                onSave={() => setShowAddToScroll(true)}
+                menuOpen={showMenu}
+            />
 
             {showMenu && (
                 <EchoMenu
-                    showMenu={showMenu}
                     setShowMenu={setShowMenu}
                     setShowAddToScroll={setShowAddToScroll}
                     handleDelete={handleDelete}
@@ -86,10 +65,7 @@ const EchoCard = memo(({ echo }) => {
             )}
 
             {showAddToScroll && (
-                <AddToScrollModal
-                    echoId={echo._id}
-                    onClose={handleCloseAddToScroll}
-                />
+                <AddToScrollModal echoId={echo._id} onClose={() => setShowAddToScroll(false)} />
             )}
         </article>
     );
