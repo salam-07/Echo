@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { NavigationItem } from '../ui';
-import ScrollSelector from '../features/scroll/ScrollSelector';
+import RuleDrum from '../features/scroll/RuleDrum';
 import useAuthStore from '../../store/useAuthStore';
 
 /**
@@ -11,6 +11,12 @@ import useAuthStore from '../../store/useAuthStore';
  * The §-numbers are not ornament and not a sequence to be admired: they are the
  * addresses the running head prints back at you, so the place you are is named
  * the same way in two places at once. Held is inversion. Nothing here is an icon.
+ *
+ * One thing in this column is not a printed line: the rule drum. Everything else
+ * here takes you somewhere; the drum *sets* something, and it is the one setting
+ * the product is about. It is the only element in the column with a frame around
+ * it, which is the whole reason it reads as the instrument and the rest reads as
+ * contents.
  *
  * `onNavigate` closes the mobile contents overlay; on desktop it is not passed.
  */
@@ -50,19 +56,7 @@ const Sidebar = ({ onNavigate }) => {
                 </div>
 
                 <div className="mt-8">
-                    <div className="flex items-baseline justify-between gap-3 border-b border-rule px-3 pb-2">
-                        <p className="t-label">Your rules</p>
-                        <Link
-                            to="/scrolls/feeds"
-                            onClick={onNavigate}
-                            className="t-label link-rule transition-colors hover:text-ink"
-                        >
-                            All
-                        </Link>
-                    </div>
-                    <div className="mt-2">
-                        <ScrollSelector onNavigate={onNavigate} />
-                    </div>
+                    <RuleDrum onNavigate={onNavigate} />
                 </div>
 
                 <div className="mt-8">

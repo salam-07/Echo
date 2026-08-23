@@ -342,6 +342,127 @@ fieldset:disabled .stop[data-held='true'] {
   text-decoration: none;
 }
 
+/* --- The rule drum ------------------------------------------------------- */
+
+/* The one instrument in the document.
+ *
+ * Everything else in the index column is a printed line you press. This is a
+ * register you turn, because the rule that governs your feed is the single
+ * setting this whole application exists to hand over, and a setting that
+ * important should not be indistinguishable from a link to Settings.
+ *
+ * It is a counter, built from the only three materials here: a hairline frame,
+ * a strip of names, and one inked window cut in the middle of it. The names roll
+ * behind the window; whichever name is standing in it is the rule you are
+ * reading. Nothing rotates — the world it sits in is a flat sheet and has no
+ * depth to rotate into, which is exactly what killed the 3D wheel that used to
+ * be here. A counter does not need depth. It needs a window and a detent.
+ *
+ * The mechanism is legible because of how the window is cut. Two identical
+ * strips are stacked and moved by the same transform on the same tick: one in
+ * ink on paper, clipped to the whole frame, and one in paper on ink, clipped to
+ * the band alone. A name crossing the band edge is therefore cut mid-glyph and
+ * takes the opposite colour halfway through a letter, the way a word passes
+ * under an inked plate. That is the whole effect, and it costs one extra
+ * transform.
+ *
+ * The two strips must stay metrically identical — same face, size, weight and
+ * tracking — or the glyphs would step sideways at the cut and the illusion would
+ * break. So `.drum-name` is declared once and both layers wear it; only the
+ * inherited colour differs. Which means held is not carried by weight here as it
+ * is on `.stop`. It does not need to be: held is a full luminance inversion, a
+ * fixed position in the frame, and a printed number in the readout above.
+ */
+.drum {
+  --drum-row: 2.75rem;
+  --drum-rows: 3;
+  --drum-band: 1;
+  position: relative;
+  height: calc(var(--drum-rows) * var(--drum-row));
+  overflow: hidden;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Vertical panning is the drum's own gesture, so the page may not have it
+     here. Pinch is left alone: a reader who needs to zoom needs to zoom. */
+  touch-action: pinch-zoom;
+  transition: border-color 200ms var(--ease-press);
+}
+
+.drum:hover,
+.drum:focus-visible {
+  border-top-color: var(--color-rule-strong);
+  border-bottom-color: var(--color-rule-strong);
+}
+
+.drum[data-turning='true'] {
+  cursor: grabbing;
+}
+
+/* A single rule is not a counter — there is nothing to roll past it. The frame
+   collapses to the window itself rather than printing two blank rows. */
+.drum[data-rows='1'] {
+  --drum-rows: 1;
+  --drum-band: 0;
+  cursor: default;
+}
+
+.drum-strip {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  color: var(--color-ink-quiet);
+}
+
+/* The inverted twin, offset back up by the band's own position so both strips
+   share one coordinate space and one transform value. */
+.drum-strip--inverted {
+  top: calc(var(--drum-band) * var(--drum-row) * -1);
+  color: var(--color-paper);
+}
+
+.drum-band {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--drum-band) * var(--drum-row));
+  height: var(--drum-row);
+  overflow: hidden;
+  background-color: var(--color-ink);
+}
+
+.drum-row {
+  display: flex;
+  align-items: center;
+  height: var(--drum-row);
+  padding-inline: 0.75rem;
+}
+
+.drum-name {
+  font-family: var(--font-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The mileage window: the held rule's number, on its own small wheel, geared to
+   the big one. Two digits, tabular, so the frame never changes width. */
+.drum-count {
+  --drum-digit: 1rem;
+  height: var(--drum-digit);
+  overflow: hidden;
+}
+
+.drum-count-row {
+  height: var(--drum-digit);
+  line-height: var(--drum-digit);
+}
+
 /* --- Actions ------------------------------------------------------------- */
 
 /* Solid ink, inverted text, sharp. Hover inverts rather than lifts: this
