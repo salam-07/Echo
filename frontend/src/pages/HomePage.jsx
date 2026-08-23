@@ -87,7 +87,7 @@ const HomePage = () => {
         <Layout>
             <Measure>
                 <SheetHead
-                    label={selectedScroll ? 'Feed' : 'Everything'}
+                    // label={selectedScroll ? 'Feed' : 'Everything'}
                     subject={selectedScroll ? selectedScroll.name : 'Every echo'}
                     deck={
                         selectedScroll
