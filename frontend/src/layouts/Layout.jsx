@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Sidebar, Navbar, RightSidebar } from '../components/layout';
-
 /**
  * The document: a running head across the top, then three columns — index,
  * corpus, margin.
@@ -41,7 +40,9 @@ const Layout = ({ children }) => {
                     <Sidebar />
                 </div>
 
-                <main className="min-w-0 flex-1 lg:border-x lg:border-rule">{children}</main>
+                <main className="min-w-0 flex-1 lg:border-x lg:border-rule">
+                    {children}
+                </main>
 
                 <RightSidebar />
             </div>

@@ -115,6 +115,7 @@
     background-color: var(--color-paper);
     color-scheme: light;
     -webkit-text-size-adjust: 100%;
+
   }
 
   body {
@@ -489,12 +490,18 @@ fieldset:disabled .stop[data-held='true'] {
  * changing metrics or stepping sideways. The static face is all that lives here.
  */
 .hdrum {
-  --hdrum-fade: 13%;
+  --hdrum-fade: 7%;
   position: relative;
   height: 2.75rem;
   overflow: hidden;
+  cursor: grab;
   user-select: none;
   -webkit-user-select: none;
+  outline: none;
+  /* Horizontal panning is the drum's own gesture; vertical is left to the page,
+     so a reader scrolling with the cursor over the head is never trapped. Pinch
+     is left alone: a reader who needs to zoom needs to zoom. */
+  touch-action: pan-y pinch-zoom;
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0,
@@ -511,11 +518,30 @@ fieldset:disabled .stop[data-held='true'] {
   );
 }
 
+.hdrum[data-turning='true'] {
+  cursor: grabbing;
+}
+
+/* A single name is not a register — there is nothing to turn past it. */
+.hdrum[data-static] {
+  cursor: default;
+}
+
+/* No border to strengthen the way the vertical drum has, so focus is drawn as a
+   hairline inside the mouth — offset in, or the overflow clip would eat it. */
+.hdrum:focus-visible {
+  outline: 1px solid var(--color-rule-strong);
+  outline-offset: -1px;
+}
+
 .hdrum-track {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
+  /* Promoted at mount: a roll writes only this element's transform, so it is
+     compositor work start to finish. */
+  will-change: transform;
 }
 
 /* Depth is one number per name — its distance in steps from the centre — handed
@@ -527,12 +553,12 @@ fieldset:disabled .stop[data-held='true'] {
   display: flex;
   align-items: center;
   padding-inline: 0.7rem;
-  transform: scale(max(0.62, 1 - var(--depth) * 0.11));
+  transform: scale(max(0.62, 1 - var(--depth, 0) * 0.11));
   transform-origin: center;
   color: color-mix(
     in oklab,
     var(--color-ink),
-    var(--color-paper) calc(min(var(--depth), 5) * 16%)
+    var(--color-paper) calc(min(var(--depth, 0), 5) * 16%)
   );
 }
 
