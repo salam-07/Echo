@@ -96,10 +96,12 @@ const Navbar = ({ onToggleSidebar }) => {
                     </Link>
                 </div>
 
-                {/* The horizontal drum, hung in the centre of the running head and
-                    wired to the scroll selector — the feeds are its strip, the held
-                    rule its centre, and turning it writes the choice back. */}
-                <div className="flex min-w-0 flex-[3] justify-center">
+                {/* The horizontal drum, wired to the scroll selector — the feeds are
+                    its strip, the held rule its centre, and turning it writes the
+                    choice back. On the wide head it hangs in the centre; on a narrow
+                    one it drops to its own sticky band along the foot of the page,
+                    where a thumb can reach it. */}
+                <div className="fixed inset-x-0 bottom-0 z-30 flex min-w-0 justify-center border-t border-rule bg-paper px-4 py-1 lg:static lg:inset-x-auto lg:bottom-auto lg:z-auto lg:flex-[3] lg:border-0 lg:bg-transparent lg:px-0 lg:py-0">
                     <div className="w-full max-w-[34rem]">
                         {feeds.length > 0 ? (
                             <HorizontalDrum
