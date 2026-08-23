@@ -463,6 +463,96 @@ fieldset:disabled .stop[data-held='true'] {
   line-height: var(--drum-digit);
 }
 
+/* --- The horizontal drum ------------------------------------------------- */
+
+/* The running head's register: the rule drum laid on its side and hung in the
+ * top margin. A lateral band of names with one standing at the centre — full
+ * ink, full size, weight 600 — and its neighbours falling away to either side,
+ * each a step smaller and a step lighter, until the outermost dissolve into the
+ * paper at the mouth of the band.
+ *
+ * Near depth is drawn with the world's own two devices and nothing borrowed:
+ * `scale` shrinks each step out, and `color-mix` walks the ink a fixed fraction
+ * toward paper per step — the same value ladder every other surface climbs
+ * (ink → ink-soft → ink-quiet → rule-strong), only here it is continuous.
+ *
+ * Far depth — the actual dissolve to nothing at each rim — is the one exception
+ * this flat sheet grants itself: a single horizontal mask. No blur, no rotation,
+ * no shadow. It is deliberate and scoped to this component alone, so the band
+ * can read as the mouth of a cylinder without reaching for the depth the rest of
+ * the document refuses. If the mechanical detector flags a gradient here, this is
+ * the one it is allowed to find.
+ *
+ * Every name is the same face, size, weight and tracking as every other — held
+ * differs only by scale, ink and weight — so that when the turning logic is
+ * fitted later, a name sliding to the centre grows and inks without ever
+ * changing metrics or stepping sideways. The static face is all that lives here.
+ */
+.hdrum {
+  --hdrum-fade: 13%;
+  position: relative;
+  height: 2.75rem;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--hdrum-fade),
+    #000 calc(100% - var(--hdrum-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--hdrum-fade),
+    #000 calc(100% - var(--hdrum-fade)),
+    transparent 100%
+  );
+}
+
+.hdrum-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Depth is one number per name — its distance in steps from the centre — handed
+   in as `--depth` and spent twice: on scale and on how much paper is mixed into
+   the ink. Both floor out a few steps from centre so the far names settle onto a
+   value rather than vanish before the mask reaches them. */
+.hdrum-item {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding-inline: 0.7rem;
+  transform: scale(max(0.62, 1 - var(--depth) * 0.11));
+  transform-origin: center;
+  color: color-mix(
+    in oklab,
+    var(--color-ink),
+    var(--color-paper) calc(min(var(--depth), 5) * 16%)
+  );
+}
+
+.hdrum-name {
+  font-family: var(--font-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+}
+
+/* The centre name is the only one at full ink and weight 600. Scale 1 and the
+   zero-depth ink already fall out of the ladders above on their own; this is
+   just the press that says which name is being read. */
+.hdrum-item[data-held] .hdrum-name {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
 /* --- Actions ------------------------------------------------------------- */
 
 /* Solid ink, inverted text, sharp. Hover inverts rather than lifts: this
@@ -672,6 +762,17 @@ fieldset:disabled .stop[data-held='true'] {
 .inverted
   :is(a, button, input, select, textarea, summary, label, [tabindex]):focus-visible {
   outline-color: var(--color-chalk);
+}
+
+/* A field opts out of the square ring above. It already announces focus by
+   thickening its own hairline to 2px ink (see `.field:focus`), which is a
+   visible focus indicator in its own right — so the ring is redundant, and a
+   box drawn around a one-line underline reads as chrome the field was built to
+   refuse. This lives unlayered on purpose: `.field:focus { outline: none }` is
+   inside `@layer components` and would otherwise lose to the unlayered ring. */
+.field:focus,
+.field:focus-visible {
+  outline: none;
 }
 
 ::selection {
