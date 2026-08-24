@@ -5,7 +5,7 @@ import { Measure, SheetHead } from '../components/editorial/Apparatus';
 import { useEchoStore } from '../store/useEchoStore';
 
 const LIMIT = 1000;
-const MAX_TAGS = 5;
+const MAX_TAGS = 10;
 
 /**
  * Writing an echo. The sheet is the page: no framed box around the text, because a
