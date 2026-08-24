@@ -59,7 +59,7 @@ export const getTags = async (req, res) => {
         const { limit } = req.query;
         const limitNum = limit ? parseInt(limit) : null;
 
-        const query = Tag.find({}).sort({ name: 1 });
+        const query = Tag.find({}).sort({ name: 1 }).lean();
 
         if (limitNum) {
             query.limit(limitNum);
@@ -67,7 +67,20 @@ export const getTags = async (req, res) => {
 
         const tags = await query;
 
-        res.status(200).json(tags);
+        // Count how many echos reference each tag. Each echo carries an array of
+        // tag references, so unwinding and grouping gives the usage count per tag.
+        const counts = await Echo.aggregate([
+            { $unwind: "$tags" },
+            { $group: { _id: "$tags", count: { $sum: 1 } } }
+        ]);
+        const countByTag = new Map(counts.map((c) => [String(c._id), c.count]));
+
+        const tagsWithCount = tags.map((tag) => ({
+            ...tag,
+            count: countByTag.get(String(tag._id)) || 0,
+        }));
+
+        res.status(200).json(tagsWithCount);
     } catch (error) {
         console.log("Error in getTags controller", error);
         res.status(500).json({ error: "Failed to fetch tags" });
