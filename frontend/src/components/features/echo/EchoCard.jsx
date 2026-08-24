@@ -1,4 +1,5 @@
 import React, { useState, memo, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { useEchoStore } from '../../../store/useEchoStore';
 import useAuthStore from '../../../store/useAuthStore';
 import EchoHeader from './EchoHeader';
@@ -26,19 +27,23 @@ const EchoCard = memo(({ echo }) => {
     }, [echo._id, toggleLike]);
 
     const handleDelete = useCallback(async () => {
-        if (window.confirm('Delete this echo? This cannot be undone.')) {
-            try {
-                await deleteEcho(echo._id);
-                setShowMenu(false);
-            } catch (error) {
-                console.log('Error deleting echo:', error);
-            }
+        if (!window.confirm('Delete this echo? This cannot be undone.')) return;
+        try {
+            await deleteEcho(echo._id);
+            setShowMenu(false);
+        } catch {
+            // deleteEcho raises its own toast; the row simply stays put.
         }
     }, [echo._id, deleteEcho]);
 
-    const handleCopyLink = useCallback(() => {
-        navigator.clipboard.writeText(`${window.location.origin}/echo/${echo._id}`);
+    const handleCopyLink = useCallback(async () => {
         setShowMenu(false);
+        try {
+            await navigator.clipboard.writeText(`${window.location.origin}/echo/${echo._id}`);
+            toast.success('Link copied');
+        } catch {
+            toast.error('Couldn’t copy the link');
+        }
     }, [echo._id]);
 
     return (

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Layout from '../layouts/Layout';
-import { Measure, SheetHead, Notice, Placeholder } from '../components/editorial/Apparatus';
+import { Measure, SheetHead, Section, Notice, Placeholder } from '../components/editorial/Apparatus';
 import ReplyList from '../components/features/echo/ReplyList';
 import ReplyInput from '../components/features/echo/ReplyInput';
 import { Timestamp } from '../components/ui';
@@ -39,12 +40,23 @@ const EchoView = () => {
         }
     };
 
-    const handleShare = () => {
+    const handleShare = async () => {
         const url = window.location.href;
         if (navigator.share) {
-            navigator.share({ title: `Echo by @${echo.author?.userName}`, text: echo.content, url });
-        } else {
-            navigator.clipboard.writeText(url);
+            try {
+                await navigator.share({ title: `Echo by @${echo.author?.userName}`, text: echo.content, url });
+                return;
+            } catch (error) {
+                // The reader dismissed the share sheet — not a failure, nothing to say.
+                if (error?.name === 'AbortError') return;
+                // Anything else (no permission, unsupported target): fall through to copy.
+            }
+        }
+        try {
+            await navigator.clipboard.writeText(url);
+            toast.success('Link copied');
+        } catch {
+            toast.error('Couldn’t copy the link');
         }
     };
 
@@ -93,18 +105,22 @@ const EchoView = () => {
                         </Link>
                     </p>
 
-                    <p className="mt-5 whitespace-pre-wrap break-words text-[1.125rem] leading-[1.65] text-ink sm:text-[1.25rem]">
+                    <p className="mt-5 whitespace-pre-wrap break-words text-pretty text-[1.125rem] leading-[1.65] text-ink sm:text-[1.25rem]">
                         {echo.content}
                     </p>
 
                     {echo.tags?.length > 0 && (
-                        <p className="t-readout mt-6 flex flex-wrap gap-x-3 gap-y-1 text-rule-strong">
+                        <div className="mt-6 flex flex-wrap gap-x-4 gap-y-1">
                             {echo.tags.map((tag) => (
-                                <Link key={tag._id} to={`/tag/${tag.name}`} className="link-rule">
+                                <Link
+                                    key={tag._id}
+                                    to={`/tag/${tag.name}`}
+                                    className="t-readout text-rule-strong transition-colors hover:text-ink"
+                                >
                                     #{tag.name}
                                 </Link>
                             ))}
-                        </p>
+                        </div>
                     )}
 
                     <div className="mt-6 flex items-center justify-between gap-4 border-t border-rule pt-1">
@@ -127,22 +143,18 @@ const EchoView = () => {
                         </div>
 
                         <button type="button" onClick={handleShare} className={`${ROW} hover:text-ink`}>
-                            Copy link
+                            Share
                         </button>
                     </div>
                 </article>
 
-                <section className="mt-12 pb-16">
-                    <h2 className="t-label t-label--ink border-b border-ink pb-3">
-                        Replies <span className="t-readout ml-2 font-normal text-ink-quiet">{replyCount}</span>
-                    </h2>
-
+                <Section label="Replies" readout={replyCount || null} className="pb-16">
                     <div className="border-b border-rule py-6">
                         <ReplyInput onSubmit={handleAddReply} isSubmitting={isSubmittingReply} />
                     </div>
 
                     <ReplyList replies={echo.replies || []} onDeleteReply={handleDeleteReply} />
-                </section>
+                </Section>
             </Measure>
         </Layout>
     );
