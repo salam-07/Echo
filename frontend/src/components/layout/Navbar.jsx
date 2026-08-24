@@ -78,7 +78,7 @@ const Navbar = ({ onToggleSidebar }) => {
 
     return (
         <header className="sticky top-0 z-30 h-14 border-b border-rule bg-paper">
-            <div className="mx-auto flex h-full max-w-[1440px] items-center gap-4 px-4 lg:px-6">
+            <div className="relative mx-auto flex h-full max-w-[1440px] items-center gap-4 px-4 lg:px-6">
                 <div className="flex flex-1 items-center gap-4">
                     <button
                         type="button"
@@ -90,7 +90,7 @@ const Navbar = ({ onToggleSidebar }) => {
 
                     <Link
                         to="/"
-                        className="hidden font-display text-[1.25rem] leading-none tracking-[-0.01em] text-ink lg:block"
+                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[1.25rem] leading-none tracking-[-0.01em] text-ink lg:static lg:translate-x-0 lg:translate-y-0"
                     >
                         echo
                     </Link>

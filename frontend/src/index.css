@@ -904,6 +904,38 @@ fieldset:disabled .stop[data-held='true'] {
   animation: set-in 250ms var(--ease-press) both;
 }
 
+/* A sheet laid over the document. The ground washes to ink at low opacity while
+   the paper settles the last few pixels down onto it — both on the press ease, so
+   the overlay decelerates like every other motion in the app. Reduced motion
+   collapses the timing below; the sheet still lands, only at once. */
+@keyframes ground-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-set {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-ground {
+  animation: ground-in 240ms var(--ease-press) both;
+}
+
+.modal-sheet {
+  animation: sheet-set 320ms var(--ease-press) both;
+}
+
 /* The reader's own setting, honoured whether it comes from the OS or from
    Settings — which writes `data-motion="reduce"` on the root. */
 @media (prefers-reduced-motion: reduce) {
