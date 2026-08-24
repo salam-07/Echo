@@ -155,13 +155,13 @@ export const More = ({ shown, total, isLoading, onMore, label = 'Show more' }) =
  * has to look at the location itself.
  */
 export const Rail = ({ items, className = '' }) => (
-    <nav className={`flex flex-wrap border border-rule ${className}`}>
+    <nav className={`flex flex-wrap border-l border-t border-rule ${className}`}>
         {items.map((item) => (
             <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className="stop t-label h-11 flex-1 whitespace-nowrap px-5 [&:not(:first-child)]:border-l [&:not(:first-child)]:border-rule"
+                className="stop t-label h-11 flex-1 whitespace-nowrap border-b border-r border-rule px-5"
             >
                 {item.label}
             </NavLink>

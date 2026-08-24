@@ -801,6 +801,16 @@ fieldset:disabled .stop[data-held='true'] {
   outline: none;
 }
 
+/* The echo composer is a manuscript, not an input: it draws no border to thicken
+   the way a `.field` does, and the sheet opens with it already focused — so the
+   square ring lands as a box around the writing surface, the exact chrome this
+   page refuses. The blinking caret carries focus here. Unlayered for the same
+   reason as `.field` above. */
+.manuscript:focus,
+.manuscript:focus-visible {
+  outline: none;
+}
+
 ::selection {
   background: var(--color-ink);
   color: var(--color-paper);

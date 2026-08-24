@@ -68,7 +68,7 @@ const NewEcho = () => {
     return (
         <Layout>
             <Measure>
-                <SheetHead label="New echo" subject="Say it once, plainly." />
+                <SheetHead label="" subject="Post an Echo" />
 
                 <form onSubmit={handleSubmit}>
                     <label htmlFor="echo-content" className="sr-only">
@@ -81,7 +81,7 @@ const NewEcho = () => {
                         onChange={handleContentChange}
                         placeholder="Write here."
                         maxLength={LIMIT}
-                        className="min-h-[13rem] w-full resize-none border-none bg-transparent text-[1.0625rem] leading-[1.7] text-ink outline-none placeholder:text-rule-strong sm:text-[1.125rem]"
+                        className="manuscript min-h-[13rem] w-full resize-none border-none bg-transparent text-[1.0625rem] leading-[1.7] text-ink placeholder:text-rule-strong sm:text-[1.125rem]"
                     />
 
                     <div className="flex items-baseline justify-between gap-6 border-t border-rule pt-3">
