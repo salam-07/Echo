@@ -472,6 +472,7 @@ const TheRule = () => {
                                 ))
                             )}
 
+                            {/* Withheld Echos hidden — restore this block to bring them back.
                             {withheld.length > 0 ? (
                                 <>
                                     <div className="mt-12 border-t border-ink pt-4 pb-2">
@@ -486,6 +487,7 @@ const TheRule = () => {
                                     ))}
                                 </>
                             ) : null}
+                            */}
                         </div>
 
                         <div data-coda>
