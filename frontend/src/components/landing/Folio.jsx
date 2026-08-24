@@ -22,7 +22,7 @@ const SECTIONS = [
     { id: 'join', reference: '§04 · Join' },
 ];
 
-const COVER = 'Specification sheet 01';
+const COVER = '';
 
 const NAV = [
     { href: '#models', label: 'Two models' },

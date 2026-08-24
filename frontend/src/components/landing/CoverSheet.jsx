@@ -77,26 +77,6 @@ const CoverSheet = () => {
     return (
         <section ref={scope} aria-labelledby="cover-statement" className="pb-20 lg:pb-32">
             <Sheet>
-                <Rule strike />
-                <dl
-                    data-field
-                    className="grid grid-cols-2 gap-x-8 gap-y-3 py-4 md:flex md:items-baseline md:justify-between"
-                >
-                    <div className="flex items-baseline gap-2">
-                        <dt className="t-label">Subject</dt>
-                        <dd className="t-label t-label--ink">How your feed is decided</dd>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                        <dt className="t-label">Sections</dt>
-                        <dd className="t-label t-label--ink">01&ndash;04</dd>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                        <dt className="t-label">Issued</dt>
-                        <dd className="t-label t-label--ink">22 August 2026</dd>
-                    </div>
-                </dl>
-                <Rule strike />
-
                 {/* The measure is em, not ch, and that is load-order, not pedantry.
                     `ch` is the advance width of "0" in whichever face is actually
                     active, so a measure in ch is a measure that changes when the
