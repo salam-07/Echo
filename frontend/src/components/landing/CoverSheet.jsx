@@ -127,33 +127,6 @@ const CoverSheet = () => {
                             Username and password. No email address.
                         </p>
                     </div>
-
-                    <div className="col-span-12 lg:col-span-5 lg:col-start-8 lg:border-l lg:border-rule lg:pl-8">
-                        <h2 data-spec-head className="t-label t-label--ink">
-                            A feed scroll, in full &mdash; 8 parameters
-                        </h2>
-                        <dl className="mt-6">
-                            {PARAMETERS.map((parameter) => (
-                                <div key={parameter.name} data-spec-row className="border-t border-rule py-3.5">
-                                    <dt className="flex items-baseline justify-between gap-4">
-                                        <span className="text-[0.9375rem] font-medium leading-tight text-ink">
-                                            {parameter.name}
-                                        </span>
-                                        {parameter.operable ? null : (
-                                            <span className="t-label shrink-0">Set in app</span>
-                                        )}
-                                    </dt>
-                                    <dd className="t-label mt-1.5">{parameter.values}</dd>
-                                </div>
-                            ))}
-                        </dl>
-                        <div className="border-t border-ink pt-3.5">
-                            <p data-spec-note className="t-body text-ink-soft">
-                                That is the entire engine. Six of the eight are operable further down this
-                                sheet.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </Sheet>
         </section>

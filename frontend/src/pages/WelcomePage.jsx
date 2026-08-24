@@ -54,24 +54,28 @@ const WelcomePage = () => {
     return (
         <main className="min-h-screen bg-paper text-ink">
             <Sheet className="py-14 md:py-20">
-                <div className="mb-14 flex items-center justify-between gap-6">
-                    <ol className="flex border border-rule">
+                <div className="mb-14 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                    <ol className="flex flex-col self-start border border-rule sm:flex-row sm:self-auto">
                         <li
-                            className={`t-label flex h-9 items-center px-4 ${
+                            className={`t-label flex h-9 items-center whitespace-nowrap px-4 ${
                                 step === 'greet' ? 'bg-ink text-paper' : 'text-ink-quiet'
                             }`}
                         >
                             i · Welcome
                         </li>
                         <li
-                            className={`t-label flex h-9 items-center border-l border-rule px-4 ${
+                            className={`t-label flex h-9 items-center whitespace-nowrap border-t border-rule px-4 sm:border-l sm:border-t-0 ${
                                 step === 'build' ? 'bg-ink text-paper' : 'text-ink-quiet'
                             }`}
                         >
                             ii · Your first Feed
                         </li>
                     </ol>
-                    <button type="button" onClick={leave} className="act act-quiet h-9 px-4">
+                    <button
+                        type="button"
+                        onClick={leave}
+                        className="act act-quiet h-9 self-start px-4 sm:self-auto"
+                    >
                         Skip to Echo
                     </button>
                 </div>
