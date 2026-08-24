@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 
 import HomePage from "./pages/HomePage";
+import WelcomePage from "./pages/WelcomePage";
 import NewEcho from "./pages/NewEcho";
 import EchoView from "./pages/EchoView";
 import UserPage from "./pages/UserPage";
@@ -82,6 +83,7 @@ const App = () => {
             {authUser ? (
                 <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/welcome" element={<WelcomePage />} />
                     <Route path="/signup" element={<Navigate to="/" />} />
                     <Route path="/login" element={<Navigate to="/" />} />
 

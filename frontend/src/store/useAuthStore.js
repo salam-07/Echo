@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
-export const useAuthStore = create((set, get) => ({
+export const useAuthStore = create((set) => ({
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
@@ -28,6 +28,7 @@ export const useAuthStore = create((set, get) => ({
             const res = await axiosInstance.post("/auth/signup", data);
             set({ authUser: res.data });
             toast.success("Account Created");
+            return res.data;
         } catch (error) {
             toast.error(error.response.data.message);
         } finally {

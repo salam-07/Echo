@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore.js';
 import AuthSheet, { Field } from '../components/auth/AuthSheet.jsx';
 
@@ -22,6 +22,7 @@ const TERMS = [
 
 const SignUpPage = () => {
     const { signup, isSigningUp } = useAuthStore();
+    const navigate = useNavigate();
     const [params] = useSearchParams();
     const [form, setForm] = useState({
         userName: (params.get('u') ?? '').trim().slice(0, 32),
@@ -34,7 +35,7 @@ const SignUpPage = () => {
         if (errors[key]) setErrors((current) => ({ ...current, [key]: undefined }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const userName = form.userName.trim();
@@ -53,7 +54,8 @@ const SignUpPage = () => {
         setErrors(next);
         if (Object.keys(next).length > 0) return;
 
-        signup({ userName, password: form.password });
+        const user = await signup({ userName, password: form.password });
+        if (user) navigate('/welcome', { replace: true });
     };
 
     return (

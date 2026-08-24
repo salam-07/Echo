@@ -69,10 +69,13 @@ const HomePage = () => {
                         note="Write a rule — tags to admit, authors to allow, an order to read them in — and this page becomes its output. Or follow a Scroll somebody else has already written."
                         actions={
                             <>
-                                <Link to="/scroll/new" className="act h-11 px-6">
-                                    Write a rule
+                                <Link to="/welcome" className="act h-11 px-6">
+                                    Set up your first Feed
                                 </Link>
-                                <Link to="/browse-community" className="act act-outline h-11 px-6">
+                                <Link to="/scroll/new" className="act act-outline h-11 px-6">
+                                    Write a rule yourself
+                                </Link>
+                                <Link to="/browse-community" className="act act-quiet h-11 px-6">
                                     Browse the community
                                 </Link>
                             </>
