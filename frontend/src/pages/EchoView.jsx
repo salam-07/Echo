@@ -8,7 +8,7 @@ import ReplyInput from '../components/features/echo/ReplyInput';
 import { Timestamp } from '../components/ui';
 import { useEchoStore } from '../store/useEchoStore';
 
-const ROW = 't-label flex h-11 items-center gap-2 transition-colors duration-200';
+const ROW = 't-label flex h-11 items-center gap-2 transition duration-200';
 
 /**
  * One echo, given the whole measure. The feed sets an entry at reading size; here it
@@ -129,7 +129,7 @@ const EchoView = () => {
                                 type="button"
                                 onClick={() => toggleLike(echo._id)}
                                 aria-pressed={isLiked}
-                                className={`${ROW} ${
+                                className={`${ROW} active:scale-95 ${
                                     isLiked ? 't-label--ink underline decoration-1 underline-offset-4' : 'hover:text-ink'
                                 }`}
                             >

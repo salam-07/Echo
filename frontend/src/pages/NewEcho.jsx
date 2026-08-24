@@ -96,7 +96,7 @@ const NewEcho = () => {
                             Tags
                         </label>
                         <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                            Up to five. Type one and press space. Tags are how a rule finds this echo.
+                            Up to ten. Type one and press space. Tags are how a rule finds this echo.
                         </p>
                         <input
                             id="echo-tags"

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import useCommunityStore from '../store/useCommunityStore';
 import { ScrollCard } from '../components/features/scroll';
-import { TagRow, RankedEcho, COMMUNITY_RAIL } from '../components/features/browse';
+import { TagRow, COMMUNITY_RAIL } from '../components/features/browse';
 import { Measure, SheetHead, Section, Placeholder, Rail } from '../components/editorial/Apparatus';
 
 /** Nothing to show under a heading yet — one line, in the margin's voice. */
@@ -22,23 +22,19 @@ const BrowseCommunityPage = () => {
         feedScrolls,
         curationScrolls,
         tags,
-        popularEchos,
         isLoadingFeeds,
         isLoadingCurations,
         isLoadingTags,
-        isLoadingPopularEchos,
         fetchPublicFeedScrolls,
         fetchPublicCurationScrolls,
         fetchTags,
-        fetchPopularEchos,
     } = useCommunityStore();
 
     useEffect(() => {
         fetchPublicFeedScrolls(4);
         fetchPublicCurationScrolls(4);
         fetchTags(12);
-        fetchPopularEchos(5);
-    }, [fetchPublicFeedScrolls, fetchPublicCurationScrolls, fetchTags, fetchPopularEchos]);
+    }, [fetchPublicFeedScrolls, fetchPublicCurationScrolls, fetchTags]);
 
     return (
         <Layout>
@@ -46,7 +42,7 @@ const BrowseCommunityPage = () => {
                 <SheetHead
                     label="Community"
                     subject="What everybody else is reading by."
-                    deck="Rules, shelves, tags and the entries that have travelled furthest. Follow anything here and it joins your index."
+                    deck="Rules, shelves and tags. Follow anything here and it joins your index."
                 >
                     <Rail items={COMMUNITY_RAIL} className="mt-8" />
                 </SheetHead>
@@ -82,18 +78,6 @@ const BrowseCommunityPage = () => {
                                 <TagRow key={tag._id} tag={tag} />
                             ))}
                         </div>
-                    )}
-                </Section>
-
-                <Section label="Most liked" to="/browse/popular" className="pb-4">
-                    {isLoadingPopularEchos && popularEchos.length === 0 ? (
-                        <Placeholder rows={3} />
-                    ) : popularEchos.length === 0 ? (
-                        <Nothing>Nothing has been liked yet.</Nothing>
-                    ) : (
-                        popularEchos
-                            .slice(0, 5)
-                            .map((echo, index) => <RankedEcho key={echo._id} echo={echo} rank={index + 1} />)
                     )}
                 </Section>
 

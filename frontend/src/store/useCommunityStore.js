@@ -6,12 +6,10 @@ const useCommunityStore = create((set, get) => ({
     feedScrolls: [],
     curationScrolls: [],
     tags: [],
-    popularEchos: [],
 
     isLoadingFeeds: false,
     isLoadingCurations: false,
     isLoadingTags: false,
-    isLoadingPopularEchos: false,
 
     // Actions
     fetchPublicFeedScrolls: async (limit = null) => {
@@ -62,22 +60,6 @@ const useCommunityStore = create((set, get) => ({
         }
     },
 
-    fetchPopularEchos: async (limit = null) => {
-        set({ isLoadingPopularEchos: true });
-        try {
-            const response = await axios.get(`/community/echos/popular${limit ? `?limit=${limit}` : ''}`);
-            set({
-                popularEchos: response.data,
-                isLoadingPopularEchos: false
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching popular echos:', error);
-            set({ isLoadingPopularEchos: false });
-            return [];
-        }
-    },
-
     // Update scroll's savedBy in community data
     updateScrollSavedBy: (scrollId, userId, isFollowing) => {
         const { feedScrolls, curationScrolls } = get();
@@ -121,11 +103,9 @@ const useCommunityStore = create((set, get) => ({
             feedScrolls: [],
             curationScrolls: [],
             tags: [],
-            popularEchos: [],
             isLoadingFeeds: false,
             isLoadingCurations: false,
             isLoadingTags: false,
-            isLoadingPopularEchos: false,
         });
     }
 }));

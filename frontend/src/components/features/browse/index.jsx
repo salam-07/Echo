@@ -23,35 +23,12 @@ export const TagRow = ({ tag }) => (
     </Link>
 );
 
-/**
- * An echo in a ranked list. The numeral is the rank, set in the display face at
- * the width of two digits so the column of text starts at the same place all the
- * way down.
- */
-export const RankedEcho = ({ echo, rank }) => (
-    <Link to={`/echo/${echo._id}`} className="flex gap-5 border-b border-rule py-5 transition-colors hover:bg-paper-shade">
-        {rank != null && (
-            <span aria-hidden="true" className="font-display w-8 shrink-0 text-[1.25rem] leading-none text-rule">
-                {rank}
-            </span>
-        )}
-        <div className="min-w-0 flex-1">
-            <p className="t-readout text-rule-strong">@{echo.author?.userName || 'anonymous'}</p>
-            <p className="mt-2 line-clamp-2 text-[0.9375rem] leading-[1.55] text-ink">{echo.content}</p>
-            <p className="t-readout mt-2 text-rule-strong">
-                {echo.likes || echo.likedBy?.length || 0} likes
-            </p>
-        </div>
-    </Link>
-);
-
 /** The rail every community sheet carries, so none of them needs a back-link. */
 export const COMMUNITY_RAIL = [
     { to: '/community', label: 'Contents', end: true },
     { to: '/browse/scrolls', label: 'Feeds' },
     { to: '/browse/curation', label: 'Curations' },
     { to: '/browse/tags', label: 'Tags' },
-    { to: '/browse/popular', label: 'Most liked' },
 ];
 
 const COPY = {

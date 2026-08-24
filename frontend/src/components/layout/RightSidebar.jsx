@@ -67,7 +67,6 @@ const RightSidebar = () => {
                 {[
                     { to: '/browse/tags', label: 'Tags' },
                     { to: '/browse-community', label: 'Community' },
-                    { to: '/browse/popular', label: 'Most liked' },
                 ].map((item) => (
                     <li key={item.to} className="border-b border-rule/60">
                         <Link

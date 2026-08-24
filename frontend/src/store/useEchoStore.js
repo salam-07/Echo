@@ -161,7 +161,6 @@ export const useEchoStore = create((set, get) => ({
             });
 
             // Also update scrollEchos if they exist (for custom scrolls)
-            const { useScrollStore } = await import('./useScrollStore.js');
             useScrollStore.getState().updateScrollEcho(echoId, {
                 likes: res.data.likes,
                 isLiked: res.data.isLiked

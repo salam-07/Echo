@@ -25,7 +25,6 @@ import BrowseCommunityPage from "./pages/BrowseCommunityPage";
 import BrowseScrollsPage from "./pages/BrowseScrollsPage";
 import BrowseCurationPage from "./pages/BrowseCurationPage";
 import BrowseTagsPage from "./pages/BrowseTagsPage";
-import PopularEchosPage from "./pages/PopularEchosPage";
 import SearchPage from "./pages/SearchPage";
 import EchoSearchPage from "./pages/EchoSearchPage";
 import ScrollSearchPage from "./pages/ScrollSearchPage";
@@ -105,7 +104,6 @@ const App = () => {
                     <Route path="/browse/scrolls" element={<BrowseScrollsPage />} />
                     <Route path="/browse/curation" element={<BrowseCurationPage />} />
                     <Route path="/browse/tags" element={<BrowseTagsPage />} />
-                    <Route path="/browse/popular" element={<PopularEchosPage />} />
                     <Route path="/browse-community" element={<BrowseCommunityPage />} />
 
                     <Route path="/search" element={<SearchPage />} />

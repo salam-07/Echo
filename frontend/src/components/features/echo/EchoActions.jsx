@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
  * colour or on a fill. Every target is 44px tall; the words sit inside that height
  * rather than being padded out to it.
  */
-const ROW = 't-label flex h-11 items-center gap-2 transition-colors duration-200';
+const ROW = 't-label flex h-11 items-center gap-2 transition duration-200';
 
 const EchoActions = memo(({ echo, isLiked, onLike, onToggleMenu, onSave, menuOpen }) => {
     const replyCount = echo.replies?.length || 0;
@@ -23,7 +23,7 @@ const EchoActions = memo(({ echo, isLiked, onLike, onToggleMenu, onSave, menuOpe
                     type="button"
                     onClick={onLike}
                     aria-pressed={isLiked}
-                    className={`${ROW} ${
+                    className={`${ROW} active:scale-95 ${
                         isLiked
                             ? 't-label--ink underline decoration-1 underline-offset-4'
                             : 'hover:text-ink'
