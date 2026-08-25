@@ -14,7 +14,6 @@ import WelcomePage from "./pages/WelcomePage";
 import NewEcho from "./pages/NewEcho";
 import EchoView from "./pages/EchoView";
 import UserPage from "./pages/UserPage";
-import SettingsPage from "./pages/SettingsPage";
 import TagsPage from "./pages/TagsPage";
 import ScrollsPage from "./pages/ScrollsPage";
 import FeedScrollsPage from "./pages/FeedScrollsPage";
@@ -87,7 +86,7 @@ const App = () => {
                     <Route path="/login" element={<Navigate to="/" />} />
 
                     <Route path="/profile" element={<UserPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/settings" element={<UserPage />} />
                     <Route path="/user/:id" element={<UserPage />} />
 
                     <Route path="/echo/:id" element={<EchoView />} />

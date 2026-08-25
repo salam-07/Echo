@@ -22,6 +22,13 @@ export const useAuthStore = create((set) => ({
         }
     },
 
+    // Merge a patch into the signed-in user (e.g. a freshly saved bio), so the
+    // masthead fallback and anywhere else reading authUser stay current.
+    updateAuthUser: (patch) =>
+        set((state) => ({
+            authUser: state.authUser ? { ...state.authUser, ...patch } : state.authUser,
+        })),
+
     signup: async (data) => {
         set({ isSigningUp: true });
         try {

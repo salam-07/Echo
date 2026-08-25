@@ -2,6 +2,9 @@ import User from "../models/user.model.js";
 import Echo from "../models/echo.model.js";
 import Scroll from "../models/scroll.model.js";
 
+const MAX_BIO = 280;
+
+
 // GET /profile/user/:id - get user profile
 export const getProfile = async (req, res) => {
     try {
@@ -38,6 +41,43 @@ export const getMyProfile = async (req, res) => {
         res.status(200).json(user);
     } catch (error) {
         console.log("Error in getMyProfile controller", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+// PATCH /profile/me - update my profile (currently just the bio)
+export const updateProfile = async (req, res) => {
+    try {
+        const { bio } = req.body;
+
+        if (bio === undefined) {
+            return res.status(400).json({ error: "Nothing to update" });
+        }
+        if (typeof bio !== "string") {
+            return res.status(400).json({ error: "Bio must be text" });
+        }
+
+        const trimmed = bio.trim();
+        if (trimmed.length > MAX_BIO) {
+            return res.status(400).json({ error: `Bio must be ${MAX_BIO} characters or fewer` });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { bio: trimmed },
+            { new: true, runValidators: true }
+        )
+            .select("-password")
+            .populate("createdScrolls", "name description createdAt")
+            .populate("savedScrolls", "name description creator createdAt");
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.log("Error in updateProfile controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };

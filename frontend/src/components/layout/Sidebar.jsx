@@ -65,7 +65,7 @@ const Sidebar = ({ onNavigate }) => {
                 <NavigationItem to={`/user/${authUser?._id}`} onNavigate={onNavigate}>
                     @{authUser?.userName}
                 </NavigationItem>
-                <NavigationItem to="/settings" onNavigate={onNavigate}>
+                {/* <NavigationItem to="/settings" onNavigate={onNavigate}>
                     Settings
                 </NavigationItem>
                 <button
@@ -74,7 +74,7 @@ const Sidebar = ({ onNavigate }) => {
                     className="t-label flex min-h-11 w-full items-center px-3 text-left text-ink-quiet transition-colors duration-200 hover:bg-paper-dim hover:text-ink"
                 >
                     Sign out
-                </button>
+                </button> */}
             </div>
         </div>
     );

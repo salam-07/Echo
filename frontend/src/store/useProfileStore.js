@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
+import { useAuthStore } from "./useAuthStore.js";
 
 export const useProfileStore = create((set, get) => ({
     // Profile data
@@ -18,6 +19,7 @@ export const useProfileStore = create((set, get) => ({
     isLoadingMyProfile: false,
     isLoadingUserEchos: false,
     isLoadingUserScrolls: false,
+    isSavingProfile: false,
 
     // Get any user's profile by ID
     getProfile: async (userId) => {
@@ -44,6 +46,24 @@ export const useProfileStore = create((set, get) => ({
             toast.error(error.response?.data?.error || "Failed to fetch profile");
         } finally {
             set({ isLoadingMyProfile: false });
+        }
+    },
+
+    // Update current user's profile (bio). Keeps authUser in sync so the
+    // masthead fallback reflects the change without a reload.
+    updateMyProfile: async (data) => {
+        set({ isSavingProfile: true });
+        try {
+            const res = await axiosInstance.patch("/profile/me", data);
+            set({ myProfile: res.data });
+            useAuthStore.getState().updateAuthUser({ bio: res.data.bio });
+            toast.success("Saved");
+            return res.data;
+        } catch (error) {
+            console.log("Error updating profile:", error);
+            toast.error(error.response?.data?.error || "Failed to save");
+        } finally {
+            set({ isSavingProfile: false });
         }
     },
 

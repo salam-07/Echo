@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema(
         },
         bio: {
             type: String,
+            trim: true,
+            maxlength: 280,
         },
         savedScrolls: [{
             type: mongoose.Schema.Types.ObjectId,
