@@ -11,7 +11,7 @@ Echo is a social media platform with **Echos** (posts) organized into **Scrolls*
 
 - **Echo**: Posts with content, tags, likes (max 1000 chars)
 - **Scroll**: Collections of Echos - either `curation` (manual) or `feed` (filtered)
-- **User**: Authentication, profiles, following relationships
+- **User**: Authentication, profiles, saved and created Scrolls
 - **Tag**: Categorization system for Echos
 
 ## Key Patterns & Conventions

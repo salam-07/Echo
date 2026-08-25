@@ -6,22 +6,16 @@ export const useProfileStore = create((set, get) => ({
     // Profile data
     profile: null,
     myProfile: null,
-    followers: [],
-    following: [],
     userEchos: [],
     userScrolls: [],
 
     // Pagination data
-    followersPagination: null,
-    followingPagination: null,
     echosPagination: null,
     scrollsPagination: null,
 
     // Loading states
     isLoadingProfile: false,
     isLoadingMyProfile: false,
-    isLoadingFollowers: false,
-    isLoadingFollowing: false,
     isLoadingUserEchos: false,
     isLoadingUserScrolls: false,
 
@@ -50,40 +44,6 @@ export const useProfileStore = create((set, get) => ({
             toast.error(error.response?.data?.error || "Failed to fetch profile");
         } finally {
             set({ isLoadingMyProfile: false });
-        }
-    },
-
-    // Get user's followers
-    getFollowers: async (userId, page = 1, limit = 20) => {
-        set({ isLoadingFollowers: true });
-        try {
-            const res = await axiosInstance.get(`/profile/user/${userId}/followers?page=${page}&limit=${limit}`);
-            set({
-                followers: res.data.followers,
-                followersPagination: res.data.pagination
-            });
-        } catch (error) {
-            console.log("Error fetching followers:", error);
-            toast.error(error.response?.data?.error || "Failed to fetch followers");
-        } finally {
-            set({ isLoadingFollowers: false });
-        }
-    },
-
-    // Get user's following
-    getFollowing: async (userId, page = 1, limit = 20) => {
-        set({ isLoadingFollowing: true });
-        try {
-            const res = await axiosInstance.get(`/profile/user/${userId}/following?page=${page}&limit=${limit}`);
-            set({
-                following: res.data.following,
-                followingPagination: res.data.pagination
-            });
-        } catch (error) {
-            console.log("Error fetching following:", error);
-            toast.error(error.response?.data?.error || "Failed to fetch following");
-        } finally {
-            set({ isLoadingFollowing: false });
         }
     },
 
@@ -118,42 +78,6 @@ export const useProfileStore = create((set, get) => ({
             toast.error(error.response?.data?.error || "Failed to fetch scrolls");
         } finally {
             set({ isLoadingUserScrolls: false });
-        }
-    },
-
-    // Load more followers (for pagination)
-    loadMoreFollowers: async (userId, page, limit = 20) => {
-        set({ isLoadingFollowers: true });
-        try {
-            const res = await axiosInstance.get(`/profile/user/${userId}/followers?page=${page}&limit=${limit}`);
-            const currentFollowers = get().followers;
-            set({
-                followers: [...currentFollowers, ...res.data.followers],
-                followersPagination: res.data.pagination
-            });
-        } catch (error) {
-            console.log("Error loading more followers:", error);
-            toast.error(error.response?.data?.error || "Failed to load more followers");
-        } finally {
-            set({ isLoadingFollowers: false });
-        }
-    },
-
-    // Load more following (for pagination)
-    loadMoreFollowing: async (userId, page, limit = 20) => {
-        set({ isLoadingFollowing: true });
-        try {
-            const res = await axiosInstance.get(`/profile/user/${userId}/following?page=${page}&limit=${limit}`);
-            const currentFollowing = get().following;
-            set({
-                following: [...currentFollowing, ...res.data.following],
-                followingPagination: res.data.pagination
-            });
-        } catch (error) {
-            console.log("Error loading more following:", error);
-            toast.error(error.response?.data?.error || "Failed to load more following");
-        } finally {
-            set({ isLoadingFollowing: false });
         }
     },
 
@@ -216,12 +140,8 @@ export const useProfileStore = create((set, get) => ({
     clearProfile: () => {
         set({
             profile: null,
-            followers: [],
-            following: [],
             userEchos: [],
             userScrolls: [],
-            followersPagination: null,
-            followingPagination: null,
             echosPagination: null,
             scrollsPagination: null
         });

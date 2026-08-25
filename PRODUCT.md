@@ -43,7 +43,7 @@ The stance is anti-algorithm and pro-control: "No algorithms, no noise — just 
 - **Echos**: text content up to 1000 characters; tags; likes and dislikes; threaded replies up to 500 characters each.
 - **Scrolls**: two mutually exclusive types — `curation` (an ordered list of manually added Echos) and `feed` (dynamic, driven by `feedConfig` as described in Positioning). Scrolls can be private or public and can be saved by other users.
 - **Tags**: globally unique named tags; the backbone of both discovery and feed filtering.
-- **Users**: identified by **username + password only** (username min 3, password min 4 chars). There is **no email address** on the account, and therefore no email verification or password-reset flow. Users have a bio, followers/following, and lists of saved and created Scrolls.
+- **Users**: identified by **username + password only** (username min 3, password min 4 chars). There is **no email address** on the account, and therefore no email verification or password-reset flow. Users have a bio and lists of saved and created Scrolls.
 - **Search**: across Echos, Scrolls, users, and tags (historically labeled "beta").
 - **Technical constraints future design work must respect** (existing codebase, do not re-decide):
   - Frontend: React 19 SPA on Vite; **Tailwind CSS v4 + DaisyUI v5** for styling and theming (semantic tokens like `base-100/200/300`, `neutral`, `primary`, `base-content`); Zustand for state; React Router v7; **GSAP** for animation; `lucide-react` icons; `react-hot-toast` for notifications.

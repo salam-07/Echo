@@ -138,8 +138,6 @@ const UserPage = () => {
                     <div className="mt-8 flex flex-wrap gap-x-12 gap-y-6 border-t border-rule pt-6">
                         <Count value={echoCount} label="Echos" />
                         <Count value={scrollCount} label="Scrolls" />
-                        <Count value={person.followers?.length ?? 0} label="Followers" />
-                        <Count value={person.following?.length ?? 0} label="Following" />
                     </div>
 
                     <fieldset className="mt-8">

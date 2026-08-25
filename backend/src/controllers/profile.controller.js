@@ -9,8 +9,6 @@ export const getProfile = async (req, res) => {
 
         const user = await User.findById(id)
             .select("-password")
-            .populate("followers", "userName")
-            .populate("following", "userName")
             .populate("createdScrolls", "name description createdAt")
             .populate("savedScrolls", "name description creator createdAt");
 
@@ -30,8 +28,6 @@ export const getMyProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
             .select("-password")
-            .populate("followers", "userName")
-            .populate("following", "userName")
             .populate("createdScrolls", "name description createdAt")
             .populate("savedScrolls", "name description creator createdAt");
 
@@ -42,86 +38,6 @@ export const getMyProfile = async (req, res) => {
         res.status(200).json(user);
     } catch (error) {
         console.log("Error in getMyProfile controller", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-};
-
-// GET /profile/user/:id/followers - get followers
-export const getFollowers = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { page = 1, limit = 20 } = req.query;
-
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        const followers = await User.findById(id)
-            .populate({
-                path: "followers",
-                select: "userName bio createdAt",
-                options: {
-                    skip: (page - 1) * limit,
-                    limit: parseInt(limit)
-                }
-            });
-
-        const totalFollowers = user.followers.length;
-        const totalPages = Math.ceil(totalFollowers / limit);
-
-        res.status(200).json({
-            followers: followers.followers,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages,
-                totalFollowers,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            }
-        });
-    } catch (error) {
-        console.log("Error in getFollowers controller", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-};
-
-// GET /profile/user/:id/following - get following
-export const getFollowing = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { page = 1, limit = 20 } = req.query;
-
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        const following = await User.findById(id)
-            .populate({
-                path: "following",
-                select: "userName bio createdAt",
-                options: {
-                    skip: (page - 1) * limit,
-                    limit: parseInt(limit)
-                }
-            });
-
-        const totalFollowing = user.following.length;
-        const totalPages = Math.ceil(totalFollowing / limit);
-
-        res.status(200).json({
-            following: following.following,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages,
-                totalFollowing,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            }
-        });
-    } catch (error) {
-        console.log("Error in getFollowing controller", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
