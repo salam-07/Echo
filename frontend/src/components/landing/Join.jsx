@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sheet, SectionFolio } from '../editorial/Frame.jsx';
+import { Sheet } from '../editorial/Frame.jsx';
 import { EASE, dispose, gsap, inkOnly, setLines, useSectionMotion } from '../editorial/motion.js';
 
 /**
@@ -71,7 +71,7 @@ const Join = () => {
         event.preventDefault();
         const claim = handle.trim();
         if (claim.length < MIN_HANDLE) {
-            setError(`A username needs at least ${MIN_HANDLE} characters. Add a few and try again.`);
+            setError(`Enter a username with at least ${MIN_HANDLE} characters.`);
             return;
         }
         navigate(`/signup?u=${encodeURIComponent(claim)}`);
@@ -85,18 +85,13 @@ const Join = () => {
             className="inverted bg-obsidian text-chalk"
         >
             <Sheet>
-                <SectionFolio number="04" title="Join" tone="chalk" />
 
-                <div className="grid grid-cols-12 gap-x-8 gap-y-16 py-24 lg:py-40">
+                <div className="grid grid-cols-12 gap-x-0 lg:gap-x-8 gap-y-16 py-24 lg:py-40">
                     <div className="col-span-12 lg:col-span-6">
                         <h2 id="join-title" data-title className="t-display max-w-[9.6em]">
-                            <span className="block text-chalk-quiet">Claim a handle.</span>
-                            <span className="block text-chalk">Write your first rule.</span>
+                            <span className="block text-chalk-quiet">Join Echo.</span>
+                            <span className="block text-chalk">Make it yours.</span>
                         </h2>
-                        <p className="t-deck mt-10 max-w-[42ch] text-chalk-quiet">
-                            Then make a Curation by hand, or write a Feed once and let it keep itself.
-                            Both are yours to edit, keep private, or publish.
-                        </p>
                     </div>
 
                     <div className="col-span-12 lg:col-span-5 lg:col-start-8">
@@ -123,7 +118,7 @@ const Join = () => {
                                     placeholder="yourname"
                                     aria-invalid={error ? 'true' : undefined}
                                     aria-describedby={error ? 'claim-error' : 'claim-terms'}
-                                    className="field"
+                                    className="field min-w-0"
                                 />
                             </div>
 
@@ -134,26 +129,13 @@ const Join = () => {
                             ) : null}
 
                             <button type="submit" className="act mt-10 h-12 w-full px-8 sm:w-auto">
-                                Continue
+                                Continue to sign up
                             </button>
                         </form>
 
-                        <dl id="claim-terms" className="mt-12">
-                            {[
-                                { term: 'Identifier', detail: 'Username only' },
-                                { term: 'Email address', detail: 'None required, ever' },
-                                { term: 'Username', detail: '3 characters minimum' },
-                                { term: 'Password', detail: '4 characters minimum' },
-                            ].map((row) => (
-                                <div
-                                    key={row.term}
-                                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-chalk-dim py-3"
-                                >
-                                    <dt className="t-label text-chalk-dim">{row.term}</dt>
-                                    <dd className="t-readout text-chalk-quiet">{row.detail}</dd>
-                                </div>
-                            ))}
-                        </dl>
+                        <p id="claim-terms" className="t-body mt-6 text-chalk-quiet">
+                            At least 3 characters. You will choose a password next. No email needed.
+                        </p>
 
                         <p className="t-body mt-8 text-chalk-quiet">
                             Already have an account?{' '}

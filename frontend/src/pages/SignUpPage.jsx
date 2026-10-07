@@ -3,22 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore.js';
 import AuthSheet, { Field } from '../components/auth/AuthSheet.jsx';
 
-/**
- * Create an account — the same spread, one page further on.
- *
- * A handle claimed in §04 of the landing sheet arrives here in the URL and is
- * already typed into the field, so the visitor is never asked the same question
- * twice. The old page validated silently and simply refused to submit; this one
- * names what is missing beside the field that is missing it.
- */
-
-const TERMS = [
-    { term: 'Identifier', detail: 'Username only' },
-    { term: 'Email address', detail: 'None required' },
-    { term: 'Verification', detail: 'No step' },
-    { term: 'Username', detail: '3 characters minimum' },
-    { term: 'Password', detail: '4 characters minimum' },
-];
+/** Create an account, preserving usernames passed from the landing page. */
 
 const SignUpPage = () => {
     const { signup, isSigningUp } = useAuthStore();
@@ -41,14 +26,14 @@ const SignUpPage = () => {
         const userName = form.userName.trim();
         const next = {};
 
-        if (!userName) next.userName = 'Pick a username — it is the only name Echo will know you by.';
+        if (!userName) next.userName = 'Enter a username.';
         else if (userName.length < 3) {
-            next.userName = `A username needs at least 3 characters, and this one has ${userName.length}.`;
+            next.userName = 'Use at least 3 characters.';
         }
 
-        if (!form.password) next.password = 'Choose a password, 4 characters or more.';
+        if (!form.password) next.password = 'Enter a password.';
         else if (form.password.length < 4) {
-            next.password = `Passwords need at least 4 characters, and this one has ${form.password.length}.`;
+            next.password = 'Use at least 4 characters.';
         }
 
         setErrors(next);
@@ -60,54 +45,47 @@ const SignUpPage = () => {
 
     return (
         <AuthSheet
-            reference="Create an account"
-            statement="A handle, a password, and nothing else."
-            deck="That is the whole account. There is no email address on file and no verification step to sit through — so keep your password somewhere you trust."
-            terms={TERMS}
-            footer="Set in Playfair Display and Inter."
+            statement="Create your account."
+            deck="No email needed. Keep your password safe, since it cannot be reset."
         >
             <form onSubmit={handleSubmit} noValidate className="space-y-10">
                 <Field
-                    label="Choose a username"
+                    label="Username"
                     prefix="@"
                     value={form.userName}
                     onChange={edit('userName')}
                     error={errors.userName}
-                    hint="3 characters or more. This is how everyone will see you."
+                    hint="At least 3 characters."
                     autoComplete="username"
                     placeholder="yourname"
                     disabled={isSigningUp}
                 />
 
                 <Field
-                    label="Choose a password"
+                    label="Password"
                     type="password"
                     reveal
                     value={form.password}
                     onChange={edit('password')}
                     error={errors.password}
-                    hint="4 characters or more."
+                    hint="At least 4 characters."
                     autoComplete="new-password"
                     disabled={isSigningUp}
                 />
 
                 <div>
-                    <button type="submit" disabled={isSigningUp} className="act h-12 w-full px-8">
-                        {isSigningUp ? 'Creating your account' : 'Create account'}
+                    <button type="submit" disabled={isSigningUp} aria-live="polite" className="act h-12 w-full px-8">
+                        {isSigningUp ? 'Creating account...' : 'Create account'}
                     </button>
-                    <p aria-live="polite" className="t-label mt-4 h-4 normal-case tracking-[0.04em]">
-                        {isSigningUp ? 'Claiming your username…' : ''}
-                    </p>
                 </div>
             </form>
 
-            <div className="mt-12 border-t border-ink pt-5">
+            <div className="mt-12">
                 <p className="t-body text-ink-soft">
                     Already have an account?{' '}
                     <Link to="/login" className="link-rule font-medium text-ink">
                         Sign in
                     </Link>
-                    .
                 </p>
             </div>
         </AuthSheet>
