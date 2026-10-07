@@ -12,26 +12,22 @@
 const MODELS = [
     {
         term: 'A Feed',
-        detail: 'A standing rule. It gathers every Echo that matches its terms, and keeps gathering as new ones are written. You will build one in a moment.',
+        detail: 'A rule you write once. It collects every matching Echo, and keeps collecting as new ones are written.',
     },
     {
         term: 'A Curation',
-        detail: 'A list you keep by hand, in an order you choose. For later — a Feed is the faster way to fill a blank page.',
+        detail: 'A list you fill by hand, in the order you choose. You do not need one yet.',
     },
 ];
 
 const FrontMatter = ({ handle, onBegin }) => (
     <div className="animate-set-in">
-        <p className="t-label t-label--ink">First run</p>
-
-        <h1 className="t-display mt-6 max-w-[14ch]">Your page is blank on purpose.</h1>
+        <h1 className="t-display max-w-[14ch]">Your page is blank on purpose.</h1>
 
         <p className="t-body mt-6 max-w-[54ch] text-ink-soft">
-            Welcome{handle ? <>, <span className="text-ink">@{handle}</span></> : ''}. There is no algorithm
-            here deciding what you read. A <span className="text-ink">Scroll</span> does — a rule you write.
-            Name a few tags, choose an order, and the page fills with every Echo that matches, then keeps
-            filling on its own. Let&rsquo;s write your first one. It takes about a minute, and you can change
-            every word of it later.
+            Welcome{handle ? <>, <span className="text-ink">@{handle}</span></> : ''}. Nothing here decides
+            what you read for you. You do, by writing a rule. It takes about a minute, and you can change it
+            later.
         </p>
 
         <dl className="mt-12 border-t border-rule">

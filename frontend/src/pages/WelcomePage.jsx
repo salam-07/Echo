@@ -76,7 +76,7 @@ const WelcomePage = () => {
                         onClick={leave}
                         className="act act-quiet h-9 self-start px-4 sm:self-auto"
                     >
-                        Skip to Echo
+                        Skip for now
                     </button>
                 </div>
 

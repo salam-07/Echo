@@ -25,11 +25,34 @@ import { Timestamp } from '../ui';
  * will carry, not by whatever the tag endpoint happened to return.
  */
 
-/** popularEchos-derived starters are guaranteed to have entries behind them, so the
- * preview never opens on an empty page. Sorted by likes upstream, so the tags a
- * reader is most likely to recognise surface first. */
-const STARTER_COUNT = 8;
+/** The tags offered to a reader writing their first rule.
+ *
+ * They are drawn, not ranked. The old offer was the most-liked corner of the
+ * corpus, which is the same eight names for every reader on every visit — a
+ * suggestion that has already been made. A draw at least has the chance of
+ * landing on the thing this particular reader came for.
+ *
+ * One request buys the whole pool and the row is dealt from it, so Shuffle costs
+ * a state update rather than a round trip. Six turns before the pile runs low,
+ * and it is topped up ahead of that, in the background, never in front of the
+ * reader pressing the button. */
+const SHOWN = 8;
+const POOL = 48;
+const MIN_FRESH = 3;
+const REFILL_AT = 16;
 const PREVIEW_SHOWN = 8;
+
+/** One pool of candidates. A failure here is not an error state: the pool is
+ * simply empty, the sheet falls back to naming your own tag, and the Shuffle
+ * below it stands on the row it already has. */
+const fetchTagPool = async () => {
+    try {
+        const res = await axiosInstance.get(`/community/tags/random?limit=${POOL}`);
+        return Array.isArray(res.data) ? res.data : [];
+    } catch {
+        return [];
+    }
+};
 
 const titleCase = (tag) => (tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : '');
 
@@ -58,8 +81,14 @@ const Specimen = ({ echo }) => (
 );
 
 const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
-    const [starters, setStarters] = useState([]);
-    const [startersReady, setStartersReady] = useState(false);
+    /* The offer, and what is left of the pool it is dealt from. The pool is a
+       ref, not state: nothing renders it, it is a supply rather than something
+       the sheet shows, and keeping it out of state keeps every deal from
+       dragging a render of the whole form behind it. */
+    const [suggestions, setSuggestions] = useState([]);
+    const [offerReady, setOfferReady] = useState(false);
+    const pile = useRef([]);
+    const refilling = useRef(false);
 
     const [included, setIncluded] = useState([]);
     const [draft, setDraft] = useState('');
@@ -70,32 +99,69 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
     const [preview, setPreview] = useState([]);
     const [previewState, setPreviewState] = useState('idle'); // idle · loading · ready
 
-    /* Starter tags: the most-liked corner of the corpus, reduced to the distinct
-       tags carried there. Every one is known to have entries, so admitting it can
-       only fill the page, never empty it. */
+    /* The opening offer. Every name that comes back has entries behind it — the
+       endpoint samples Echos and reads the tags off them, so a tag cannot be
+       suggested before something has been written under it. Admitting one can
+       therefore only fill the column beside this, never empty it. */
     useEffect(() => {
         let live = true;
         (async () => {
-            try {
-                const res = await axiosInstance.get('/community/echos/popular?limit=60');
-                const seen = [];
-                for (const echo of res.data || []) {
-                    for (const tag of echo.tags || []) {
-                        const nm = tag.name || tag;
-                        if (nm && !seen.includes(nm)) seen.push(nm);
-                    }
-                }
-                if (live) setStarters(seen.slice(0, STARTER_COUNT));
-            } catch {
-                if (live) setStarters([]);
-            } finally {
-                if (live) setStartersReady(true);
-            }
+            const names = await fetchTagPool();
+            if (!live) return;
+            pile.current = names.slice(SHOWN);
+            setSuggestions(names.slice(0, SHOWN));
+            setOfferReady(true);
         })();
         return () => {
             live = false;
         };
     }, []);
+
+    /* Deal `count` names the row is not already showing. Names skipped as
+       duplicates are dropped rather than returned: they are only in the pile
+       once, and the row has already been offered them. */
+    const draw = (count, exclude) => {
+        const drawn = [];
+        while (drawn.length < count && pile.current.length > 0) {
+            const name = pile.current.shift();
+            if (!exclude.has(name)) drawn.push(name);
+        }
+        return drawn;
+    };
+
+    /* Topping the pile up behind the row. The guard is what makes the second
+       press of Shuffle safe — a refill is already on its way, and two in flight
+       would deal the same name twice. */
+    const refill = async (exclude) => {
+        if (refilling.current) return;
+        refilling.current = true;
+        try {
+            const names = await fetchTagPool();
+            const held = new Set([...pile.current, ...exclude]);
+            pile.current = [...pile.current, ...names.filter((name) => !held.has(name))];
+        } finally {
+            refilling.current = false;
+        }
+    };
+
+    /* A new handful, keeping the tags already admitted exactly where they are and
+       still on. Blanking a tag the reader has just chosen would read as the sheet
+       overruling them, and it would take away the tap-again-to-remove that was
+       how they chose it. They stay at the head of the row; the fresh names follow. */
+    const shuffle = () => {
+        const kept = suggestions.filter((tag) => included.includes(tag));
+        const exclude = new Set([...kept, ...included]);
+        const wanted = Math.max(MIN_FRESH, SHOWN - kept.length);
+        const fresh = draw(wanted, exclude);
+
+        /* A dry pile must not read as a sheet that has run out. The top-up goes
+           out either way; if nothing came back the row simply stands, so a press
+           never leaves less on the sheet than it found. */
+        if (pile.current.length < REFILL_AT) refill(new Set([...kept, ...fresh, ...included]));
+        if (fresh.length === 0) return;
+
+        setSuggestions([...kept, ...fresh]);
+    };
 
     /* The preview, re-drawn whenever the set of admitted tags changes. A union across
        the tags, de-duplicated by id — the same set a Feed with "any of them" holds. */
@@ -216,12 +282,7 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
     return (
         <form onSubmit={handleSubmit} className="animate-set-in">
             <header>
-                <p className="t-label t-label--ink">Your first Feed</p>
-                <h1 className="t-headline mt-5 max-w-[16ch]">Write the rule. Watch the page obey.</h1>
-                <p className="t-body mt-4 max-w-[52ch] text-ink-soft">
-                    Admit a tag or two and pick an order. The page fills with real Echos as you go — the same
-                    ones your Feed will hold once you commit it.
-                </p>
+                <h1 className="t-headline max-w-[16ch]">Write the rule. See what it collects.</h1>
             </header>
 
             <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] lg:gap-16">
@@ -233,31 +294,59 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                             <h2 className="t-label t-label--ink">Tags</h2>
                         </div>
                         <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                            Tap one to admit it. Admitted tags are set solid.
+                            Tap a tag to add it.
                         </p>
 
-                        {!startersReady ? (
-                            <div className="mt-4 h-8 w-full animate-pulse bg-paper-dim" aria-hidden="true" />
-                        ) : starters.length > 0 ? (
+                        {!offerReady ? (
+                            /* Bars the size of the chips they stand for, not one
+                               long rule: in this column the row wraps to three
+                               lines, and a single bar would hand the sheet a
+                               height the real tags are about to contradict. */
+                            <ul className="mt-4 flex flex-wrap gap-2" aria-hidden="true">
+                                {['5.5rem', '6.75rem', '4.5rem', '7rem', '5.25rem', '6rem'].map(
+                                    (width) => (
+                                        <li
+                                            key={width}
+                                            style={{ width }}
+                                            className="h-8 animate-pulse bg-paper-dim"
+                                        />
+                                    ),
+                                )}
+                            </ul>
+                        ) : suggestions.length > 0 ? (
                             <ul className="mt-4 flex flex-wrap gap-2">
-                                {starters.map((tag) => (
+                                {suggestions.map((tag, index) => (
+                                    /* Keyed by name, so a name the row keeps is the
+                                       same node and does not re-enter; only the names
+                                       a shuffle actually replaced are new here, and
+                                       only those print. */
                                     <li key={tag}>
                                         <button
                                             type="button"
                                             onClick={() => toggleTag(tag)}
                                             data-state={included.includes(tag) ? 'in' : 'unset'}
                                             aria-pressed={included.includes(tag)}
-                                            className="stamp px-3 py-1.5 text-[0.8125rem] leading-[1.4]"
+                                            style={{ animationDelay: `${index * 24}ms` }}
+                                            className="stamp animate-set-in px-3 py-1.5 text-[0.8125rem] leading-[1.4]"
                                         >
                                             #{tag}
                                         </button>
                                     </li>
                                 ))}
+                                <li>
+                                    <button
+                                        type="button"
+                                        onClick={shuffle}
+                                        className="stamp stamp-draw px-3 py-1.5 text-[0.8125rem] leading-[1.4]"
+                                    >
+                                        Shuffle
+                                    </button>
+                                </li>
                             </ul>
                         ) : (
                             <p className="mt-4 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                                No tags in the record yet — name one below and your Feed will collect entries
-                                as they are written.
+                                No tags yet. Name one below, and your Feed will collect entries as they are
+                                written.
                             </p>
                         )}
 
@@ -340,7 +429,6 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                                 nameEdited.current = true;
                                 setName(event.target.value);
                             }}
-                            placeholder="Name this rule"
                             className="field mt-2"
                             maxLength={50}
                         />
@@ -355,7 +443,7 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
 
                     <div className="mt-8 flex flex-wrap items-center gap-3">
                         <button type="submit" disabled={!canCommit} className="act h-12 px-8">
-                            {isCommitting ? 'Committing' : 'Commit this rule'}
+                            {isCommitting ? 'Creating' : 'Create this Feed'}
                         </button>
                         <button type="button" onClick={onBack} className="act act-quiet h-12 px-5">
                             Back
@@ -363,7 +451,7 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                     </div>
                     {included.length === 0 && (
                         <p className="mt-4 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                            Admit at least one tag to commit your first rule.
+                            Add at least one tag to create your Feed.
                         </p>
                     )}
                 </div>
@@ -371,25 +459,25 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                 {/* The sheet the rule produces. */}
                 <div className="lg:border-l lg:border-rule lg:pl-16">
                     <div className="flex items-baseline justify-between gap-6 border-b border-rule pb-3">
-                        <p className="t-label t-label--ink">The page, as ruled</p>
+                        <p className="t-label t-label--ink">Preview</p>
                         {previewState === 'ready' && ordered.length > 0 && (
-                            <p className="t-readout text-ink-quiet">Admitted {ordered.length}</p>
+                            <p className="t-readout text-ink-quiet">{ordered.length} Echos</p>
                         )}
                     </div>
 
                     {previewState === 'idle' ? (
                         <p className="t-body max-w-[42ch] py-14 text-ink-quiet">
-                            Admit a tag, and this page fills with real Echos — the same ones your Feed will
-                            hold, ordered exactly as your rule says.
+                            Add a tag and this page fills with real Echos, the same ones your Feed will hold,
+                            ordered the way your rule says.
                         </p>
                     ) : previewState === 'loading' ? (
                         <Placeholder rows={4} />
                     ) : ordered.length === 0 ? (
                         <div className="py-14">
-                            <p className="t-title max-w-[22em]">This rule admits nothing yet.</p>
+                            <p className="t-title max-w-[22em]">No Echos match this rule yet.</p>
                             <p className="t-body mt-4 max-w-[46ch] text-ink-soft">
-                                It still becomes your Feed. Entries appear here the moment someone writes one
-                                under {included.map((t) => `#${t}`).join(' or ')}.
+                                Your Feed is still created. Echos appear here the moment someone writes one
+                                tagged {included.map((t) => `#${t}`).join(' or ')}.
                             </p>
                         </div>
                     ) : (
@@ -399,7 +487,7 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                             ))}
                             {ordered.length > shown.length && (
                                 <p className="t-readout py-5 text-ink-quiet">
-                                    Showing the first {shown.length}. Your Feed holds all {ordered.length}.
+                                    Showing the first {shown.length} of {ordered.length} Echos.
                                 </p>
                             )}
                         </div>

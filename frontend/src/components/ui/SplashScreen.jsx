@@ -4,9 +4,9 @@ const SplashScreen = () => (
         <h1 className="t-headline animate-set-in text-center">
             Echo
         </h1>
-        <p role="status" className="t-body mt-5 text-ink-soft">
+        {/* <p role="status" className="t-body mt-5 text-ink-soft">
             Loading Echo...
-        </p>
+        </p> */}
     </div>
 );
 

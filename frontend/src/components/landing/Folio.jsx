@@ -6,8 +6,8 @@ import { dispose, drawRule, useSectionMotion } from '../editorial/motion.js';
 /** Page navigation and reading progress. */
 
 const NAV = [
-    { href: '#models', label: 'Scrolls' },
-    { href: '#rule', label: 'Example feeds' },
+    { href: '#models', label: 'How it Works' },
+    // { href: '#rule', label: 'Example feeds' },
     { href: '#join', label: 'Join' },
 ];
 

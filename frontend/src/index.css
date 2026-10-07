@@ -343,6 +343,27 @@ fieldset:disabled .stop[data-held='true'] {
   text-decoration: none;
 }
 
+/* The one chip in the row that is not a tag, riding at the end of it.
+ *
+ * It has to sit in the same hand as the tags — same hairline, same padding,
+ * same line box — or the row stops reading as one row, and a control floating
+ * beside a register looks like an afterthought. So the box is untouched. What
+ * separates it is voice: every chip beside it is `#name` in lower case at the
+ * body size, and this one is set in the document's label register, caps and
+ * tracked and heavier. Nothing else in the row is upper case, so the eye sorts
+ * it as the control before it has finished reading the word.
+ *
+ * No icon. There is no icon system in this document — not one glyph of one is
+ * drawn anywhere in it — and inventing a vocabulary for a single button is how
+ * a world starts to come apart. The label is the mark. */
+.stamp-draw {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+    /* font-weight: 600; */
+  background-color: #000;
+  color:#c8c6c5
+}
+
 /* --- The rule drum ------------------------------------------------------- */
 
 /* The one instrument in the document.
@@ -947,7 +968,11 @@ fieldset:disabled .stop[data-held='true'] {
 }
 
 /* The reader's own setting, honoured whether it comes from the OS or from
-   Settings — which writes `data-motion="reduce"` on the root. */
+   Settings — which writes `data-motion="reduce"` on the root.
+ *
+ * The delay is cleared with the duration. Shortening a staggered entrance to
+ * nothing and leaving its stagger standing turns "no motion" into a row of
+ * chips arriving one after another anyway, at full speed and out of order. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -955,6 +980,7 @@ fieldset:disabled .stop[data-held='true'] {
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
   }
 }
 
@@ -964,4 +990,5 @@ fieldset:disabled .stop[data-held='true'] {
   transition-duration: 0.01ms !important;
   transition-delay: 0ms !important;
   animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
 }
