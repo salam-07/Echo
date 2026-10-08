@@ -15,7 +15,7 @@ import FollowButton from './FollowButton';
  * No count is printed unless it is stored: a Feed has no fixed number of entries,
  * so it does not claim one.
  */
-const ScrollCard = ({ scroll, compact = false, action = null }) => {
+const ScrollCard = ({ scroll, compact = false, action = null, showKind = true }) => {
     const { authUser } = useAuthStore();
     const isFeed = scroll.type === 'feed';
     const isMine = scroll.creator?._id === authUser?._id;
@@ -24,9 +24,9 @@ const ScrollCard = ({ scroll, compact = false, action = null }) => {
     const followers = scroll.savedBy?.length ?? 0;
 
     return (
-        <article className="border-b border-rule py-5">
-            <div className="flex items-baseline justify-between gap-5">
-                <h3 className={compact ? 'min-w-0 text-[0.9375rem] font-medium' : 'min-w-0 t-subject'}>
+        <article className="border-b border-rule py-6 last:border-b-0">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
+                <h3 className={compact ? 'min-w-0 text-[0.9375rem] font-medium' : 'min-w-0 flex-1 basis-40 break-words t-subject'}>
                     <Link to={`/scroll/${scroll._id}`} className="link-rule text-ink">
                         {scroll.name}
                     </Link>
@@ -37,16 +37,16 @@ const ScrollCard = ({ scroll, compact = false, action = null }) => {
                 </div>
             </div>
 
-            <p className="t-readout mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-rule-strong">
-                <span className="t-label text-[0.625rem]">{isFeed ? 'Feed' : 'Curation'}</span>
+            <p className="t-readout mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-ink-quiet">
+                {showKind && <span className="t-label text-[0.625rem]">{isFeed ? 'Feed' : 'Curation'}</span>}
                 {scroll.isPrivate && <span className="t-label text-[0.625rem]">Private</span>}
                 {!isMine && (
                     <span className="flex items-baseline gap-1">
                         by <UserLink user={scroll.creator} className="text-[0.75rem] font-medium text-ink-quiet" />
                     </span>
                 )}
-                {!isFeed && <span>{scroll.echos?.length ?? 0} entries</span>}
-                <span>
+                {!isFeed && <span>{scroll.echos?.length ?? 0} {scroll.echos?.length === 1 ? 'Echo' : 'Echos'}</span>}
+                <span hidden={followers === 0}>
                     {followers} {followers === 1 ? 'follower' : 'followers'}
                 </span>
             </p>

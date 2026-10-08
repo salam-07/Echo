@@ -6,17 +6,8 @@ import { ScrollCard } from '../components/features/scroll';
 import { TagRow, COMMUNITY_RAIL } from '../components/features/browse';
 import { Measure, SheetHead, Section, Placeholder, Rail } from '../components/editorial/Apparatus';
 
-/** Nothing to show under a heading yet — one line, in the margin's voice. */
-const Nothing = ({ children }) => <p className="t-readout py-8 text-rule-strong">{children}</p>;
+const Nothing = ({ children }) => <p className="t-readout py-8 text-ink-quiet">{children}</p>;
 
-/**
- * The community sheet: a contents page for everything other people have made.
- *
- * Each division shows the first few and then points at the whole register. The old
- * page put Feeds and Curations in two-across tiles, which meant a name, a byline
- * and a description competing inside a 240px box; here they are the same records
- * the Scrolls register prints, so a Scroll looks like a Scroll everywhere.
- */
 const BrowseCommunityPage = () => {
     const {
         feedScrolls,
@@ -40,34 +31,33 @@ const BrowseCommunityPage = () => {
         <Layout>
             <Measure>
                 <SheetHead
-                    label="Community"
-                    subject="What everybody else is reading by."
-                    deck="Rules, shelves and tags. Follow anything here and it joins your index."
+                    subject="Community"
+                    deck="Find your next good read. Follow a Scroll to keep it in your library."
                 >
-                    <Rail items={COMMUNITY_RAIL} className="mt-8" />
+                    <Rail quiet items={COMMUNITY_RAIL} className="mt-8" />
                 </SheetHead>
 
-                <Section label="Feeds" to="/browse/scrolls">
+                <Section ruled={false} label="Feeds" to="/browse/scrolls">
                     {isLoadingFeeds && feedScrolls.length === 0 ? (
                         <Placeholder rows={2} />
                     ) : feedScrolls.length === 0 ? (
                         <Nothing>No public Feeds yet.</Nothing>
                     ) : (
-                        feedScrolls.map((scroll) => <ScrollCard key={scroll._id} scroll={scroll} />)
+                        feedScrolls.map((scroll) => <ScrollCard key={scroll._id} scroll={scroll} showKind={false} />)
                     )}
                 </Section>
 
-                <Section label="Curations" to="/browse/curation">
+                <Section ruled={false} label="Curations" to="/browse/curation">
                     {isLoadingCurations && curationScrolls.length === 0 ? (
                         <Placeholder rows={2} />
                     ) : curationScrolls.length === 0 ? (
                         <Nothing>No public Curations yet.</Nothing>
                     ) : (
-                        curationScrolls.map((scroll) => <ScrollCard key={scroll._id} scroll={scroll} />)
+                        curationScrolls.map((scroll) => <ScrollCard key={scroll._id} scroll={scroll} showKind={false} />)
                     )}
                 </Section>
 
-                <Section label="Tags" to="/browse/tags">
+                <Section ruled={false} label="Tags" to="/browse/tags">
                     {isLoadingTags && tags.length === 0 ? (
                         <Placeholder rows={2} />
                     ) : tags.length === 0 ? (
@@ -83,10 +73,10 @@ const BrowseCommunityPage = () => {
 
                 <Link
                     to="/search"
-                    className="t-label mb-16 flex h-14 items-center justify-between border-b border-rule text-rule-strong transition-colors hover:text-ink"
+                    className="t-label mt-8 mb-16 flex min-h-11 items-center text-ink-quiet transition-colors hover:text-ink"
                 >
-                    <span>Looking for something in particular?</span>
-                    <span aria-hidden="true">↗</span>
+                    <span>Search Echos, Scrolls and people</span>
+
                 </Link>
             </Measure>
         </Layout>

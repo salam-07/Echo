@@ -2,15 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollStore } from '../../../store/useScrollStore';
 import useAuthStore from '../../../store/useAuthStore';
-import ScrollCard from './ScrollCard';
+import ScrollGroup from './ScrollGroup';
 import { Measure, SheetHead, Notice, Placeholder, Rail } from '../../editorial/Apparatus';
 
-/**
- * One register, two sheets. Feeds and Curations differ in what fills them and in
- * nothing else about how they are listed, so they share this and pass their nouns
- * in. Two near-identical 200-line pages was the same sheet printed twice with the
- * captions changed.
- */
 export const SCROLL_RAIL = [
     { to: '/scrolls', label: 'All', end: true },
     { to: '/scrolls/feeds', label: 'Feeds' },
@@ -20,30 +14,30 @@ export const SCROLL_RAIL = [
 const COPY = {
     feed: {
         label: 'Feeds',
-        subject: 'Rules that fill themselves.',
-        deck: 'A Feed reads the terms you set — tags, authors, an order — and gathers whatever satisfies them.',
-        action: 'New feed',
+        subject: 'Your Feeds',
+        deck: 'Echos gathered automatically around your interests.',
+        action: 'Create a Feed',
         to: '/scroll/new?type=feed',
-        empty: 'You have not written a rule yet.',
+        empty: 'No Feeds yet.',
         emptyNote:
-            'Name the tags you want and the ones you do not, and the feed collects entries as they are written.',
+            'Choose topics and people to build a Feed, or follow one from Community.',
         noun: 'feed',
     },
     curation: {
         label: 'Curations',
-        subject: 'Shelves you fill by hand.',
-        deck: 'A Curation holds only what you file into it, from the Save control on any entry.',
-        action: 'New curation',
+        subject: 'Your Curations',
+        deck: 'Collections you create or follow. Good Echos, kept close.',
+        action: 'Create a Curation',
         to: '/scroll/new?type=curation',
-        empty: 'You have not started a Curation yet.',
-        emptyNote: 'Start one, then file echoes into it as you come across them.',
+        empty: 'Start a collection worth returning to.',
+        emptyNote: 'Create a Curation, then use Save on any Echo to add it.',
         noun: 'curation',
     },
 };
 
 const ScrollRegister = ({ kind }) => {
     const copy = COPY[kind];
-    const { scrolls, isLoadingScrolls, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();
+    const { scrolls, isLoadingScrolls, scrollsError, getScrolls, deleteScroll, isDeletingScroll } = useScrollStore();
     const { authUser } = useAuthStore();
     const [query, setQuery] = useState('');
 
@@ -62,29 +56,46 @@ const ScrollRegister = ({ kind }) => {
         );
     }, [scrolls, kind, query]);
 
+    const { owned, followed } = useMemo(
+        () => ({
+            owned: matches.filter((scroll) => scroll.creator?._id === authUser?._id),
+            followed: matches.filter((scroll) => scroll.creator?._id !== authUser?._id),
+        }),
+        [matches, authUser?._id],
+    );
+
     const handleDelete = async (scroll) => {
         if (window.confirm(`Delete "${scroll.name}"? This cannot be undone.`)) {
             await deleteScroll(scroll._id);
         }
     };
 
+    const deleteAction = (scroll) => (
+        <button
+            type="button"
+            onClick={() => handleDelete(scroll)}
+            disabled={isDeletingScroll}
+            className="t-label min-h-11 text-ink-quiet transition-colors hover:text-alarm disabled:opacity-40"
+        >
+            Delete
+        </button>
+    );
+
     return (
         <Measure>
             <SheetHead
-                label={copy.label}
                 subject={copy.subject}
-                readout={`${matches.length} ${matches.length === 1 ? copy.noun : `${copy.noun}s`}`}
                 deck={copy.deck}
-                actions={
+                actions={scrolls.length > 0 && (
                     <Link to={copy.to} className="act h-11 px-6">
                         {copy.action}
                     </Link>
-                }
+                )}
             >
-                <Rail items={SCROLL_RAIL} className="mt-8" />
+                <Rail quiet items={SCROLL_RAIL} className="mt-8" />
 
                 <label htmlFor="register-filter" className="t-label mt-8 block">
-                    Find in this list
+                    Search {copy.label.toLowerCase()}
                 </label>
                 <input
                     id="register-filter"
@@ -96,20 +107,23 @@ const ScrollRegister = ({ kind }) => {
                 />
             </SheetHead>
 
-            {isLoadingScrolls && scrolls.length === 0 ? (
+            {scrollsError && scrolls.length === 0 ? (
+                <Notice statement="Couldn’t load your Scrolls." note="Try again to bring your library back."
+                    actions={<button type="button" onClick={() => getScrolls()} className="act h-11 px-6">Try again</button>} />
+            ) : isLoadingScrolls && scrolls.length === 0 ? (
                 <Placeholder rows={4} />
             ) : matches.length === 0 ? (
                 <Notice
-                    statement={query ? `Nothing here matches “${query}”.` : copy.empty}
-                    note={query ? undefined : copy.emptyNote}
+                    statement={query.trim() ? `Nothing here matches “${query}”.` : copy.empty}
+                    note={query.trim() ? undefined : copy.emptyNote}
                     actions={
-                        query ? (
+                        query.trim() ? (
                             <button
                                 type="button"
                                 onClick={() => setQuery('')}
                                 className="act act-outline h-11 px-6"
                             >
-                                Clear the filter
+                                Clear search
                             </button>
                         ) : (
                             <Link to={copy.to} className="act h-11 px-6">
@@ -119,25 +133,20 @@ const ScrollRegister = ({ kind }) => {
                     }
                 />
             ) : (
-                <div className="border-t border-ink pb-16">
-                    {matches.map((scroll) => (
-                        <ScrollCard
-                            key={scroll._id}
-                            scroll={scroll}
-                            action={
-                                scroll.creator?._id === authUser?._id ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete(scroll)}
-                                        disabled={isDeletingScroll}
-                                        className="t-label h-9 text-rule-strong transition-colors hover:text-alarm disabled:opacity-40"
-                                    >
-                                        Delete
-                                    </button>
-                                ) : null
-                            }
-                        />
-                    ))}
+                <div className="pb-16">
+                    <ScrollGroup
+                        label="Yours"
+                        count={owned.length}
+                        items={owned}
+                        showKind={false}
+                        renderAction={deleteAction}
+                    />
+                    <ScrollGroup
+                        label="Following"
+                        count={followed.length}
+                        items={followed}
+                        showKind={false}
+                    />
                 </div>
             )}
         </Measure>

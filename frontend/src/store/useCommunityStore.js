@@ -1,3 +1,4 @@
+import { updateScrollFollowers } from '../lib/scrollFollowers';
 import { create } from 'zustand';
 import { axiosInstance as axios } from '../lib/axios';
 
@@ -71,9 +72,7 @@ const useCommunityStore = create((set, get) => ({
                     const savedBy = s.savedBy || [];
                     return {
                         ...s,
-                        savedBy: isFollowing
-                            ? [...savedBy, userId]
-                            : savedBy.filter(id => id !== userId)
+                        savedBy: updateScrollFollowers(savedBy, userId, isFollowing)
                     };
                 }
                 return s;
@@ -87,9 +86,7 @@ const useCommunityStore = create((set, get) => ({
                     const savedBy = s.savedBy || [];
                     return {
                         ...s,
-                        savedBy: isFollowing
-                            ? [...savedBy, userId]
-                            : savedBy.filter(id => id !== userId)
+                        savedBy: updateScrollFollowers(savedBy, userId, isFollowing)
                     };
                 }
                 return s;

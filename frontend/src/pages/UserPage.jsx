@@ -3,7 +3,6 @@ import { Link, useParams, useLocation } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import EchoCard from '../components/features/echo/EchoCard';
 import { ScrollCard } from '../components/features/scroll';
-import { Avatar } from '../components/ui';
 import useAuthStore from '../store/useAuthStore';
 import { useProfileStore } from '../store/useProfileStore';
 import { Measure, SheetHead, Section, Notice, Placeholder, Coda, More } from '../components/editorial/Apparatus';
@@ -15,13 +14,6 @@ const MOTION = [
     { value: 'reduce', label: 'Reduced' },
 ];
 
-/** A counted quantity in the masthead. The numeral leads; the word explains it. */
-const Count = ({ value, label }) => (
-    <div>
-        <p className="font-display text-[1.75rem] leading-none tracking-[-0.01em] text-ink">{value}</p>
-        <p className="t-label mt-2">{label}</p>
-    </div>
-);
 
 /** One line of the record: the term in the margin, the value beside it. */
 const Term = ({ name, children }) => (
@@ -72,13 +64,6 @@ const AccountSettings = ({ person }) => {
         await updateMyProfile({ bio: bio.trim() });
     };
 
-    const joined = person.createdAt
-        ? new Date(person.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        })
-        : '—';
 
     return (
         <div key="settings" className="animate-set-in">
@@ -155,12 +140,6 @@ const AccountSettings = ({ person }) => {
 
 /**
  * A person's own sheet: the masthead, then everything they have written or built.
- *
- * This is the one screen where the square plate appears — a name at masthead scale
- * wants a mark beside it, and here the name is the subject of the page rather than
- * a byline inside a row. The old page set the username at 72px and put a Follow
- * button beside it that only wrote to the console; there is no endpoint behind
- * following a person, so the button is gone rather than pretending.
  *
  * For the owner this sheet is also their settings. The old standalone page is
  * folded in as a third register — Settings — carrying the bio they can set, what
@@ -267,22 +246,11 @@ const UserPage = () => {
         <Layout>
             <Measure>
                 <SheetHead
-                    label={isOwn ? 'Your account' : 'Account'}
-                    readout={joined ? `Writing since ${joined}` : undefined}
+                    display
+                    subject={<><span className="text-ink-quiet">@</span>{person.userName}</>}
+                    deck={person.bio || undefined}
                 >
-                    <div className="mt-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-                        <div className="flex min-w-0 items-center gap-4">
-                            <Avatar size="lg" fallback={person.userName?.charAt(0)?.toUpperCase() || '?'} />
-                            <h1 className="t-subject min-w-0 break-all">@{person.userName}</h1>
-                        </div>
-                    </div>
-
-                    {person.bio && <p className="t-body mt-4 max-w-[52ch] text-ink-soft">{person.bio}</p>}
-
-                    <div className="mt-8 flex flex-wrap gap-x-12 gap-y-6 border-t border-rule pt-6">
-                        <Count value={echoCount} label="Echos" />
-                        <Count value={scrollCount} label="Scrolls" />
-                    </div>
+                    {joined && <p className="t-readout mt-4 text-ink-quiet">Joined {joined}</p>}
 
                     <fieldset className="mt-8">
                         <legend className="sr-only">Which register to read</legend>

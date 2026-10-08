@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import EchoCard from '../components/features/echo/EchoCard';
-import { Measure, SheetHead, Notice, Placeholder, Coda } from '../components/editorial/Apparatus';
+import { Measure, Notice, Placeholder, Coda } from '../components/editorial/Apparatus';
 import { useEchoStore } from '../store/useEchoStore';
 
 const ORDERS = [
@@ -20,14 +20,7 @@ const WINDOWS = [
     { value: '1year', label: 'Last year' },
 ];
 
-/**
- * Everything filed under one tag.
- *
- * Order is a rail — three stops, one held. The window is a select, because six
- * options is a menu and not an either/or, and a six-stop rail on a phone is a
- * wrapped mess. Both replace anchored popovers whose menus were unlabelled lists
- * of anchor tags.
- */
+
 const TagsPage = () => {
     const { tagName } = useParams();
     const { echos, isLoadingEchos, getEchosByTag } = useEchoStore();
@@ -42,20 +35,27 @@ const TagsPage = () => {
     return (
         <Layout>
             <Measure>
-                <SheetHead
-                    label="Tag"
-                    subject={`#${tagName}`}
-                    readout={echos?.length ? `${echos.length} shown` : undefined}
-                >
+                <header className="pt-10 pb-6 sm:pt-12">
+                    <h1 className="t-page-title text-ink">
+                        <span className="text-ink-quiet">#</span>{tagName}
+                    </h1>
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+                        <p className="t-readout text-ink-quiet" role="status">
+                            {isLoadingEchos ? 'Loading Echos…' : `${echos?.length ?? 0} ${echos?.length === 1 ? 'Echo' : 'Echos'} shown`}
+                        </p>
+                        <Link to="/browse/tags" className="link-rule inline-flex min-h-11 items-center text-[0.8125rem] text-ink-quiet">
+                            Explore tags
+                        </Link>
+                    </div>
                     <div className="mt-8 grid gap-5 sm:grid-cols-2">
                         <fieldset>
-                            <legend className="t-label">Order</legend>
+                            <legend className="t-label">Sort by</legend>
                             <div className="mt-1 flex border border-rule">
                                 {ORDERS.map((option, index) => (
                                     <label
                                         key={option.value}
                                         data-held={orderBy === option.value || undefined}
-                                        className={`stop t-label h-10 flex-1 whitespace-nowrap px-3 ${
+                                        className={`stop t-label h-11 flex-1 whitespace-nowrap px-3 ${
                                             index > 0 ? 'border-l border-rule' : ''
                                         }`}
                                     >
@@ -74,7 +74,7 @@ const TagsPage = () => {
 
                         <div>
                             <label htmlFor="tag-window" className="t-label block">
-                                Written within
+                                Posted
                             </label>
                             <select
                                 id="tag-window"
@@ -90,14 +90,14 @@ const TagsPage = () => {
                             </select>
                         </div>
                     </div>
-                </SheetHead>
+                </header>
 
                 {isLoadingEchos && (!echos || echos.length === 0) ? (
                     <Placeholder rows={4} />
                 ) : !echos || echos.length === 0 ? (
                     <Notice
-                        statement={`Nothing is filed under #${tagName} in this window.`}
-                        note="Widen the window, or write the first one yourself."
+                        statement={timeframe === 'all' ? 'Be the first voice here.' : 'No Echos in this time range.'}
+                        note={timeframe === 'all' ? 'Post an Echo to start the conversation.' : 'Try all time to see more Echos.'}
                         actions={
                             <>
                                 {timeframe !== 'all' && (
@@ -106,21 +106,21 @@ const TagsPage = () => {
                                         onClick={() => setTimeframe('all')}
                                         className="act act-outline h-11 px-6"
                                     >
-                                        Open it to all time
+                                        Show all time
                                     </button>
                                 )}
-                                <Link to="/new" className="act act-quiet h-11 px-6">
-                                    Write an echo
+                                <Link to={`/new?tag=${encodeURIComponent(tagName)}`} className={`act h-11 px-6 ${timeframe === 'all' ? '' : 'act-quiet'}`}>
+                                    Post an Echo
                                 </Link>
                             </>
                         }
                     />
                 ) : (
-                    <div className="border-t border-ink">
+                    <div className="pb-8">
                         {echos.map((echo) => (
                             <EchoCard key={echo._id} echo={echo} />
                         ))}
-                        <Coda />
+                        <Coda label="End of Echos" />
                     </div>
                 )}
             </Measure>

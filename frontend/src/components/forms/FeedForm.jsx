@@ -4,28 +4,6 @@ import { useScrollStore } from '../../store/useScrollStore';
 import { UserAutocomplete } from '../ui';
 import { Actions, Clause, Field, Identity, Stops } from './Sheet';
 
-/**
- * Writing a rule. This is the sheet the whole product is an argument for, so it is
- * laid out as a specification a reader can check top to bottom: what the Scroll
- * is, then one clause per term it sets, then the rule itself read back in the
- * document's voice before it is committed.
- *
- * The clauses run in the order a person thinks about a feed — what it takes in,
- * whose writing, from when, and how it is presented — rather than in the order the
- * request happens to send them. Order sits last because it is the one clause with
- * a sensible default, and because it is the first phrase of the sentence printed
- * below it, so the sheet reads continuously into its own summary.
- *
- * The accordions are gone, and so are the clause numbers. A rule you cannot see
- * all of is a rule you cannot check, and four collapsed panels meant the only way
- * to know what your feed would do was to open all four and hold them in your head.
- * Everything is on the sheet, unnumbered, at the length it actually needs.
- *
- * Every either/or is the same control: a rail of hard-edged stops with the held
- * one inverted. Tags are stamps — admitted stamps are set solid, refused stamps
- * are struck through — so include and exclude are told apart by shape, not colour.
- */
-
 const TIME_LABEL = {
     '1day': 'in the last 24 hours',
     '1month': 'in the last month',
@@ -33,20 +11,11 @@ const TIME_LABEL = {
     allTime: 'of all time',
 };
 
-/** `a`, `a or b`, `a, b or c` — an English list, so the rule reads as a sentence. */
 const englishList = (items, conjunction = 'or') =>
     items.length > 1
         ? `${items.slice(0, -1).join(', ')} ${conjunction} ${items[items.length - 1]}`
         : items[0];
 
-/**
- * A tag entry line and the stamps it has produced.
- *
- * A pasted `poetry, cities` used to arrive as one tag called `poetrycities`: the
- * separators were stripped out instead of being split on. Pasting a line of tags
- * is the ordinary way to fill this field, so the line is now split and each tag
- * committed on its own.
- */
 const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
     const [draft, setDraft] = useState('');
 
@@ -76,11 +45,13 @@ const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
                 onChange={(value) => {
                     if (/[,\s]/.test(value)) {
                         commit(value);
+                        setDraft('');
                         return;
                     }
                     setDraft(value);
                 }}
                 onKeyDown={handleKeyDown}
+                onBlur={() => { commit(draft); setDraft(''); }}
                 placeholder={placeholder}
                 autoComplete="off"
             />
@@ -92,19 +63,13 @@ const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
                             <span className="min-w-0 break-all text-[0.8125rem] leading-[1.4]">
                                 #{tag}
                             </span>
-                            {/* One word for one action. The struck tag used to
-                                offer "Keep", which asks the reader to parse a
-                                double negative — keep it struck? keep it in the
-                                feed? — to undo something. Every stamp is taken
-                                out of its own list, so every stamp says Remove,
-                                and the name says which list. */}
                             <button
                                 type="button"
                                 onClick={() => onRemove(tag)}
                                 aria-label={`Remove #${tag} from the tags this Feed ${
-                                    state === 'out' ? 'refuses' : 'admits'
+                                    state === 'out' ? 'excludes' : 'includes'
                                 }`}
-                                className={`stamp-state t-label text-[0.625rem] transition-colors ${
+                                className={`stamp-state t-label min-h-8 text-[0.625rem] transition-colors ${
                                     state === 'out'
                                         ? 'text-ink-quiet hover:text-ink'
                                         : 'text-chalk-quiet hover:text-chalk'
@@ -142,9 +107,6 @@ const FeedForm = ({ autoFocus = false }) => {
     const { createScroll, isCreatingScroll } = useScrollStore();
     const navigate = useNavigate();
 
-    /* Adding and removing are written against the list as it will be rather than
-       as it was, because a pasted line of tags commits several tags in one pass
-       and each of them would otherwise be appended to the same stale array. */
     const tagAdder = (setter) => (tag) =>
         setter((tags) => (tags.includes(tag) ? tags : [...tags, tag]));
     const tagRemover = (setter) => (tag) => setter((tags) => tags.filter((item) => item !== tag));
@@ -184,10 +146,6 @@ const FeedForm = ({ autoFocus = false }) => {
         }
     };
 
-    /* The rule, read back. Assembled from the same state the request is built
-       from, so what is printed here cannot drift from what is saved — and its
-       verbs are the sheet's own verbs, so the sentence cannot describe a setting
-       the reader never made. */
     const clauses = [
         sortBy === 'newestFirst'
             ? 'Newest first'
@@ -198,10 +156,10 @@ const FeedForm = ({ autoFocus = false }) => {
 
     if (includedTags.length > 0) {
         const tags = includedTags.map((tag) => `#${tag}`);
-        clauses.push(`admitting ${englishList(tags, tagMatchType === 'all' ? 'and' : 'or')}`);
+        clauses.push(`with ${englishList(tags, tagMatchType === 'all' ? 'and' : 'or')}`);
     }
     if (excludedTags.length > 0) {
-        clauses.push(`refusing ${englishList(excludedTags.map((tag) => `#${tag}`))}`);
+        clauses.push(`without ${englishList(excludedTags.map((tag) => `#${tag}`))}`);
     }
     clauses.push(
         selectedAuthors.length > 0
@@ -222,18 +180,18 @@ const FeedForm = ({ autoFocus = false }) => {
                 autoFocus={autoFocus}
                 name={name}
                 onName={setName}
-                namePlaceholder="Name this rule"
+                namePlaceholder="e.g. Creative hours"
                 description={description}
                 onDescription={setDescription}
-                descriptionPlaceholder="What this feed is for"
+                descriptionPlaceholder="What would you like to read?"
                 isPrivate={isPrivate}
                 onVisibility={setIsPrivate}
             />
 
-            <Clause name="Tags" note="Type a tag and press space.">
+            <div className="mt-8">
                 <TagField
                     id="feed-include-tags"
-                    label="Admit"
+                    label="Include tags (optional)"
                     placeholder="poetry, notation, cities"
                     tags={includedTags}
                     state="in"
@@ -244,90 +202,24 @@ const FeedForm = ({ autoFocus = false }) => {
                 {includedTags.length > 1 && (
                     <div className="mt-6">
                         <Stops
-                            legend="An Echo must carry"
+                            legend="Match"
                             name="tagMatchType"
                             value={tagMatchType}
                             onChange={setTagMatchType}
                             options={[
-                                { value: 'any', label: 'Any of them' },
-                                { value: 'all', label: 'All of them' },
+                                { value: 'any', label: 'Any tag' },
+                                { value: 'all', label: 'All tags' },
                             ]}
                         />
                     </div>
                 )}
 
-                <div className="mt-8">
-                    <TagField
-                        id="feed-exclude-tags"
-                        label="Refuse"
-                        placeholder="tags to keep out"
-                        tags={excludedTags}
-                        state="out"
-                        onAdd={tagAdder(setExcludedTags)}
-                        onRemove={tagRemover(setExcludedTags)}
-                    />
-                </div>
-            </Clause>
-
-            <Clause name="Authors" note="Empty admits everyone.">
-                <UserAutocomplete
-                    label="Admit only"
-                    selectedUsers={selectedAuthors}
-                    onUserAdd={(user) => setSelectedAuthors((authors) => [...authors, user])}
-                    onUserRemove={(userId) =>
-                        setSelectedAuthors((authors) =>
-                            authors.filter((author) => author._id !== userId),
-                        )
-                    }
-                    placeholder="Search by username"
-                />
-            </Clause>
-
-            <Clause name="Dates">
-                <Stops
-                    name="window"
-                    value={useDateRange ? 'between' : 'any'}
-                    onChange={(held) => setUseDateRange(held === 'between')}
-                    options={[
-                        { value: 'any', label: 'Any time' },
-                        { value: 'between', label: 'Between dates' },
-                    ]}
-                />
-
-                {useDateRange && (
-                    <div className="mt-6 grid gap-6 sm:grid-cols-2">
-                        <Field
-                            id="feed-start"
-                            label="From"
-                            type="date"
-                            value={startDate}
-                            onChange={setStartDate}
-                        />
-                        <Field
-                            id="feed-end"
-                            label="To"
-                            type="date"
-                            value={endDate}
-                            onChange={setEndDate}
-                        />
-                    </div>
-                )}
-            </Clause>
-
-            <Clause name="Echoes you have liked">
-                <Stops
-                    name="excludeLiked"
-                    value={excludeLikedEchos ? 'hide' : 'show'}
-                    onChange={(held) => setExcludeLikedEchos(held === 'hide')}
-                    options={[
-                        { value: 'show', label: 'Show them' },
-                        { value: 'hide', label: 'Hide them' },
-                    ]}
-                />
-            </Clause>
+                <p className="mt-2 text-[0.8125rem] leading-relaxed text-ink-quiet">Separate tags with a space or comma. Leave empty for all topics.</p>
+            </div>
 
             <Clause name="Order">
                 <Stops
+                    srLegend="Sort order"
                     name="sortBy"
                     value={sortBy}
                     onChange={setSortBy}
@@ -356,9 +248,85 @@ const FeedForm = ({ autoFocus = false }) => {
                 )}
             </Clause>
 
-            <section className="mt-14 border-t border-ink pt-6">
-                <h2 className="t-label t-label--ink">The rule</h2>
-                <p aria-live="polite" className="t-title mt-4 break-words">
+            <details className="mt-8">
+                <summary className="t-label t-label--ink cursor-pointer py-3 focus-visible:outline-2 focus-visible:outline-offset-4">
+                    More filters · authors, dates & exclusions
+                </summary>
+                <div className="mt-8">
+                    <TagField
+                        id="feed-exclude-tags"
+                        label="Exclude tags"
+                        placeholder="tags to keep out"
+                        tags={excludedTags}
+                        state="out"
+                        onAdd={tagAdder(setExcludedTags)}
+                        onRemove={tagRemover(setExcludedTags)}
+                    />
+                </div>
+                <Clause name="Authors" note="Leave empty to include everyone.">
+                    <UserAutocomplete
+                        label="Only from"
+                        selectedUsers={selectedAuthors}
+                        onUserAdd={(user) => setSelectedAuthors((authors) => [...authors, user])}
+                        onUserRemove={(userId) =>
+                            setSelectedAuthors((authors) =>
+                                authors.filter((author) => author._id !== userId),
+                            )
+                        }
+                        placeholder="Search by username"
+                    />
+                </Clause>
+
+                <Clause name="Dates">
+                    <Stops
+                        srLegend="Date range"
+                        name="window"
+                        value={useDateRange ? 'between' : 'any'}
+                        onChange={(held) => setUseDateRange(held === 'between')}
+                        options={[
+                            { value: 'any', label: 'Any time' },
+                            { value: 'between', label: 'Between dates' },
+                        ]}
+                    />
+
+                    {useDateRange && (
+                        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                            <Field
+                                id="feed-start"
+                                label="From"
+                                type="date"
+                                value={startDate}
+                                onChange={setStartDate}
+                            />
+                            <Field
+                                id="feed-end"
+                                label="To"
+                                type="date"
+                                value={endDate}
+                                onChange={setEndDate}
+                            />
+                        </div>
+                    )}
+                </Clause>
+
+                <Clause name="Echos you have liked">
+                    <Stops
+                        srLegend="Previously liked Echos"
+                        name="excludeLiked"
+                        value={excludeLikedEchos ? 'hide' : 'show'}
+                        onChange={(held) => setExcludeLikedEchos(held === 'hide')}
+                        options={[
+                            { value: 'show', label: 'Show them' },
+                            { value: 'hide', label: 'Hide them' },
+                        ]}
+                    />
+                </Clause>
+
+            </details>
+
+            <section className="mt-8 border-t border-rule pt-5">
+                <h2 className="t-label t-label--ink">Your Feed</h2>
+                <p aria-live="polite" className="mt-3 break-words text-[0.9375rem] leading-relaxed text-ink-soft">
                     {clauses.join(', ')}.
                 </p>
             </section>

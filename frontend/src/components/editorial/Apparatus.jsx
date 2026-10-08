@@ -38,8 +38,8 @@ export const Measure = ({ wide = false, className = '', children }) => (
  * under it. Every other screen keeps the running head's left edge — a heading
  * that sits at the top of a form wants to line up with the form.
  */
-export const SheetHead = ({ label, subject, readout, deck, actions, children, masthead = false }) => (
-    <header className="pt-8 pb-6">
+export const SheetHead = ({ label, subject, readout, deck, actions, children, masthead = false, display = false }) => (
+    <header className={display ? 'pt-10 pb-6 sm:pt-12' : 'pt-8 pb-6'}>
         {(label || readout) && (
             <div className="flex items-baseline justify-between gap-6 border-b border-rule pb-3">
                 <p className="t-label t-label--ink">{label}</p>
@@ -50,13 +50,13 @@ export const SheetHead = ({ label, subject, readout, deck, actions, children, ma
         {subject ? (
             <div
                 className={
-                    masthead
+                    display ? '' : masthead
                         ? 'mt-6'
                         : 'mt-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-4'
                 }
             >
-                <h1 className={masthead ? 't-headline text-center' : 't-subject'}>{subject}</h1>
-                {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
+                <h1 className={display ? 't-page-title text-ink' : masthead ? 't-headline text-center' : 't-subject'}>{subject}</h1>
+                {actions && !display ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
             </div>
         ) : null}
 
@@ -71,6 +71,7 @@ export const SheetHead = ({ label, subject, readout, deck, actions, children, ma
         ) : null}
 
         {children}
+        {display && actions ? <div className="mt-6 flex flex-wrap items-center gap-3">{actions}</div> : null}
     </header>
 );
 
@@ -80,9 +81,9 @@ export const SheetHead = ({ label, subject, readout, deck, actions, children, ma
  * sheet head's, so a section reads as a subordinate of the page and not as a
  * second page.
  */
-export const Section = ({ label, readout, to, seeAll = 'See all', className = '', children }) => (
+export const Section = ({ label, readout, to, seeAll = 'See all', className = '', ruled = true, children }) => (
     <section className={`mt-12 ${className}`}>
-        <div className="flex items-baseline justify-between gap-6 border-b border-ink pb-3">
+        <div className={`flex items-baseline justify-between gap-6 pb-3 ${ruled ? 'border-b border-ink' : ''}`}>
             <h2 className="t-label t-label--ink">{label}</h2>
             {to ? (
                 <Link to={to} className="t-label text-rule-strong transition-colors hover:text-ink">
@@ -175,14 +176,14 @@ export const More = ({ shown, total, isLoading, onMore, label = 'Show more' }) =
  * held one with `aria-current`, which the `.stop` styles read, so nothing here
  * has to look at the location itself.
  */
-export const Rail = ({ items, className = '' }) => (
-    <nav className={`flex flex-wrap border-l border-t border-rule ${className}`}>
+export const Rail = ({ items, className = '', quiet = false }) => (
+    <nav aria-label="Browse sections" className={`flex flex-wrap ${quiet ? 'gap-x-6 border-b border-rule' : 'border-l border-t border-rule'} ${className}`}>
         {items.map((item) => (
             <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className="stop t-label h-11 flex-1 whitespace-nowrap border-b border-r border-rule px-5"
+                className={quiet ? ({ isActive }) => `t-label flex min-h-11 items-center border-b-2 ${isActive ? 'border-ink text-ink font-semibold' : 'border-transparent hover:border-rule text-ink-quiet'}` : 'stop t-label h-11 flex-1 whitespace-nowrap border-b border-r border-rule px-5'}
             >
                 {item.label}
             </NavLink>

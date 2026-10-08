@@ -170,6 +170,16 @@
   letter-spacing: -0.022em;
 }
 
+/* Titles for individual people, tags and Scrolls. Long names wrap, never clip. */
+.t-page-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(3.5rem, 9vw, 6rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
 .t-headline {
   font-family: var(--font-display);
   font-weight: 400;

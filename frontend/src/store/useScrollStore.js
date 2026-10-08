@@ -1,3 +1,5 @@
+import useAuthStore from './useAuthStore';
+import { updateScrollFollowers } from '../lib/scrollFollowers';
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import { createLoadingStates } from "./utils.js";
@@ -400,9 +402,7 @@ export const useScrollStore = create((set, get) => ({
                     const savedBy = s.savedBy || [];
                     return {
                         ...s,
-                        savedBy: isFollowing
-                            ? [...savedBy, userId]
-                            : savedBy.filter(id => id !== userId)
+                        savedBy: updateScrollFollowers(savedBy, userId, isFollowing)
                     };
                 }
                 return s;
@@ -415,9 +415,7 @@ export const useScrollStore = create((set, get) => ({
             set({
                 scroll: {
                     ...scroll,
-                    savedBy: isFollowing
-                        ? [...savedBy, userId]
-                        : savedBy.filter(id => id !== userId)
+                    savedBy: updateScrollFollowers(savedBy, userId, isFollowing)
                 }
             });
         }
@@ -426,7 +424,7 @@ export const useScrollStore = create((set, get) => ({
     // Follow a scroll
     followScroll: async (scrollId) => {
         // Get user ID from auth store
-        const authUser = JSON.parse(localStorage.getItem('auth-user') || '{}');
+        const { authUser } = useAuthStore.getState();
         const userId = authUser?._id;
 
         // Optimistic update
@@ -456,7 +454,7 @@ export const useScrollStore = create((set, get) => ({
     // Unfollow a scroll
     unfollowScroll: async (scrollId) => {
         // Get user ID from auth store
-        const authUser = JSON.parse(localStorage.getItem('auth-user') || '{}');
+        const { authUser } = useAuthStore.getState();
         const userId = authUser?._id;
 
         // Optimistic update

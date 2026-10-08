@@ -1,3 +1,4 @@
+import { isScrollFollowed } from '../../../lib/scrollFollowers';
 import { useState, useEffect } from 'react';
 import { useScrollStore } from '../../../store/useScrollStore';
 import useCommunityStore from '../../../store/useCommunityStore';
@@ -28,10 +29,10 @@ const FollowButton = ({ scroll, size = 'sm', className = '' }) => {
     const { authUser } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [localIsFollowing, setLocalIsFollowing] = useState(scroll.savedBy?.includes(authUser?._id));
+    const [localIsFollowing, setLocalIsFollowing] = useState(isScrollFollowed(scroll.savedBy, authUser?._id));
 
     useEffect(() => {
-        setLocalIsFollowing(scroll.savedBy?.includes(authUser?._id));
+        setLocalIsFollowing(isScrollFollowed(scroll.savedBy, authUser?._id));
     }, [scroll.savedBy, authUser?._id]);
 
     if (!authUser || scroll.creator?._id === authUser._id) return null;

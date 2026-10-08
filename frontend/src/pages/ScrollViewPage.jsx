@@ -13,7 +13,7 @@ const WINDOW = { '1day': 'the last 24 hours', '1month': 'the last month', '1year
 
 /** One line of the rule's colophon: the term named, then what it is set to. */
 const Term = ({ name, children }) => (
-    <div className="flex flex-col gap-1 border-t border-rule py-3 sm:flex-row sm:gap-6">
+    <div className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-6">
         <dt className="t-label w-40 shrink-0">{name}</dt>
         <dd className="t-readout text-ink">{children}</dd>
     </div>
@@ -91,9 +91,8 @@ const ScrollViewPage = () => {
         <Layout>
             <Measure>
                 <SheetHead
-                    label={isFeed ? 'Feed' : 'Curation'}
+                    display
                     subject={scroll.name}
-                    readout={`${followers} ${followers === 1 ? 'follower' : 'followers'}`}
                     deck={scroll.description || undefined}
                     actions={
                         <>
@@ -111,53 +110,56 @@ const ScrollViewPage = () => {
                         </>
                     }
                 >
-                    {(!isOwner || !isFeed || scroll.isPrivate) && (
-                        <p className="t-readout mt-4 flex flex-wrap items-baseline gap-x-3 text-rule-strong">
+                    <p className="t-readout mt-4 flex flex-wrap items-baseline gap-x-3 text-ink-quiet">
+                            <span>{isFeed ? 'Feed' : 'Curation'}</span>
+                            {followers > 0 && <span>{followers} {followers === 1 ? 'follower' : 'followers'}</span>}
                             {!isOwner && scroll.creator?.userName && (
                                 <span className="flex items-baseline gap-1">
-                                    Kept by{' '}
+                                    By{' '}
                                     <UserLink
                                         user={scroll.creator}
                                         className="text-[0.75rem] font-medium text-ink-quiet"
                                     />
                                 </span>
                             )}
-                            {!isFeed && <span>{scroll.echos?.length ?? 0} filed</span>}
+                            {!isFeed && <span>{scroll.echos?.length ?? 0} {scroll.echos?.length === 1 ? 'Echo' : 'Echos'}</span>}
                             {scroll.isPrivate && <span>Private</span>}
-                        </p>
-                    )}
+                    </p>
                 </SheetHead>
 
                 {isFeed && (
-                    <dl className="mb-10">
+                    <details className="mb-6">
+                        <summary className="t-label cursor-pointer py-3 text-ink">Feed filters</summary>
+                        <dl>
                         <Term name="Order">
                             {ORDER[rule.sortBy] ?? 'Newest first'}
                             {rule.sortBy === 'mostLiked' && ` of ${WINDOW[rule.sortTimeRange] ?? 'all time'}`}
                         </Term>
                         {included.length > 0 && (
-                            <Term name={rule.tagMatchType === 'all' ? 'Admits all of' : 'Admits any of'}>
+                            <Term name={rule.tagMatchType === 'all' ? 'All of these tags' : 'Any of these tags'}>
                                 {included.map((tag) => `#${tag.name}`).join(' · ')}
                             </Term>
                         )}
                         {excluded.length > 0 && (
-                            <Term name="Refuses">{excluded.map((tag) => `#${tag.name}`).join(' · ')}</Term>
+                            <Term name="Exclude tags">{excluded.map((tag) => `#${tag.name}`).join(' · ')}</Term>
                         )}
                         {authors.length > 0 && (
                             <Term name="Only from">{authors.map((author) => `@${author.userName}`).join(' · ')}</Term>
                         )}
-                        {rule.excludeLikedEchos && <Term name="Leaves out">Echoes you have already liked</Term>}
+                        {rule.excludeLikedEchos && <Term name="Leaves out">Echos you have already liked</Term>}
                     </dl>
+                    </details>
                 )}
 
                 {isLoadingScrollEchos && scrollEchos.length === 0 ? (
                     <Placeholder rows={4} />
                 ) : scrollEchos.length === 0 ? (
                     <Notice
-                        statement={isFeed ? 'Nothing satisfies this rule yet.' : 'Nothing has been filed here yet.'}
+                        statement={isFeed ? 'No matching Echos yet.' : 'This collection is waiting for its first Echo.'}
                         note={
                             isFeed
-                                ? 'The terms above are strict. Loosen them, or wait — entries appear as they are written.'
-                                : 'Use the Save control on any entry to file it into this Curation.'
+                                ? 'New Echos appear here when they match this Feed’s filters.'
+                                : 'Use Save on any Echo to add it to a Curation you own.'
                         }
                         actions={
                             <Link to="/" className="act act-outline h-11 px-6">
@@ -166,11 +168,11 @@ const ScrollViewPage = () => {
                         }
                     />
                 ) : (
-                    <div className="border-t border-ink">
+                    <div className="pb-8">
                         {scrollEchos.map((echo) => (
                             <EchoCard key={echo._id} echo={echo} />
                         ))}
-                        <Coda />
+                        <Coda label="End of list" />
                     </div>
                 )}
             </Measure>

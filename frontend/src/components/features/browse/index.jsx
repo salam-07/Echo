@@ -4,28 +4,18 @@ import useCommunityStore from '../../../store/useCommunityStore';
 import ScrollCard from '../scroll/ScrollCard';
 import { Measure, SheetHead, Notice, Placeholder, Rail } from '../../editorial/Apparatus';
 
-/**
- * Rows the browse sheets share.
- *
- * A tag and a ranked echo each appear on three or four different sheets, and they
- * were written out longhand on every one of them — so the same tag was a pill here
- * and a table cell there. They are printed once, here.
- */
-
-/** A tag and how many echoes carry it. */
 export const TagRow = ({ tag }) => (
     <Link
         to={`/tag/${tag.name}`}
         className="flex min-h-11 items-baseline justify-between gap-4 border-b border-rule py-3 transition-colors hover:bg-paper-shade"
     >
-        <span className="text-[0.9375rem] font-medium text-ink">#{tag.name}</span>
-        <span className="t-readout shrink-0 text-rule-strong">{tag.count ?? tag.echoCount ?? 0}</span>
+        <span className="text-[0.9375rem] font-medium text-ink break-all">#{tag.name}</span>
+        <span className="t-readout shrink-0 text-ink-quiet">{tag.count ?? tag.echoCount ?? 0} {(tag.count ?? tag.echoCount ?? 0) === 1 ? 'Echo' : 'Echos'}</span>
     </Link>
 );
 
-/** The rail every community sheet carries, so none of them needs a back-link. */
 export const COMMUNITY_RAIL = [
-    { to: '/community', label: 'Contents', end: true },
+    { to: '/community', label: 'Explore', end: true },
     { to: '/browse/scrolls', label: 'Feeds' },
     { to: '/browse/curation', label: 'Curations' },
     { to: '/browse/tags', label: 'Tags' },
@@ -34,26 +24,22 @@ export const COMMUNITY_RAIL = [
 const COPY = {
     feed: {
         label: 'Community feeds',
-        subject: 'Rules other people wrote.',
-        deck: 'Follow one and it appears in your index, filling itself by its own terms rather than yours.',
+        subject: 'Community Feeds',
+        deck: 'Find a fresh perspective. Follow a Feed to add it to your Scrolls.',
         noun: 'feed',
         empty: 'No public Feeds yet.',
-        emptyNote: 'Write one and make it public, and it will be the first on this sheet.',
+        emptyNote: 'Create a public Feed to share what you like to read.',
     },
     curation: {
         label: 'Community curations',
-        subject: 'Shelves other people keep.',
-        deck: 'Every entry in a Curation was filed by hand, which is a different kind of recommendation.',
+        subject: 'Community Curations',
+        deck: 'Echos worth keeping, picked by people. Follow a collection to come back to it.',
         noun: 'curation',
         empty: 'No public Curations yet.',
-        emptyNote: 'Start one and make it public, and it will be the first on this sheet.',
+        emptyNote: 'Create a public Curation to share your favorite Echos.',
     },
 };
 
-/**
- * A community register of one kind of Scroll. Feeds and Curations browse the same
- * way, so they browse through the same component and differ only in their nouns.
- */
 export const CommunityRegister = ({ kind }) => {
     const copy = COPY[kind];
     const store = useCommunityStore();
@@ -80,15 +66,13 @@ export const CommunityRegister = ({ kind }) => {
     return (
         <Measure>
             <SheetHead
-                label={copy.label}
                 subject={copy.subject}
-                readout={`${matches.length} ${matches.length === 1 ? copy.noun : `${copy.noun}s`}`}
                 deck={copy.deck}
             >
-                <Rail items={COMMUNITY_RAIL} className="mt-8" />
+                <Rail quiet items={COMMUNITY_RAIL} className="mt-8" />
 
                 <label htmlFor="browse-filter" className="t-label mt-8 block">
-                    Find in this list
+                    Search {copy.noun}s
                 </label>
                 <input
                     id="browse-filter"
@@ -104,24 +88,24 @@ export const CommunityRegister = ({ kind }) => {
                 <Placeholder rows={4} />
             ) : matches.length === 0 ? (
                 <Notice
-                    statement={query ? `Nothing here matches “${query}”.` : copy.empty}
-                    note={query ? undefined : copy.emptyNote}
+                    statement={query.trim() ? `Nothing here matches “${query}”.` : copy.empty}
+                    note={query.trim() ? undefined : copy.emptyNote}
                     actions={
-                        query ? (
+                        query.trim() ? (
                             <button type="button" onClick={() => setQuery('')} className="act act-outline h-11 px-6">
-                                Clear the filter
+                                Clear search
                             </button>
                         ) : (
-                            <Link to="/scroll/new" className="act h-11 px-6">
-                                Make one
+                            <Link to={`/scroll/new?type=${kind}`} className="act h-11 px-6">
+                                Create a {kind === 'feed' ? 'Feed' : 'Curation'}
                             </Link>
                         )
                     }
                 />
             ) : (
-                <div className="border-t border-ink pb-16">
+                <div className="pb-16">
                     {matches.map((scroll) => (
-                        <ScrollCard key={scroll._id} scroll={scroll} />
+                        <ScrollCard key={scroll._id} scroll={scroll} showKind={false} />
                     ))}
                 </div>
             )}

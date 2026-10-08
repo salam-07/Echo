@@ -10,12 +10,6 @@ const ORDERS = [
     { value: 'recent', label: 'Newest' },
 ];
 
-/**
- * The tag index. Two columns of ruled rows, alphabetised or ranked, with the count
- * in the right margin of each line — an index, which is the form this content has
- * always wanted. The old page set each tag at a size derived from its count, which
- * made a popular tag look like a heading and a rare one look like a footnote.
- */
 const BrowseTagsPage = () => {
     const { tags, isLoadingTags, fetchTags } = useCommunityStore();
     const [query, setQuery] = useState('');
@@ -26,7 +20,7 @@ const BrowseTagsPage = () => {
     }, [fetchTags]);
 
     const matches = useMemo(() => {
-        const term = query.trim().toLowerCase();
+        const term = query.trim().replace(/^#/, '').toLowerCase();
         const found = term ? tags.filter((tag) => tag.name.toLowerCase().includes(term)) : [...tags];
 
         if (order === 'alphabetical') return found.sort((a, b) => a.name.localeCompare(b.name));
@@ -38,12 +32,10 @@ const BrowseTagsPage = () => {
         <Layout>
             <Measure wide>
                 <SheetHead
-                    label="Tags"
-                    subject="Every subject anyone has written under."
-                    readout={`${matches.length} ${matches.length === 1 ? 'tag' : 'tags'}`}
-                    deck="A tag is how a rule finds an echo. Open one to read everything filed under it."
+                    subject="Explore tags"
+                    deck="Follow your curiosity. Choose a tag to read its Echos."
                 >
-                    <Rail items={COMMUNITY_RAIL} className="mt-8" />
+                    <Rail quiet items={COMMUNITY_RAIL} className="mt-8" />
 
                     <div className="mt-8 grid gap-5 sm:grid-cols-2">
                         <div>
@@ -67,7 +59,7 @@ const BrowseTagsPage = () => {
                                     <label
                                         key={option.value}
                                         data-held={order === option.value || undefined}
-                                        className={`stop t-label h-10 flex-1 whitespace-nowrap px-3 ${
+                                        className={`stop t-label h-11 flex-1 whitespace-nowrap px-3 ${
                                             index > 0 ? 'border-l border-rule' : ''
                                         }`}
                                     >
@@ -90,22 +82,22 @@ const BrowseTagsPage = () => {
                     <Placeholder rows={3} />
                 ) : matches.length === 0 ? (
                     <Notice
-                        statement={query ? `No tag matches “${query}”.` : 'No tags yet.'}
+                        statement={query.trim() ? `No tag matches “${query}”.` : 'No tags yet.'}
                         note={
                             query
-                                ? 'Try a shorter word — tags are single words, lowercased.'
-                                : 'Tags appear here as soon as somebody writes an echo carrying one.'
+                                ? 'Try another topic or clear your search.'
+                                : 'Tags appear here when people add them to Echos.'
                         }
                         actions={
-                            query ? (
+                            query.trim() ? (
                                 <button type="button" onClick={() => setQuery('')} className="act act-outline h-11 px-6">
-                                    Clear the filter
+                                    Clear search
                                 </button>
                             ) : null
                         }
                     />
                 ) : (
-                    <div className="border-t border-ink pb-16 sm:grid sm:grid-cols-2 sm:gap-x-12 lg:grid-cols-3">
+                    <div className="pb-16 sm:grid sm:grid-cols-2 sm:gap-x-12 lg:grid-cols-3">
                         {matches.map((tag) => (
                             <TagRow key={tag._id} tag={tag} />
                         ))}

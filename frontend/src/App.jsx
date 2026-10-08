@@ -93,6 +93,8 @@ const App = () => {
                     <Route path="/tag/:tagName" element={<TagsPage />} />
                     <Route path="/new" element={<NewEcho />} />
 
+                    <Route path="/scroll" element={<Navigate to="/scrolls" replace />} />
+                    <Route path="/browse-community" element={<Navigate to="/community" replace />} />
                     <Route path="/scrolls" element={<ScrollsPage />} />
                     <Route path="/scrolls/feeds" element={<FeedScrollsPage />} />
                     <Route path="/scrolls/curations" element={<CurationScrollsPage />} />
@@ -103,7 +105,7 @@ const App = () => {
                     <Route path="/browse/scrolls" element={<BrowseScrollsPage />} />
                     <Route path="/browse/curation" element={<BrowseCurationPage />} />
                     <Route path="/browse/tags" element={<BrowseTagsPage />} />
-                    <Route path="/browse-community" element={<BrowseCommunityPage />} />
+
 
                     <Route path="/search" element={<SearchPage />} />
                     <Route path="/search/echos" element={<EchoSearchPage />} />

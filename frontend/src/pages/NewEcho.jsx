@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { Measure, SheetHead } from '../components/editorial/Apparatus';
 import { useEchoStore } from '../store/useEchoStore';
@@ -7,20 +7,16 @@ import { useEchoStore } from '../store/useEchoStore';
 const LIMIT = 1000;
 const MAX_TAGS = 10;
 
-/**
- * Writing an echo. The sheet is the page: no framed box around the text, because a
- * box would make the writing an input rather than a manuscript. A hairline holds
- * the bottom of the measure, the count sits in the margin of that rule, and the
- * tags are stamps below it.
- */
 const NewEcho = () => {
     const navigate = useNavigate();
+    const [params] = useSearchParams();
     const { postEcho, isPostingEcho } = useEchoStore();
     const textareaRef = useRef(null);
 
     const [content, setContent] = useState('');
     const [draft, setDraft] = useState('');
-    const [tags, setTags] = useState([]);
+    const [tags, setTags] = useState(() => [...new Set((params.get('tag') ?? '').split(/[,\s]+/)
+        .map((tag) => tag.replace(/^#/, '').toLowerCase()).filter(Boolean))].slice(0, MAX_TAGS));
 
     useEffect(() => {
         textareaRef.current?.focus();
@@ -35,9 +31,10 @@ const NewEcho = () => {
         }
     };
 
+    const parseTags = (raw) => raw.split(/[,\s]+/)
+        .map((tag) => tag.replace(/^#/, '').toLowerCase()).filter(Boolean);
     const addTag = (raw) => {
-        const clean = raw.replace(/^#/, '').replace(/[, ]+/g, '').trim().toLowerCase();
-        if (clean && !tags.includes(clean) && tags.length < MAX_TAGS) setTags([...tags, clean]);
+        setTags((current) => [...new Set([...current, ...parseTags(raw)])].slice(0, MAX_TAGS));
     };
 
     const handleTagKeyDown = (event) => {
@@ -55,9 +52,7 @@ const NewEcho = () => {
         if (!content.trim() || isPostingEcho) return;
 
         try {
-            const pendingTag = draft.replace(/^#/, '').replace(/[, ]+/g, '').trim().toLowerCase();
-            const postedTags = pendingTag && !tags.includes(pendingTag) && tags.length < MAX_TAGS
-                ? [...tags, pendingTag] : tags;
+            const postedTags = [...new Set([...tags, ...parseTags(draft)])].slice(0, MAX_TAGS);
             await postEcho({ content: content.trim(), tags: postedTags });
             navigate('/');
         } catch (error) {
@@ -70,7 +65,7 @@ const NewEcho = () => {
 
     return (
         <Layout>
-            <Measure>
+            <Measure className="pb-16">
                 <SheetHead label="" subject="Post an Echo" />
 
                 <form onSubmit={handleSubmit}>
@@ -88,7 +83,7 @@ const NewEcho = () => {
                         aria-describedby="echo-count"
                     />
 
-                    <div className="flex justify-end border-t border-rule pt-3">
+                    <div className="flex justify-end pt-3">
                         <p id="echo-count" className={`t-readout ${remaining <= 80 ? 'text-ink' : 'text-ink-quiet'}`}>
                             {remaining} characters left
                         </p>
@@ -99,7 +94,7 @@ const NewEcho = () => {
                             Tags (optional)
                         </label>
                         <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                            Tags help Feeds find your Echo. Add up to {MAX_TAGS}.
+                            Help your Echo find its people. Up to {MAX_TAGS} tags.
                         </p>
                         <div className="mt-3 flex items-end gap-3">
                         <input
@@ -108,7 +103,7 @@ const NewEcho = () => {
                             value={draft}
                             onChange={(event) => {
                                 const value = event.target.value;
-                                if (value.includes(' ') || value.includes(',')) {
+                                if (/[,\s]/.test(value)) {
                                     addTag(value);
                                     setDraft('');
                                     return;
@@ -134,7 +129,7 @@ const NewEcho = () => {
                                             type="button"
                                             onClick={() => setTags(tags.filter((item) => item !== tag))}
                                             aria-label={`Remove #${tag}`}
-                                            className="stamp-state t-label min-h-8 shrink-0"
+                                            className="stamp-state t-label min-h-8 shrink-0 text-chalk-quiet hover:text-chalk"
                                         >
                                             Remove
                                         </button>
@@ -144,12 +139,13 @@ const NewEcho = () => {
                         )}
                     </div>
 
-                    <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-ink pt-6">
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
                         <button type="submit" disabled={!canSubmit} className="act h-12 px-8">
                             {isPostingEcho ? 'Posting…' : 'Post Echo'}
                         </button>
                         <button
                             type="button"
+                            disabled={isPostingEcho}
                             onClick={() => navigate(-1)}
                             className="act act-quiet h-12 px-6"
                         >

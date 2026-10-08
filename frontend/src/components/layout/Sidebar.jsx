@@ -32,7 +32,7 @@ const Sidebar = ({ onNavigate }) => {
                 <NavigationItem to="/scrolls/curations" onNavigate={onNavigate}>
                     Curations
                 </NavigationItem>
-                <NavigationItem to="/browse-community" onNavigate={onNavigate}>
+                <NavigationItem to="/community" onNavigate={onNavigate}>
                     Community
                 </NavigationItem>
                 <NavigationItem to="/browse/tags" onNavigate={onNavigate}>
