@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Layout from '../layouts/Layout';
-import { Measure, SheetHead, Section, Notice, Placeholder } from '../components/editorial/Apparatus';
+import { Measure, SheetHead, Notice, Placeholder } from '../components/editorial/Apparatus';
 import ReplyList from '../components/features/echo/ReplyList';
 import ReplyInput from '../components/features/echo/ReplyInput';
-import { Timestamp } from '../components/ui';
+import EchoHeader from '../components/features/echo/EchoHeader';
 import { useEchoStore } from '../store/useEchoStore';
 
 const ROW = 't-label flex h-11 items-center gap-2 transition duration-200';
@@ -16,7 +16,6 @@ const ROW = 't-label flex h-11 items-center gap-2 transition duration-200';
  * text. Replies are always open — you arrived here to read them.
  */
 const EchoView = () => {
-    const navigate = useNavigate();
     const { id } = useParams();
     const { getEcho, echo, isLoadingEcho, toggleLike, addReply, deleteReply } = useEchoStore();
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
@@ -63,26 +62,25 @@ const EchoView = () => {
     if (isLoadingEcho) {
         return (
             <Layout>
-                <Measure>
-                    <SheetHead label="Echo" />
+                <Measure className="pt-6">
+                    <h1 className="sr-only">Loading Echo</h1>
                     <Placeholder rows={1} />
                 </Measure>
             </Layout>
         );
     }
 
-    if (!echo) {
+    if (!echo || echo._id !== id) {
         return (
             <Layout>
                 <Measure>
-                    <SheetHead label="Echo" subject="Not found." />
+                    <SheetHead subject="Echo unavailable" />
                     <Notice
-                        statement="This echo is no longer here."
-                        note="It may have been deleted, or the address may be wrong."
+                        statement="Couldn’t load this Echo."
+                        note="Try again, or return to your Feed. The Echo may have been deleted."
                         actions={
-                            <button type="button" onClick={() => navigate(-1)} className="act act-outline h-11 px-6">
-                                Go back
-                            </button>
+                            <><button type="button" onClick={() => getEcho(id)} className="act h-11 px-6">Try again</button>
+                            <Link to="/" className="act act-quiet h-11 px-6">Back to Feed</Link></>
                         }
                     />
                 </Measure>
@@ -96,14 +94,13 @@ const EchoView = () => {
     return (
         <Layout>
             <Measure>
-                <SheetHead label="Echo" readout={<Timestamp date={echo.createdAt} className="t-readout" />} />
+                <header className="flex justify-end py-4">
+                    <h1 className="sr-only">Echo by @{echo.author?.userName || 'anonymous'}</h1>
+                    <Link to="/" className="act act-quiet h-11 px-3">Back to Feed</Link>
+                </header>
 
                 <article>
-                    <p className="t-label">
-                        <Link to={`/user/${echo.author?._id}`} className="link-rule text-ink">
-                            @{echo.author?.userName || 'anonymous'}
-                        </Link>
-                    </p>
+                    <EchoHeader echo={echo} />
 
                     <p className="mt-5 whitespace-pre-wrap break-words text-pretty text-[1.125rem] leading-[1.65] text-ink sm:text-[1.25rem]">
                         {echo.content}
@@ -114,8 +111,8 @@ const EchoView = () => {
                             {echo.tags.map((tag) => (
                                 <Link
                                     key={tag._id}
-                                    to={`/tag/${tag.name}`}
-                                    className="t-readout text-rule-strong transition-colors hover:text-ink"
+                                    to={`/tag/${encodeURIComponent(tag.name)}`}
+                                    className="t-readout break-all text-ink-quiet transition-colors hover:text-ink"
                                 >
                                     #{tag.name}
                                 </Link>
@@ -123,7 +120,7 @@ const EchoView = () => {
                         </div>
                     )}
 
-                    <div className="mt-6 flex items-center justify-between gap-4 border-t border-rule pt-1">
+                    <div className="mt-3 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-6">
                             <button
                                 type="button"
@@ -136,10 +133,6 @@ const EchoView = () => {
                                 <span>{isLiked ? 'Liked' : 'Like'}</span>
                                 <span className="t-readout">{echo.likes || 0}</span>
                             </button>
-                            <p className={ROW}>
-                                <span>Replies</span>
-                                <span className="t-readout">{replyCount}</span>
-                            </p>
                         </div>
 
                         <button type="button" onClick={handleShare} className={`${ROW} hover:text-ink`}>
@@ -148,13 +141,16 @@ const EchoView = () => {
                     </div>
                 </article>
 
-                <Section label="Replies" readout={replyCount || null} className="pb-16">
-                    <div className="border-b border-rule py-6">
-                        <ReplyInput onSubmit={handleAddReply} isSubmitting={isSubmittingReply} />
+                <section aria-labelledby="replies-heading" className="mt-10 pb-16">
+                    <h2 id="replies-heading" className="t-label t-label--ink flex items-baseline gap-3">
+                        Replies <span className="t-readout text-ink-quiet">{replyCount}</span>
+                    </h2>
+                    <div className="pt-5 pb-6">
+                        <ReplyInput key={id} onSubmit={handleAddReply} isSubmitting={isSubmittingReply} />
                     </div>
 
                     <ReplyList replies={echo.replies || []} onDeleteReply={handleDeleteReply} />
-                </Section>
+                </section>
             </Measure>
         </Layout>
     );

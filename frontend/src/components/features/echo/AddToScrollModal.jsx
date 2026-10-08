@@ -47,28 +47,28 @@ const AddToScrollModal = ({ echoId, onClose }) => {
         } catch (err) {
             console.log('Error adding to scroll:', err);
             setPhase('idle');
-            setError('That echo didn’t file. Try once more.');
+            setError('Couldn’t save this Echo. Try again.');
         }
     };
 
-    const primaryLabel = phase === 'filed' ? 'Filed' : phase === 'filing' ? 'Filing' : 'File it';
+    const primaryLabel = phase === 'filed' ? 'Saved' : phase === 'filing' ? 'Saving…' : 'Save Echo';
 
     return (
-        <Modal isOpen onClose={onClose} title="File this echo" size="sm">
+        <Modal isOpen onClose={onClose} title="Save to a Curation" size="sm">
             {curationScrolls.length === 0 ? (
                 <Modal.Body>
                     <p className="t-body text-ink-soft">
-                        You keep no Curations yet. A Curation is a Scroll you fill by hand.
+                        Create a Curation to collect Echos you choose.
                     </p>
                     <button
                         type="button"
                         onClick={() => {
                             onClose();
-                            navigate('/scroll/new');
+                            navigate('/scroll/new?type=curation');
                         }}
                         className="act mt-6 h-11 px-6"
                     >
-                        New Scroll
+                        Create a Curation
                     </button>
                 </Modal.Body>
             ) : (
@@ -91,10 +91,10 @@ const AddToScrollModal = ({ echoId, onClose }) => {
                                         <span className="flex w-full items-baseline justify-between gap-4">
                                             <span className="text-[0.9375rem] font-medium">{scroll.name}</span>
                                             {filed ? (
-                                                <span className="t-readout shrink-0 text-paper">Filed</span>
+                                                <span className="t-readout shrink-0 text-paper">Saved</span>
                                             ) : count != null ? (
                                                 <span
-                                                    className={`t-readout shrink-0 ${held ? 'text-chalk-quiet' : 'text-rule-strong'}`}
+                                                    className={`t-readout shrink-0 ${held ? 'text-chalk-quiet' : 'text-ink-quiet'}`}
                                                 >
                                                     {count}
                                                 </span>
@@ -124,7 +124,7 @@ const AddToScrollModal = ({ echoId, onClose }) => {
                         <button
                             type="button"
                             onClick={handleAdd}
-                            disabled={!selectedScrollId || phase === 'filing'}
+                            disabled={!selectedScrollId || phase !== 'idle'}
                             aria-live="polite"
                             className="act h-11 px-6"
                         >

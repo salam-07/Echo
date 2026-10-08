@@ -19,9 +19,9 @@ const EchoContent = memo(({ echo }) => (
                 {echo.tags.map((tag) => (
                     <Link
                         key={tag._id}
-                        to={`/tag/${tag.name}`}
+                        to={`/tag/${encodeURIComponent(tag.name)}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="t-readout text-rule-strong transition-colors hover:text-ink"
+                        className="t-readout break-all text-ink-quiet transition-colors hover:text-ink"
                     >
                         #{tag.name}
                     </Link>

@@ -17,8 +17,8 @@ const EchoActions = memo(({ echo, isLiked, onLike, onToggleMenu, onSave, menuOpe
     const likeCount = echo.likes || 0;
 
     return (
-        <div className="-mb-2 mt-2 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
+        <div className="-mb-2 mt-2 flex flex-wrap items-center justify-between gap-x-4">
+            <div className="flex items-center gap-4 sm:gap-6">
                 <button
                     type="button"
                     onClick={onLike}
@@ -30,23 +30,25 @@ const EchoActions = memo(({ echo, isLiked, onLike, onToggleMenu, onSave, menuOpe
                     }`}
                 >
                     <span>{isLiked ? 'Liked' : 'Like'}</span>
-                    <span className="t-readout">{likeCount}</span>
+                    {likeCount > 0 && <span className="t-readout">{likeCount}</span>}
                 </button>
 
                 <Link to={`/echo/${echo._id}`} className={`${ROW} hover:text-ink`}>
                     <span>Reply</span>
-                    <span className="t-readout">{replyCount}</span>
+                    {replyCount > 0 && <span className="t-readout">{replyCount}</span>}
                 </Link>
             </div>
 
-            <div className="flex items-center gap-6">
-                <button type="button" onClick={onSave} className={`${ROW} hover:text-ink`}>
+            <div className="flex items-center gap-4 sm:gap-6">
+                <button type="button" onClick={onSave} aria-label="Save to a Curation" className={`${ROW} hover:text-ink`}>
                     Save
                 </button>
                 <button
                     type="button"
                     onClick={onToggleMenu}
                     aria-expanded={menuOpen}
+                    aria-label="More Echo actions"
+                    data-echo-menu-trigger
                     className={`${ROW} hover:text-ink`}
                 >
                     More

@@ -24,9 +24,7 @@ const EchoSearchPage = () => {
         <Layout>
             <Measure>
                 <SheetHead
-                    label="Search · Echos"
-                    subject={query ? `Echos matching “${query}”.` : 'Echos.'}
-                    readout={query && !isSearching ? `${total} ${total === 1 ? 'entry' : 'entries'}` : undefined}
+                    subject={query ? `Echos matching “${query}”` : 'Search Echos'}
                 >
                     <SearchBar autoFocus={!query} />
                     <Rail items={SEARCH_RAIL(query)} className="mt-8" />
@@ -34,14 +32,14 @@ const EchoSearchPage = () => {
 
                 {!query ? (
                     <p className="t-body border-t border-rule py-14 text-ink-quiet">
-                        Nothing is being searched yet.
+                        Enter a word or phrase to find Echos.
                     </p>
                 ) : isSearching && echos.length === 0 ? (
                     <Placeholder rows={4} />
                 ) : echos.length === 0 ? (
                     <Notice
-                        statement={`No echo carries “${query}”.`}
-                        note="Search matches the words in an echo, not the tags filed against it. Try a single word, or look for the tag itself."
+                        statement={`No Echos match “${query}”.`}
+                        note="Try another word or phrase. To search tags, choose Tags above."
                     />
                 ) : (
                     <div className="border-t border-ink">
@@ -56,7 +54,7 @@ const EchoSearchPage = () => {
                                 onMore={() => searchEchos(query, echosPagination.page + 1)}
                             />
                         ) : (
-                            <Coda />
+                            <Coda label="End of results" />
                         )}
                     </div>
                 )}

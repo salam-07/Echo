@@ -65,13 +65,13 @@ const Specimen = ({ echo }) => (
             <span className="truncate text-[0.875rem] font-medium tracking-[0.01em] text-ink">
                 @{echo.author?.userName || 'anonymous'}
             </span>
-            <Timestamp date={echo.createdAt} className="t-readout shrink-0 text-rule-strong" />
+            <Timestamp date={echo.createdAt} className="t-readout shrink-0 text-ink-quiet" />
         </header>
         <p className="t-body mt-3 whitespace-pre-wrap break-words text-ink">{echo.content}</p>
         {echo.tags?.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
                 {echo.tags.map((tag) => (
-                    <span key={tag._id || tag.name} className="t-readout text-rule-strong">
+                    <span key={tag._id || tag.name || tag} className="t-readout break-all text-ink-quiet">
                         #{tag.name || tag}
                     </span>
                 ))}
@@ -97,7 +97,8 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
     const nameEdited = useRef(false);
 
     const [preview, setPreview] = useState([]);
-    const [previewState, setPreviewState] = useState('idle'); // idle · loading · ready
+    const [previewState, setPreviewState] = useState('idle'); // idle · loading · ready · error
+    const [previewAttempt, setPreviewAttempt] = useState(0);
 
     /* The opening offer. Every name that comes back has entries behind it — the
        endpoint samples Echos and reads the tags off them, so a tag cannot be
@@ -174,15 +175,19 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
         let live = true;
         setPreviewState('loading');
         (async () => {
-            const lists = await Promise.all(
+            const results = await Promise.allSettled(
                 included.map((tag) =>
                     axiosInstance
                         .get(`/echo/tag/${encodeURIComponent(tag)}`)
-                        .then((res) => res.data?.echos || [])
-                        .catch(() => []),
+                        .then((res) => res.data?.echos || []),
                 ),
             );
             if (!live) return;
+            if (results.some((result) => result.status === 'rejected')) {
+                setPreviewState('error');
+                return;
+            }
+            const lists = results.map((result) => result.value);
             const byId = new Map();
             for (const echo of lists.flat()) {
                 if (echo && echo._id) byId.set(echo._id, echo);
@@ -193,7 +198,7 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
         return () => {
             live = false;
         };
-    }, [included]);
+    }, [included, previewAttempt]);
 
     /* Ordering happens here, not on the server, so what is shown cannot drift from
        what the rule promises. Newest by filing date; most-liked by the like count. */
@@ -208,13 +213,14 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
     }, [preview, order]);
 
     const shown = ordered.slice(0, PREVIEW_SHOWN);
+    const customTags = included.filter((tag) => !suggestions.includes(tag));
 
     /* The name follows the first tag until the reader touches it, then it is theirs. */
     const addTag = (tag) => {
         setIncluded((current) => {
             if (current.includes(tag)) return current;
             const next = [...current, tag];
-            if (!nameEdited.current) setName(titleCase(tag));
+            if (!nameEdited.current) setName(titleCase(next[0]));
             return next;
         });
     };
@@ -248,15 +254,6 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
         }
     };
 
-    const ruleSentence =
-        [
-            order === 'mostLiked' ? 'Most liked of all time' : 'Newest first',
-            included.length ? `tagged ${included.map((t) => `#${t}`).join(' or ')}` : null,
-            'from anyone',
-        ]
-            .filter(Boolean)
-            .join(', ') + '.';
-
     const canCommit = name.trim().length > 0 && included.length > 0 && !isCommitting;
 
     const handleSubmit = (event) => {
@@ -282,19 +279,19 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
     return (
         <form onSubmit={handleSubmit} className="animate-set-in">
             <header>
-                <h1 className="t-headline max-w-[16ch]">Write the rule. See what it collects.</h1>
+                <h1 className="t-headline">Build your first Feed.</h1>
+                <p className="t-body mt-4 max-w-[52ch] text-ink-soft">
+                    Choose tags to collect Echos from anyone who uses them.
+                </p>
             </header>
 
             <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] lg:gap-16">
                 {/* The rule — kept in view while the sheet beside it scrolls. */}
                 <div className="lg:sticky lg:top-10 lg:self-start">
                     <section className="border-t border-rule pt-5">
-                        <div className="flex items-baseline gap-3">
-                            <span className="t-label text-rule-strong">§1</span>
-                            <h2 className="t-label t-label--ink">Tags</h2>
-                        </div>
+                        <h2 className="t-label t-label--ink">Choose tags</h2>
                         <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                            Tap a tag to add it.
+                            Choose at least one. Echos can match any selected tag.
                         </p>
 
                         {!offerReady ? (
@@ -315,19 +312,14 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                             </ul>
                         ) : suggestions.length > 0 ? (
                             <ul className="mt-4 flex flex-wrap gap-2">
-                                {suggestions.map((tag, index) => (
-                                    /* Keyed by name, so a name the row keeps is the
-                                       same node and does not re-enter; only the names
-                                       a shuffle actually replaced are new here, and
-                                       only those print. */
-                                    <li key={tag}>
+                                {suggestions.map((tag) => (
+                                    <li key={tag} className="max-w-full">
                                         <button
                                             type="button"
                                             onClick={() => toggleTag(tag)}
                                             data-state={included.includes(tag) ? 'in' : 'unset'}
                                             aria-pressed={included.includes(tag)}
-                                            style={{ animationDelay: `${index * 24}ms` }}
-                                            className="stamp animate-set-in px-3 py-1.5 text-[0.8125rem] leading-[1.4]"
+                                            className="stamp max-w-full break-all px-3 py-1.5 text-[0.8125rem] leading-[1.4]"
                                         >
                                             #{tag}
                                         </button>
@@ -337,47 +329,50 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                                     <button
                                         type="button"
                                         onClick={shuffle}
-                                        className="stamp stamp-draw px-3 py-1.5 text-[0.8125rem] leading-[1.4]"
+                                        className="act act-quiet h-8 px-3"
                                     >
-                                        Shuffle
+                                        More tags
                                     </button>
                                 </li>
                             </ul>
                         ) : (
                             <p className="mt-4 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                                No tags yet. Name one below, and your Feed will collect entries as they are
-                                written.
+                                Tag suggestions are unavailable. Add your own below.
                             </p>
                         )}
 
-                        <label htmlFor="first-feed-tag" className="sr-only">
-                            Add a tag
+                        <label htmlFor="first-feed-tag" className="t-label mt-5 block">
+                            Add your own tag
                         </label>
-                        <input
-                            id="first-feed-tag"
-                            type="text"
-                            value={draft}
-                            onChange={(event) => {
-                                const value = event.target.value;
-                                if (value.includes(' ') || value.includes(',')) commitDraft(value);
-                                else setDraft(value);
-                            }}
-                            onKeyDown={handleDraftKey}
-                            placeholder="or name your own"
-                            className="field field-sm mt-3"
-                            autoComplete="off"
-                        />
+                        <div className="mt-2 flex items-end gap-3">
+                            <input
+                                id="first-feed-tag"
+                                type="text"
+                                value={draft}
+                                onChange={(event) => {
+                                    const value = event.target.value;
+                                    if (value.includes(' ') || value.includes(',')) commitDraft(value);
+                                    else setDraft(value);
+                                }}
+                                onKeyDown={handleDraftKey}
+                                placeholder="e.g. photography"
+                                className="field field-sm min-w-0 flex-1"
+                                autoComplete="off"
+                            />
+                            <button type="button" onClick={() => commitDraft(draft)} disabled={!draft.trim()}
+                                className="act act-quiet h-11 shrink-0 px-4">Add tag</button>
+                        </div>
 
-                        {included.length > 0 && (
+                        {customTags.length > 0 && (
                             <ul className="mt-3 flex flex-wrap gap-2">
-                                {included.map((tag) => (
-                                    <li key={tag} data-state="in" className="stamp px-3 py-1.5">
-                                        <span className="text-[0.8125rem] leading-[1.4]">#{tag}</span>
+                                {customTags.map((tag) => (
+                                    <li key={tag} data-state="in" className="stamp max-w-full px-3 py-1.5">
+                                        <span className="min-w-0 break-all text-[0.8125rem] leading-[1.4]">#{tag}</span>
                                         <button
                                             type="button"
                                             onClick={() => removeTag(tag)}
                                             aria-label={`Remove #${tag}`}
-                                            className="stamp-state t-label text-[0.625rem] opacity-70 transition-opacity hover:opacity-100"
+                                            className="stamp-state t-label shrink-0"
                                         >
                                             Remove
                                         </button>
@@ -387,22 +382,18 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                         )}
                     </section>
 
-                    <section className="mt-8 border-t border-rule pt-5">
-                        <div className="flex items-baseline gap-3">
-                            <span className="t-label text-rule-strong">§2</span>
-                            <h2 className="t-label t-label--ink">Order</h2>
-                        </div>
+                    <fieldset className="mt-8">
+                        <legend className="t-label t-label--ink">Sort Echos</legend>
                         <div className="mt-4 flex border border-rule">
                             {[
-                                { value: 'newestFirst', label: 'Newest' },
+                                { value: 'newestFirst', label: 'Newest first' },
                                 { value: 'mostLiked', label: 'Most liked' },
                             ].map((option, index) => (
                                 <label
                                     key={option.value}
                                     data-held={order === option.value || undefined}
-                                    className={`stop t-label h-11 flex-1 whitespace-nowrap px-4 ${
-                                        index > 0 ? 'border-l border-rule' : ''
-                                    }`}
+                                    className={`stop t-label h-11 flex-1 whitespace-nowrap px-4 ${index > 0 ? 'border-l border-rule' : ''
+                                        }`}
                                 >
                                     <input
                                         type="radio"
@@ -415,9 +406,10 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                                 </label>
                             ))}
                         </div>
-                    </section>
+                        {order === 'mostLiked' && <p className="mt-2 text-[0.8125rem] text-ink-quiet">Most liked across all time.</p>}
+                    </fieldset>
 
-                    <section className="mt-8 border-t border-rule pt-5">
+                    <section className="mt-8">
                         <label htmlFor="first-feed-name" className="t-label t-label--ink block">
                             Name this Feed
                         </label>
@@ -431,53 +423,49 @@ const FirstFeed = ({ onCommit, isCommitting, onBack }) => {
                             }}
                             className="field mt-2"
                             maxLength={50}
+                            required
                         />
                     </section>
 
-                    <section className="mt-8 border-t border-ink pt-5">
-                        <h2 className="t-label t-label--ink">The rule</h2>
-                        <p aria-live="polite" className="t-title mt-3">
-                            {ruleSentence}
-                        </p>
-                    </section>
+                    <p className="mt-5 text-[0.8125rem] leading-relaxed text-ink-quiet">
+                        This Feed will be public. You can edit it later.
+                    </p>
 
                     <div className="mt-8 flex flex-wrap items-center gap-3">
                         <button type="submit" disabled={!canCommit} className="act h-12 px-8">
-                            {isCommitting ? 'Creating' : 'Create this Feed'}
+                            {isCommitting ? 'Creating Feed…' : 'Create Feed'}
                         </button>
                         <button type="button" onClick={onBack} className="act act-quiet h-12 px-5">
                             Back
                         </button>
                     </div>
-                    {included.length === 0 && (
-                        <p className="mt-4 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                            Add at least one tag to create your Feed.
-                        </p>
-                    )}
                 </div>
 
                 {/* The sheet the rule produces. */}
-                <div className="lg:border-l lg:border-rule lg:pl-16">
+                <div className="min-w-0 lg:border-l lg:border-rule lg:pl-16" aria-live="polite" aria-busy={previewState === 'loading'}>
                     <div className="flex items-baseline justify-between gap-6 border-b border-rule pb-3">
                         <p className="t-label t-label--ink">Preview</p>
                         {previewState === 'ready' && ordered.length > 0 && (
-                            <p className="t-readout text-ink-quiet">{ordered.length} Echos</p>
+                            <p className="t-readout text-ink-quiet">{ordered.length} {ordered.length === 1 ? 'Echo' : 'Echos'}</p>
                         )}
                     </div>
 
                     {previewState === 'idle' ? (
                         <p className="t-body max-w-[42ch] py-14 text-ink-quiet">
-                            Add a tag and this page fills with real Echos, the same ones your Feed will hold,
-                            ordered the way your rule says.
+                            Choose a tag to preview matching Echos.
                         </p>
                     ) : previewState === 'loading' ? (
-                        <Placeholder rows={4} />
+                        <><span className="sr-only">Loading matching Echos.</span><Placeholder rows={4} /></>
+                    ) : previewState === 'error' ? (
+                        <div className="py-10">
+                            <p className="t-body text-ink-soft">Couldn’t load the preview. You can still create your Feed.</p>
+                            <button type="button" onClick={() => setPreviewAttempt((attempt) => attempt + 1)} className="act act-quiet mt-4 h-11 px-4">Retry preview</button>
+                        </div>
                     ) : ordered.length === 0 ? (
                         <div className="py-14">
-                            <p className="t-title max-w-[22em]">No Echos match this rule yet.</p>
+                            <p className="t-title max-w-[22em]">No matching Echos yet.</p>
                             <p className="t-body mt-4 max-w-[46ch] text-ink-soft">
-                                Your Feed is still created. Echos appear here the moment someone writes one
-                                tagged {included.map((t) => `#${t}`).join(' or ')}.
+                                You can still create this Feed. It will collect Echos as people use your tags.
                             </p>
                         </div>
                     ) : (

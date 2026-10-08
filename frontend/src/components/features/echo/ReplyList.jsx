@@ -18,14 +18,15 @@ const ReplyList = ({ replies, onDeleteReply }) => {
         <ul>
             {replies.map((reply) => (
                 <li key={reply._id} className="border-b border-rule py-5 last:border-b-0">
-                    <div className="flex items-baseline gap-3">
-                        <UserLink user={reply.user} />
-                        <Timestamp date={reply.createdAt} className="t-readout text-rule-strong" />
+                    <div className="flex min-w-0 items-baseline gap-3">
+                        <UserLink user={reply.user} className="min-w-0 truncate text-sm font-medium text-ink" />
+                        <Timestamp date={reply.createdAt} className="t-readout shrink-0 text-ink-quiet" />
                         {authUser?._id === reply.user?._id && onDeleteReply && (
                             <button
                                 type="button"
                                 onClick={() => onDeleteReply(reply._id)}
-                                className="t-label ml-auto shrink-0 py-1 text-[0.625rem] transition-colors hover:text-alarm"
+                                aria-label="Delete reply"
+                                className="t-label ml-auto min-h-11 shrink-0 transition-colors hover:text-alarm"
                             >
                                 Delete
                             </button>

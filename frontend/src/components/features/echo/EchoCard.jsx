@@ -27,7 +27,7 @@ const EchoCard = memo(({ echo }) => {
     }, [echo._id, toggleLike]);
 
     const handleDelete = useCallback(async () => {
-        if (!window.confirm('Delete this echo? This cannot be undone.')) return;
+        if (!window.confirm('Delete this Echo? This cannot be undone.')) return;
         try {
             await deleteEcho(echo._id);
             setShowMenu(false);
@@ -62,7 +62,6 @@ const EchoCard = memo(({ echo }) => {
             {showMenu && (
                 <EchoMenu
                     setShowMenu={setShowMenu}
-                    setShowAddToScroll={setShowAddToScroll}
                     handleDelete={handleDelete}
                     handleCopyLink={handleCopyLink}
                     isOwnEcho={isOwnEcho}

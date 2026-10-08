@@ -63,17 +63,14 @@ const HomePage = () => {
         return (
             <Layout>
                 <Measure>
-                    <SheetHead label="Feed" subject="Nothing is filling this page yet." />
+                    <SheetHead subject="Your Feed" />
                     <Notice
-                        statement="A Scroll decides what you read."
-                        note="Write a rule — tags to admit, authors to allow, an order to read them in — and this page becomes its output. Or follow a Scroll somebody else has already written."
+                        statement="Choose what you want to read."
+                        note="Create a Feed around tags and people you like, or follow one from the community."
                         actions={
                             <>
                                 <Link to="/welcome" className="act h-11 px-6">
                                     Set up your first Feed
-                                </Link>
-                                <Link to="/scroll/new" className="act act-outline h-11 px-6">
-                                    Write a rule yourself
                                 </Link>
                                 <Link to="/browse-community" className="act act-quiet h-11 px-6">
                                     Browse the community
@@ -90,12 +87,11 @@ const HomePage = () => {
         <Layout>
             <Measure>
                 <SheetHead
-                    // label={selectedScroll ? 'Feed' : 'Everything'}
-                    subject={selectedScroll ? selectedScroll.name : 'Every echo'}
+                    subject={selectedScroll ? selectedScroll.name : 'All Echos'}
                     deck={
                         selectedScroll
                             ? selectedScroll.description || undefined
-                            : 'Everything written here, newest first.'
+                                : 'Newest first.'
                     }
                 />
 
@@ -103,10 +99,10 @@ const HomePage = () => {
                     <Placeholder rows={5} />
                 ) : entries.length === 0 ? (
                     <Notice
-                        statement={selectedScroll ? 'This rule admits nothing yet.' : 'No echoes yet.'}
+                        statement={selectedScroll ? 'No matching Echos yet.' : 'No Echos yet.'}
                         note={
                             selectedScroll
-                                ? 'Entries matching its terms will appear here as they are written. You can loosen the rule at any time.'
+                                ? 'New Echos appear here when they match this Feed. View its settings to see what it includes.'
                                 : 'Be the first to write something.'
                         }
                         actions={
@@ -114,7 +110,7 @@ const HomePage = () => {
                                 to={selectedScroll ? `/scroll/${selectedScroll._id}` : '/new'}
                                 className="act act-outline h-11 px-6"
                             >
-                                {selectedScroll ? 'Open the rule' : 'Write an echo'}
+                                {selectedScroll ? 'View Feed' : 'Post an Echo'}
                             </Link>
                         }
                     />
@@ -126,7 +122,7 @@ const HomePage = () => {
 
                         <div ref={sentinelRef}>{isLoading && pagination.hasMore && <Placeholder rows={2} />}</div>
 
-                        {!pagination.hasMore && <Coda />}
+                        {!pagination.hasMore && <Coda label="You’re all caught up" />}
                     </div>
                 )}
             </Measure>
