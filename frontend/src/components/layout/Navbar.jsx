@@ -1,42 +1,10 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import HorizontalDrum from '../features/scroll/HorizontalDrum.jsx';
 import { useScrollStore } from '../../store/useScrollStore';
 
-/**
- * The running head. It sits above every sheet in the document and carries three
- * things: whose document this is, which sheet you are on, and the one control
- * that reaches any sheet at all.
- *
- * The address is derived here rather than passed in, because twenty screens
- * passing their own §-number is twenty chances for the index column and the
- * running head to disagree about where you are.
- */
-
-const ADDRESS = [
-    ['/settings', '§05', 'Settings'],
-    ['/profile', '§05', 'Account'],
-    ['/user/', '§05', 'Account'],
-    ['/search', '§04', 'Search'],
-    ['/browse', '§03', 'Community'],
-    ['/community', '§03', 'Community'],
-    ['/tag/', '§03', 'Tags'],
-    ['/scrolls', '§02', 'Scrolls'],
-    ['/scroll/new', '§02', 'New scroll'],
-    ['/scroll/', '§02', 'Scrolls'],
-    ['/new', '§01', 'New echo'],
-    ['/echo/', '§01', 'Echo'],
-];
-
-export const addressFor = (pathname) => {
-    const match = ADDRESS.find(([prefix]) => pathname.startsWith(prefix));
-    return match ? { reference: match[1], name: match[2] } : { reference: '§01', name: 'Feed' };
-};
-
+/** Shared header: mobile menu, home link, Feed selector, and Search. */
 const Navbar = ({ onToggleSidebar }) => {
-    const { pathname } = useLocation();
-    const { reference, name } = addressFor(pathname);
-
     const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } =
         useScrollStore();
 
@@ -85,7 +53,7 @@ const Navbar = ({ onToggleSidebar }) => {
                         onClick={onToggleSidebar}
                         className="t-label -ml-2 flex h-11 items-center px-2 text-ink underline decoration-rule-strong underline-offset-4 transition-colors hover:decoration-ink lg:hidden"
                     >
-                        Index
+                        Menu
                     </button>
 
                     <Link

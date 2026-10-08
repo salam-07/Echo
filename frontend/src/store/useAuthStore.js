@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
+import { useScrollStore } from './useScrollStore';
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
@@ -59,6 +60,7 @@ export const useAuthStore = create((set) => ({
     logout: async () => {
         try {
             await axiosInstance.post("/auth/logout");
+            useScrollStore.getState().clearFeedCache();
             set({ authUser: null });
             toast.success("Logged out succesfully");
         } catch (error) {

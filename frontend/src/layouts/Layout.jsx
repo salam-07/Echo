@@ -50,7 +50,7 @@ const Layout = ({ children }) => {
             {indexOpen && (
                 <div className="fixed inset-0 z-40 flex flex-col bg-paper lg:hidden">
                     <div className="flex h-14 items-center justify-between border-b border-rule px-4">
-                        <p className="t-label t-label--ink">Contents</p>
+                        <p className="t-label t-label--ink">Navigation</p>
                         <button
                             type="button"
                             onClick={() => setIndexOpen(false)}

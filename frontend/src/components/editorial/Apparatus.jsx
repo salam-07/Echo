@@ -30,8 +30,15 @@ export const Measure = ({ wide = false, className = '', children }) => (
  * is the one Playfair line on the screen; the deck explains it when it needs
  * explaining. Ruled below, never above — the running head's own hairline is
  * already sitting there.
+ *
+ * `masthead` is for the one head that is a nameplate rather than an address: the
+ * feed, whose subject is the rule the reader is holding. There is no address row
+ * above it to hang from and nothing to its right to balance, so the subject is
+ * set at headline scale and centred over the column it governs, with its deck
+ * under it. Every other screen keeps the running head's left edge — a heading
+ * that sits at the top of a form wants to line up with the form.
  */
-export const SheetHead = ({ label, subject, readout, deck, actions, children }) => (
+export const SheetHead = ({ label, subject, readout, deck, actions, children, masthead = false }) => (
     <header className="pt-8 pb-6">
         {(label || readout) && (
             <div className="flex items-baseline justify-between gap-6 border-b border-rule pb-3">
@@ -41,13 +48,27 @@ export const SheetHead = ({ label, subject, readout, deck, actions, children }) 
         )}
 
         {subject ? (
-            <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-4">
-                <h1 className="t-subject">{subject}</h1>
+            <div
+                className={
+                    masthead
+                        ? 'mt-6'
+                        : 'mt-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-4'
+                }
+            >
+                <h1 className={masthead ? 't-headline text-center' : 't-subject'}>{subject}</h1>
                 {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
             </div>
         ) : null}
 
-        {deck ? <p className="t-body mt-3 max-w-[52ch] text-ink-soft">{deck}</p> : null}
+        {deck ? (
+            <p
+                className={`t-body mt-3 max-w-[52ch] text-ink-soft ${
+                    masthead ? 'mx-auto text-center' : ''
+                }`}
+            >
+                {deck}
+            </p>
+        ) : null}
 
         {children}
     </header>

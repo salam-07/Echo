@@ -915,6 +915,29 @@ fieldset:disabled .stop[data-held='true'] {
   animation: set-in 320ms var(--ease-press) both;
 }
 
+/* The selected rule's sheet. Its own motion is GSAP's (see `impression` in
+   motion.js) rather than a CSS keyframe, because a Feed switch is a timeline
+   with two halves on two clocks — a choice and its contents — and a keyframe
+   re-run by `key` can only ever describe the first. What is CSS's own here is
+   the floor the timeline is drawn over: the sheet keeps the height of a reading
+   column and the head keeps the height of a title, so neither the page below
+   the fold nor the contents under the head move on the frame the type is
+   re-set. `overflow-anchor: none` keeps the browser from "helpfully" scrolling
+   to compensate for the one change that is deliberate. */
+.feed-sheet {
+  min-height: calc(100svh - 3.5rem);
+  overflow-anchor: none;
+}
+
+.feed-heading {
+  min-height: 12rem;
+  overflow-wrap: anywhere;
+}
+
+.feed-body {
+  min-height: 50svh;
+}
+
 /* STRIKE — a hairline drawn left to right, the same press verb the landing sheet
    uses. The element must have `origin-left`. */
 @keyframes strike {

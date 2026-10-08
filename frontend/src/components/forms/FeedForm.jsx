@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
-import { useScrollStore } from '../../store/useScrollStore';
 import { useNavigate } from 'react-router-dom';
+import { useScrollStore } from '../../store/useScrollStore';
 import { UserAutocomplete } from '../ui';
+import { Actions, Clause, Field, Identity, Stops } from './Sheet';
 
 /**
  * Writing a rule. This is the sheet the whole product is an argument for, so it is
- * laid out as a specification: numbered clauses, every one of them open.
+ * laid out as a specification a reader can check top to bottom: what the Scroll
+ * is, then one clause per term it sets, then the rule itself read back in the
+ * document's voice before it is committed.
  *
- * The accordions are gone. A rule you cannot see all of is a rule you cannot check,
- * and four collapsed panels meant the only way to know what your feed would do was
- * to open all four and hold them in your head. Instead, everything is on the sheet
- * and the last clause prints the rule back to you as a sentence — the reader's own
- * words, in the document's voice, before they commit it.
+ * The clauses run in the order a person thinks about a feed — what it takes in,
+ * whose writing, from when, and how it is presented — rather than in the order the
+ * request happens to send them. Order sits last because it is the one clause with
+ * a sensible default, and because it is the first phrase of the sentence printed
+ * below it, so the sheet reads continuously into its own summary.
  *
- * Every either/or is the same control: a rail of hard-edged stops with the held one
- * inverted. Tags are stamps — admitted stamps are inverted, refused stamps are
- * struck through — so include and exclude are told apart by shape, not by colour.
+ * The accordions are gone, and so are the clause numbers. A rule you cannot see
+ * all of is a rule you cannot check, and four collapsed panels meant the only way
+ * to know what your feed would do was to open all four and hold them in your head.
+ * Everything is on the sheet, unnumbered, at the length it actually needs.
+ *
+ * Every either/or is the same control: a rail of hard-edged stops with the held
+ * one inverted. Tags are stamps — admitted stamps are set solid, refused stamps
+ * are struck through — so include and exclude are told apart by shape, not colour.
  */
 
 const TIME_LABEL = {
@@ -25,52 +33,28 @@ const TIME_LABEL = {
     allTime: 'of all time',
 };
 
-/** A numbered clause of the specification. */
-const Clause = ({ reference, name, note, children }) => (
-    <section className="mt-10 border-t border-rule pt-5">
-        <div className="flex items-baseline gap-3">
-            <span className="t-label text-rule-strong">{reference}</span>
-            <h2 className="t-label t-label--ink">{name}</h2>
-        </div>
-        {note && <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">{note}</p>}
-        <div className="mt-5">{children}</div>
-    </section>
-);
+/** `a`, `a or b`, `a, b or c` — an English list, so the rule reads as a sentence. */
+const englishList = (items, conjunction = 'or') =>
+    items.length > 1
+        ? `${items.slice(0, -1).join(', ')} ${conjunction} ${items[items.length - 1]}`
+        : items[0];
 
-/** A rail of stops. One held, always; the held one is inverted and at weight 600. */
-const Rail = ({ legend, options, value, onChange, name }) => (
-    <fieldset>
-        {legend && <legend className="t-label mb-2">{legend}</legend>}
-        <div className="flex flex-wrap border border-rule">
-            {options.map((option, index) => (
-                <label
-                    key={option.value}
-                    data-held={value === option.value || undefined}
-                    className={`stop t-label h-11 flex-1 whitespace-nowrap px-4 ${
-                        index > 0 ? 'border-l border-rule' : ''
-                    }`}
-                >
-                    <input
-                        type="radio"
-                        name={name}
-                        className="sr-only"
-                        checked={value === option.value}
-                        onChange={() => onChange(option.value)}
-                    />
-                    {option.label}
-                </label>
-            ))}
-        </div>
-    </fieldset>
-);
-
-/** A tag entry line and the stamps it has produced. */
+/**
+ * A tag entry line and the stamps it has produced.
+ *
+ * A pasted `poetry, cities` used to arrive as one tag called `poetrycities`: the
+ * separators were stripped out instead of being split on. Pasting a line of tags
+ * is the ordinary way to fill this field, so the line is now split and each tag
+ * committed on its own.
+ */
 const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
     const [draft, setDraft] = useState('');
 
     const commit = (raw) => {
-        const clean = raw.replace(/^#/, '').replace(/[, ]+/g, '').trim().toLowerCase();
-        if (clean && !tags.includes(clean)) onAdd(clean);
+        raw.split(/[,\s]+/)
+            .map((tag) => tag.replace(/^#/, '').trim().toLowerCase())
+            .filter(Boolean)
+            .forEach(onAdd);
     };
 
     const handleKeyDown = (event) => {
@@ -85,39 +69,48 @@ const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
 
     return (
         <div>
-            <label htmlFor={id} className="t-label block">
-                {label}
-            </label>
-            <input
+            <Field
                 id={id}
-                type="text"
+                label={label}
                 value={draft}
-                onChange={(event) => {
-                    const value = event.target.value;
-                    if (value.includes(' ') || value.includes(',')) {
+                onChange={(value) => {
+                    if (/[,\s]/.test(value)) {
                         commit(value);
-                        setDraft('');
                         return;
                     }
                     setDraft(value);
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="field field-sm mt-1"
                 autoComplete="off"
             />
+
             {tags.length > 0 && (
                 <ul className="mt-3 flex flex-wrap gap-2">
                     {tags.map((tag) => (
-                        <li key={tag} data-state={state} className="stamp px-3 py-1.5">
-                            <span className="text-[0.8125rem] leading-[1.4]">#{tag}</span>
+                        <li key={tag} data-state={state} className="stamp max-w-full px-3 py-1.5">
+                            <span className="min-w-0 break-all text-[0.8125rem] leading-[1.4]">
+                                #{tag}
+                            </span>
+                            {/* One word for one action. The struck tag used to
+                                offer "Keep", which asks the reader to parse a
+                                double negative — keep it struck? keep it in the
+                                feed? — to undo something. Every stamp is taken
+                                out of its own list, so every stamp says Remove,
+                                and the name says which list. */}
                             <button
                                 type="button"
                                 onClick={() => onRemove(tag)}
-                                aria-label={`Remove #${tag}`}
-                                className="stamp-state t-label text-[0.625rem] opacity-70 transition-opacity hover:opacity-100"
+                                aria-label={`Remove #${tag} from the tags this Feed ${
+                                    state === 'out' ? 'refuses' : 'admits'
+                                }`}
+                                className={`stamp-state t-label text-[0.625rem] transition-colors ${
+                                    state === 'out'
+                                        ? 'text-ink-quiet hover:text-ink'
+                                        : 'text-chalk-quiet hover:text-chalk'
+                                }`}
                             >
-                                {state === 'out' ? 'Keep' : 'Remove'}
+                                Remove
                             </button>
                         </li>
                     ))}
@@ -127,7 +120,7 @@ const TagField = ({ id, label, placeholder, tags, onAdd, onRemove, state }) => {
     );
 };
 
-const FeedForm = () => {
+const FeedForm = ({ autoFocus = false }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPrivate, setIsPrivate] = useState(false);
@@ -149,9 +142,16 @@ const FeedForm = () => {
     const { createScroll, isCreatingScroll } = useScrollStore();
     const navigate = useNavigate();
 
+    /* Adding and removing are written against the list as it will be rather than
+       as it was, because a pasted line of tags commits several tags in one pass
+       and each of them would otherwise be appended to the same stale array. */
+    const tagAdder = (setter) => (tag) =>
+        setter((tags) => (tags.includes(tag) ? tags : [...tags, tag]));
+    const tagRemover = (setter) => (tag) => setter((tags) => tags.filter((item) => item !== tag));
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!name.trim()) return;
+        if (!name.trim() || isCreatingScroll) return;
 
         const feedConfig = {
             tagMatchType: includedTags.length > 0 ? tagMatchType : 'any',
@@ -184,10 +184,10 @@ const FeedForm = () => {
         }
     };
 
-    const canSubmit = name.trim().length > 0 && !isCreatingScroll;
-
     /* The rule, read back. Assembled from the same state the request is built
-       from, so what is printed here cannot drift from what is saved. */
+       from, so what is printed here cannot drift from what is saved — and its
+       verbs are the sheet's own verbs, so the sentence cannot describe a setting
+       the reader never made. */
     const clauses = [
         sortBy === 'newestFirst'
             ? 'Newest first'
@@ -197,81 +197,54 @@ const FeedForm = () => {
     ];
 
     if (includedTags.length > 0) {
-        clauses.push(
-            `tagged ${includedTags.map((tag) => `#${tag}`).join(tagMatchType === 'all' ? ' and ' : ' or ')}`,
-        );
+        const tags = includedTags.map((tag) => `#${tag}`);
+        clauses.push(`admitting ${englishList(tags, tagMatchType === 'all' ? 'and' : 'or')}`);
     }
     if (excludedTags.length > 0) {
-        clauses.push(`never ${excludedTags.map((tag) => `#${tag}`).join(' or ')}`);
+        clauses.push(`refusing ${englishList(excludedTags.map((tag) => `#${tag}`))}`);
     }
-    if (selectedAuthors.length > 0) {
-        clauses.push(`by ${selectedAuthors.map((author) => `@${author.userName}`).join(', ')}`);
-    } else {
-        clauses.push('from anyone');
-    }
+    clauses.push(
+        selectedAuthors.length > 0
+            ? `by ${englishList(selectedAuthors.map((author) => `@${author.userName}`))}`
+            : 'from anyone',
+    );
     if (useDateRange && (startDate || endDate)) {
         if (startDate && endDate) clauses.push(`written between ${startDate} and ${endDate}`);
-        else if (startDate) clauses.push(`written after ${startDate}`);
-        else clauses.push(`written before ${endDate}`);
+        else if (startDate) clauses.push(`written since ${startDate}`);
+        else clauses.push(`written up to ${endDate}`);
     }
-    if (excludeLikedEchos) clauses.push('nothing you have already liked');
+    if (excludeLikedEchos) clauses.push('skipping anything you have already liked');
 
     return (
         <form onSubmit={handleSubmit}>
-            <Clause reference="§1" name="Name">
-                <div>
-                    <label htmlFor="feed-name" className="sr-only">
-                        Feed name
-                    </label>
-                    <input
-                        id="feed-name"
-                        type="text"
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                        placeholder="Name this rule"
-                        className="field"
-                        maxLength={50}
-                        autoFocus
-                    />
-                    <p className="t-readout mt-2 text-right text-rule-strong">{name.length}/50</p>
-                </div>
+            <Identity
+                kind="Feed"
+                autoFocus={autoFocus}
+                name={name}
+                onName={setName}
+                namePlaceholder="Name this rule"
+                description={description}
+                onDescription={setDescription}
+                descriptionPlaceholder="What this feed is for"
+                isPrivate={isPrivate}
+                onVisibility={setIsPrivate}
+            />
 
-                <div className="mt-6">
-                    <label htmlFor="feed-description" className="t-label block">
-                        Description <span className="font-normal normal-case tracking-normal">— optional</span>
-                    </label>
-                    <textarea
-                        id="feed-description"
-                        value={description}
-                        onChange={(event) => setDescription(event.target.value)}
-                        placeholder="What this feed is for"
-                        className="field field-sm mt-1 resize-none"
-                        rows={2}
-                        maxLength={200}
-                    />
-                    <p className="t-readout mt-2 text-right text-rule-strong">{description.length}/200</p>
-                </div>
-            </Clause>
-
-            <Clause
-                reference="§2"
-                name="Tags"
-                note="Type a tag and press space. Admitted tags are set solid; refused tags are struck."
-            >
+            <Clause name="Tags" note="Type a tag and press space.">
                 <TagField
                     id="feed-include-tags"
                     label="Admit"
                     placeholder="poetry, notation, cities"
                     tags={includedTags}
                     state="in"
-                    onAdd={(tag) => setIncludedTags([...includedTags, tag])}
-                    onRemove={(tag) => setIncludedTags(includedTags.filter((t) => t !== tag))}
+                    onAdd={tagAdder(setIncludedTags)}
+                    onRemove={tagRemover(setIncludedTags)}
                 />
 
                 {includedTags.length > 1 && (
                     <div className="mt-6">
-                        <Rail
-                            legend="An entry must carry"
+                        <Stops
+                            legend="An Echo must carry"
                             name="tagMatchType"
                             value={tagMatchType}
                             onChange={setTagMatchType}
@@ -290,29 +263,31 @@ const FeedForm = () => {
                         placeholder="tags to keep out"
                         tags={excludedTags}
                         state="out"
-                        onAdd={(tag) => setExcludedTags([...excludedTags, tag])}
-                        onRemove={(tag) => setExcludedTags(excludedTags.filter((t) => t !== tag))}
+                        onAdd={tagAdder(setExcludedTags)}
+                        onRemove={tagRemover(setExcludedTags)}
                     />
                 </div>
             </Clause>
 
-            <Clause reference="§3" name="Authors" note="Leave this empty to admit everyone.">
+            <Clause name="Authors" note="Empty admits everyone.">
                 <UserAutocomplete
                     label="Admit only"
                     selectedUsers={selectedAuthors}
-                    onUserAdd={(user) => setSelectedAuthors([...selectedAuthors, user])}
+                    onUserAdd={(user) => setSelectedAuthors((authors) => [...authors, user])}
                     onUserRemove={(userId) =>
-                        setSelectedAuthors(selectedAuthors.filter((author) => author._id !== userId))
+                        setSelectedAuthors((authors) =>
+                            authors.filter((author) => author._id !== userId),
+                        )
                     }
                     placeholder="Search by username"
                 />
             </Clause>
 
-            <Clause reference="§4" name="Window">
-                <Rail
+            <Clause name="Dates">
+                <Stops
                     name="window"
                     value={useDateRange ? 'between' : 'any'}
-                    onChange={(value) => setUseDateRange(value === 'between')}
+                    onChange={(held) => setUseDateRange(held === 'between')}
                     options={[
                         { value: 'any', label: 'Any time' },
                         { value: 'between', label: 'Between dates' },
@@ -320,37 +295,39 @@ const FeedForm = () => {
                 />
 
                 {useDateRange && (
-                    <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                        <div>
-                            <label htmlFor="feed-start" className="t-label block">
-                                From
-                            </label>
-                            <input
-                                id="feed-start"
-                                type="date"
-                                value={startDate}
-                                onChange={(event) => setStartDate(event.target.value)}
-                                className="field field-sm mt-1"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="feed-end" className="t-label block">
-                                To
-                            </label>
-                            <input
-                                id="feed-end"
-                                type="date"
-                                value={endDate}
-                                onChange={(event) => setEndDate(event.target.value)}
-                                className="field field-sm mt-1"
-                            />
-                        </div>
+                    <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                        <Field
+                            id="feed-start"
+                            label="From"
+                            type="date"
+                            value={startDate}
+                            onChange={setStartDate}
+                        />
+                        <Field
+                            id="feed-end"
+                            label="To"
+                            type="date"
+                            value={endDate}
+                            onChange={setEndDate}
+                        />
                     </div>
                 )}
             </Clause>
 
-            <Clause reference="§5" name="Order">
-                <Rail
+            <Clause name="Echoes you have liked">
+                <Stops
+                    name="excludeLiked"
+                    value={excludeLikedEchos ? 'hide' : 'show'}
+                    onChange={(held) => setExcludeLikedEchos(held === 'hide')}
+                    options={[
+                        { value: 'show', label: 'Show them' },
+                        { value: 'hide', label: 'Hide them' },
+                    ]}
+                />
+            </Clause>
+
+            <Clause name="Order">
+                <Stops
                     name="sortBy"
                     value={sortBy}
                     onChange={setSortBy}
@@ -362,8 +339,8 @@ const FeedForm = () => {
                 />
 
                 {sortBy === 'mostLiked' && (
-                    <div className="mt-5">
-                        <Rail
+                    <div className="mt-6">
+                        <Stops
                             legend="Measured over"
                             name="sortTimeRange"
                             value={sortTimeRange}
@@ -379,47 +356,20 @@ const FeedForm = () => {
                 )}
             </Clause>
 
-            <Clause reference="§6" name="Terms">
-                <Rail
-                    legend="Echoes you have already liked"
-                    name="excludeLiked"
-                    value={excludeLikedEchos ? 'hide' : 'show'}
-                    onChange={(value) => setExcludeLikedEchos(value === 'hide')}
-                    options={[
-                        { value: 'show', label: 'Show them' },
-                        { value: 'hide', label: 'Hide them' },
-                    ]}
-                />
-
-                <div className="mt-6">
-                    <Rail
-                        legend="Visibility"
-                        name="visibility"
-                        value={isPrivate ? 'private' : 'public'}
-                        onChange={(value) => setIsPrivate(value === 'private')}
-                        options={[
-                            { value: 'public', label: 'Public' },
-                            { value: 'private', label: 'Private' },
-                        ]}
-                    />
-                    <p className="mt-3 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                        {isPrivate
-                            ? 'Only you can open this Feed.'
-                            : 'Anyone can find this Feed and follow it.'}
-                    </p>
-                </div>
-            </Clause>
-
-            <section className="mt-12 border-t border-ink pt-6">
+            <section className="mt-14 border-t border-ink pt-6">
                 <h2 className="t-label t-label--ink">The rule</h2>
-                <p aria-live="polite" className="t-title mt-4">
+                <p aria-live="polite" className="t-title mt-4 break-words">
                     {clauses.join(', ')}.
                 </p>
             </section>
 
-            <button type="submit" disabled={!canSubmit} className="act mt-10 h-12 w-full px-8">
-                {isCreatingScroll ? 'Committing' : 'Commit this rule'}
-            </button>
+            <Actions
+                label="Create Feed"
+                busyLabel="Creating…"
+                canSubmit={name.trim().length > 0}
+                isBusy={isCreatingScroll}
+                onCancel={() => navigate(-1)}
+            />
         </form>
     );
 };

@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
-import { useScrollStore } from '../../store/useScrollStore';
 import { useNavigate } from 'react-router-dom';
+import { useScrollStore } from '../../store/useScrollStore';
+import { Actions, Identity } from './Sheet';
 
 /**
  * Naming a Curation — a Scroll you fill by hand.
  *
- * Visibility is a two-stop rail rather than a switch: a switch is a shape this
- * world does not have, and the rail already exists for every other either/or in
- * the rule builder. The sentence under it says what the held stop means, so the
- * setting is never only a position.
+ * A Curation is a shelf, so there is nothing here to specify: what it is called,
+ * what it is for, and who may open it. Every other question a Scroll sheet could
+ * ask belongs to a Feed, and asking it here would make the two Scrolls look like
+ * one thing with two modes rather than the two different things they are.
+ *
+ * Which is also why the paragraph that used to sit under the button — explaining
+ * how to file Echoes into the Curation you had just made — is gone. It told the
+ * reader what to do next on the one part of the sheet they had already finished
+ * with, and the sentence at the top of this page already says a shelf holds
+ * nothing you have not saved yourself.
  */
-const CurationForm = () => {
+const CurationForm = ({ autoFocus = false }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPrivate, setIsPrivate] = useState(false);
@@ -19,7 +26,7 @@ const CurationForm = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!name.trim()) return;
+        if (!name.trim() || isCreatingScroll) return;
 
         try {
             await createScroll({
@@ -34,81 +41,28 @@ const CurationForm = () => {
         }
     };
 
-    const canSubmit = name.trim().length > 0 && !isCreatingScroll;
-
     return (
         <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="curation-name" className="t-label t-label--ink block">
-                    Name
-                </label>
-                <input
-                    id="curation-name"
-                    type="text"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="What are you collecting?"
-                    className="field mt-1"
-                    maxLength={50}
-                    autoFocus
-                />
-                <p className="t-readout mt-2 text-right text-rule-strong">{name.length}/50</p>
-            </div>
+            <Identity
+                kind="Curation"
+                autoFocus={autoFocus}
+                name={name}
+                onName={setName}
+                namePlaceholder="What are you collecting?"
+                description={description}
+                onDescription={setDescription}
+                descriptionPlaceholder="What belongs in it, and what does not"
+                isPrivate={isPrivate}
+                onVisibility={setIsPrivate}
+            />
 
-            <div className="mt-8">
-                <label htmlFor="curation-description" className="t-label t-label--ink block">
-                    Description <span className="font-normal normal-case tracking-normal">— optional</span>
-                </label>
-                <textarea
-                    id="curation-description"
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder="What belongs in it, and what does not"
-                    className="field field-sm mt-1 resize-none"
-                    rows={2}
-                    maxLength={200}
-                />
-                <p className="t-readout mt-2 text-right text-rule-strong">{description.length}/200</p>
-            </div>
-
-            <fieldset className="mt-10">
-                <legend className="t-label t-label--ink">Visibility</legend>
-                <div className="mt-2 flex border border-rule">
-                    {[
-                        { value: false, label: 'Public' },
-                        { value: true, label: 'Private' },
-                    ].map((option, index) => (
-                        <label
-                            key={option.label}
-                            data-held={isPrivate === option.value || undefined}
-                            className={`stop t-label h-11 flex-1 ${index > 0 ? 'border-l border-rule' : ''}`}
-                        >
-                            <input
-                                type="radio"
-                                name="visibility"
-                                className="sr-only"
-                                checked={isPrivate === option.value}
-                                onChange={() => setIsPrivate(option.value)}
-                            />
-                            {option.label}
-                        </label>
-                    ))}
-                </div>
-                <p className="mt-3 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                    {isPrivate
-                        ? 'Only you can open this Curation.'
-                        : 'Anyone can find this Curation and follow it.'}
-                </p>
-            </fieldset>
-
-            <button type="submit" disabled={!canSubmit} className="act mt-10 h-12 w-full px-8">
-                {isCreatingScroll ? 'Creating' : 'Create Curation'}
-            </button>
-
-            <p className="mt-4 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                Once it exists, file echoes into it from the <span className="t-label">Save</span> control on
-                any entry.
-            </p>
+            <Actions
+                label="Create Curation"
+                busyLabel="Creating…"
+                canSubmit={name.trim().length > 0}
+                isBusy={isCreatingScroll}
+                onCancel={() => navigate(-1)}
+            />
         </form>
     );
 };

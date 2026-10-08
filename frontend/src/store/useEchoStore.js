@@ -89,6 +89,8 @@ export const useEchoStore = create((set, get) => ({
         set({ isPostingEcho: true });
         try {
             const res = await axiosInstance.post("/echo/post", data);
+            const { useScrollStore } = await import('./useScrollStore.js');
+            useScrollStore.getState().invalidateFeedCache();
 
             // Add new echo to the beginning of the echos array
             const { echos } = get();
@@ -117,6 +119,7 @@ export const useEchoStore = create((set, get) => ({
 
             // Also remove from scrollEchos if viewing a scroll
             const { useScrollStore } = await import('./useScrollStore.js');
+            useScrollStore.getState().invalidateFeedCache();
             const { scrollEchos } = useScrollStore.getState();
             useScrollStore.setState({
                 scrollEchos: scrollEchos.filter(echo => echo._id !== echoId)

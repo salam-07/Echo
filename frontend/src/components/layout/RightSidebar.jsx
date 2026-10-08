@@ -14,7 +14,7 @@ import { useScrollStore } from '../../store/useScrollStore';
  * is reachable from the index.
  */
 const RightSidebar = () => {
-    const { scrolls, getScrolls } = useScrollStore();
+    const { scrolls, getScrolls, isLoadingScrolls } = useScrollStore();
 
     useEffect(() => {
         getScrolls();
@@ -26,58 +26,45 @@ const RightSidebar = () => {
     );
 
     return (
-        <aside className="hidden w-[15.5rem] shrink-0 px-5 py-6 lg:block">
-            <p className="t-label flex items-baseline justify-between gap-3 border-b border-rule pb-2">
-                <span>Curations</span>
-                <Link to="/scrolls/curations" className="link-rule transition-colors hover:text-ink">
-                    All
+        <aside aria-labelledby="sidebar-curations" className="hidden w-[15.5rem] shrink-0 px-5 py-5 lg:block">
+            <div className="flex items-center justify-between gap-3">
+                <h2 id="sidebar-curations" className="t-label t-label--ink">Curations</h2>
+                {curations.length > 0 && <Link to="/scrolls/curations" aria-label="View all Curations" className="t-label link-rule flex min-h-11 items-center transition-colors hover:text-ink">
+                    View all
                 </Link>
-            </p>
+                }
+            </div>
 
             {curations.length > 0 ? (
                 <ul className="mt-1">
                     {curations.map((scroll) => (
-                        <li key={scroll._id} className="border-b border-rule/60">
+                        <li key={scroll._id}>
                             <Link
                                 to={`/scroll/${scroll._id}`}
-                                className="group flex items-baseline justify-between gap-3 py-2.5"
+                                className="group flex min-h-11 items-baseline justify-between gap-3 py-3"
                             >
-                                <span className="truncate text-[0.875rem] leading-[1.45] text-ink-soft transition-colors group-hover:text-ink">
+                                <span className="min-w-0 break-words text-[0.875rem] leading-[1.45] text-ink-soft transition-colors group-hover:text-ink">
                                     {scroll.name}
                                 </span>
-                                <span className="t-readout shrink-0 text-rule-strong">
-                                    {scroll.echos?.length ?? 0}
+                                {Array.isArray(scroll.echos) && <span className="t-readout shrink-0 text-ink-quiet">
+                                    {scroll.echos.length} {scroll.echos.length === 1 ? 'Echo' : 'Echos'}
                                 </span>
+                                }
                             </Link>
                         </li>
                     ))}
                 </ul>
+            ) : isLoadingScrolls ? (
+                <p role="status" className="mt-3 text-sm text-ink-quiet">Loading Curations…</p>
             ) : (
                 <p className="mt-3 text-[0.8125rem] leading-[1.5] text-ink-quiet">
-                    Nothing collected by hand yet.{' '}
-                    <Link to="/scroll/new" className="link-rule text-ink">
-                        Start a curation
+                    Collect Echos you want to keep.
+                    <Link to="/scroll/new?type=curation" className="link-rule mt-2 flex min-h-11 items-center text-ink">
+                        Create a Curation
                     </Link>
-                    .
                 </p>
             )}
 
-            <p className="t-label mt-9 border-b border-rule pb-2">Elsewhere</p>
-            <ul className="mt-1">
-                {[
-                    { to: '/browse/tags', label: 'Tags' },
-                    { to: '/browse-community', label: 'Community' },
-                ].map((item) => (
-                    <li key={item.to} className="border-b border-rule/60">
-                        <Link
-                            to={item.to}
-                            className="block py-2.5 text-[0.875rem] leading-[1.45] text-ink-soft transition-colors hover:text-ink"
-                        >
-                            {item.label}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
         </aside>
     );
 };
