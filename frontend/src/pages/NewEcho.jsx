@@ -10,13 +10,18 @@ const MAX_TAGS = 10;
 const NewEcho = () => {
     const navigate = useNavigate();
     const [params] = useSearchParams();
-    const { postEcho, isPostingEcho } = useEchoStore();
+    const { postEcho, isPostingEcho, suggestTags, isSuggestingEcho } = useEchoStore();
     const textareaRef = useRef(null);
 
     const [content, setContent] = useState('');
     const [draft, setDraft] = useState('');
     const [tags, setTags] = useState(() => [...new Set((params.get('tag') ?? '').split(/[,\s]+/)
         .map((tag) => tag.replace(/^#/, '').toLowerCase()).filter(Boolean))].slice(0, MAX_TAGS));
+
+    // Suggestions are offered only when asked for, so nothing is fetched until the
+    // button is pressed. `suggestState` is idle until then.
+    const [suggestions, setSuggestions] = useState([]);
+    const [suggestState, setSuggestState] = useState('idle');
 
     useEffect(() => {
         textareaRef.current?.focus();
@@ -46,6 +51,23 @@ const NewEcho = () => {
             setTags(tags.slice(0, -1));
         }
     };
+
+    // Ask the corpus which of its own tags this draft belongs under. The draft and
+    // the tags already chosen both go along so the answer never repeats what the
+    // author has already said.
+    const handleSuggest = async () => {
+        if (!content.trim() || isSuggestingEcho) return;
+        try {
+            const found = await suggestTags(content.trim(), tags);
+            setSuggestions(found);
+            setSuggestState(found.length > 0 ? 'ready' : 'empty');
+        } catch {
+            setSuggestions([]);
+            setSuggestState('error');
+        }
+    };
+
+    const openSuggestions = suggestions.filter((item) => !tags.includes(item.name));
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -136,6 +158,69 @@ const NewEcho = () => {
                                     </li>
                                 ))}
                             </ul>
+                        )}
+                    </div>
+
+                    <div className="mt-8 border-t border-rule pt-5">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-3">
+                            <div>
+                                <h2 id="echo-suggest-label" className="t-label t-label--ink">Suggested tags</h2>
+                                <p className="mt-2 text-[0.8125rem] leading-[1.5] text-ink-quiet">
+                                    Ask the corpus which tags this Echo belongs under. Each answer says
+                                    how many Echos carry it and how many Feeds it reaches.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleSuggest}
+                                disabled={!content.trim() || isSuggestingEcho || tags.length >= MAX_TAGS}
+                                aria-describedby="echo-suggest-label"
+                                className="act act-quiet h-11 shrink-0 px-4"
+                            >
+                                {isSuggestingEcho ? 'Reading…' : 'Suggest tags'}
+                            </button>
+                        </div>
+
+                        {suggestState === 'ready' && openSuggestions.length > 0 && (
+                            <ul className="mt-4 flex flex-wrap gap-2">
+                                {openSuggestions.map((item) => (
+                                    <li key={item.name}>
+                                        <button
+                                            type="button"
+                                            onClick={() => addTag(item.name)}
+                                            aria-label={`Add #${item.name}`}
+                                            className="stamp max-w-full px-3 py-1.5"
+                                        >
+                                            <span className="min-w-0 break-all text-[0.8125rem] leading-[1.4]">
+                                                #{item.name}
+                                            </span>
+                                            <span className="stamp-state t-readout shrink-0 text-ink-quiet">
+                                                {item.echoCount} {item.echoCount === 1 ? 'Echo' : 'Echos'}
+                                                {' · '}
+                                                {item.feedCount} {item.feedCount === 1 ? 'Feed' : 'Feeds'}
+                                            </span>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {suggestState === 'ready' && openSuggestions.length === 0 && (
+                            <p className="mt-4 text-[0.8125rem] text-ink-quiet">
+                                Every tag that fits is already on the Echo.
+                            </p>
+                        )}
+
+                        {suggestState === 'empty' && (
+                            <p className="mt-4 text-[0.8125rem] text-ink-quiet">
+                                No tag fits this yet.
+                            </p>
+                        )}
+
+                        {suggestState === 'error' && (
+                            <p className="mt-4 text-[0.8125rem] text-ink-quiet">
+                                Couldn't read the corpus just now. Try again in a moment.
+                            </p>
                         )}
                     </div>
 

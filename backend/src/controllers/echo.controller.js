@@ -1,6 +1,7 @@
 import Echo from "../models/echo.model.js";
 import Tag from "../models/tag.model.js";
 import { getEchoSortingOptions } from "../lib/sorting.js";
+import { invalidateTagIndex, suggestTagsForContent } from "../lib/tagSuggest.js";
 
 // POST /echo - create a new echo
 export const postEcho = async (req, res) => {
@@ -32,6 +33,10 @@ export const postEcho = async (req, res) => {
             tags: tagIds,
         });
 
+        // The suggestion index reads tags and content off this collection, so it
+        // is stale the moment this lands.
+        invalidateTagIndex();
+
         res.status(201).json({ echo });
     } catch (error) {
         console.log("Error in postEcho controller", error);
@@ -55,6 +60,7 @@ export const deleteEcho = async (req, res) => {
         }
 
         await Echo.findByIdAndDelete(echoId);
+        invalidateTagIndex();
         res.status(200).json({ message: "Echo deleted" });
     } catch (error) {
         console.log("Error in deleteEcho controller", error);
@@ -350,5 +356,26 @@ export const getReplies = async (req, res) => {
     } catch (error) {
         console.log("Error in getReplies controller", error);
         res.status(500).json({ error: "Failed to fetch replies" });
+    }
+};
+
+// POST /echo/suggest-tags - offer corpus tags that fit a draft
+//
+// Asked for only when the author presses the button, which is why the whole draft
+// rides in the body rather than a query string. A blank draft is not an error —
+// there is nothing to read yet, so the answer is simply an empty list.
+export const suggestTags = async (req, res) => {
+    try {
+        const { content, exclude, limit } = req.body || {};
+
+        if (!content || !content.trim()) {
+            return res.status(200).json({ suggestions: [] });
+        }
+
+        const suggestions = await suggestTagsForContent(content, { exclude, limit });
+        res.status(200).json({ suggestions });
+    } catch (error) {
+        console.log("Error in suggestTags controller", error);
+        res.status(500).json({ error: "Failed to suggest tags" });
     }
 };

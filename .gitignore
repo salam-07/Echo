@@ -28,3 +28,4 @@ dist-ssr
 .impeccable
 .github/copilot-instructions.md
 PRODUCT.md
+backend/src/lib/tagSuggest.test.js

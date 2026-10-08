@@ -18,7 +18,7 @@ export const useEchoStore = create((set, get) => ({
     },
 
     // Loading states - using utility
-    ...createLoadingStates('echo', ['Loading', 'Posting', 'Deleting', 'Liking']),
+    ...createLoadingStates('echo', ['Loading', 'Posting', 'Deleting', 'Liking', 'Suggesting']),
 
     // Get all echos - using utility (with reset flag)
     getAllEchos: createAsyncAction(
@@ -104,6 +104,21 @@ export const useEchoStore = create((set, get) => ({
             throw error;
         } finally {
             set({ isPostingEcho: false });
+        }
+    },
+
+    // Suggest corpus tags for a draft. Asked for on demand from the composer, so
+    // failures are returned to the caller rather than toasted across the page.
+    suggestTags: async (content, exclude = []) => {
+        set({ isSuggestingEcho: true });
+        try {
+            const res = await axiosInstance.post("/echo/suggest-tags", { content, exclude, limit: 5 });
+            return res.data.suggestions || [];
+        } catch (error) {
+            console.log("Error suggesting tags:", error);
+            throw error;
+        } finally {
+            set({ isSuggestingEcho: false });
         }
     },
 
