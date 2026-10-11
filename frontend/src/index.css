@@ -704,6 +704,50 @@ fieldset:disabled .stop[data-held='true'] {
   color: var(--color-obsidian);
 }
 
+/* --- The floating control ------------------------------------------------- */
+
+/* The one control in this document that floats. Everything else is *set* on the
+   paper; a way back to the top cannot be, because the thing it acts on is the
+   reader's own distance down the sheet — it has to hold still while the page
+   moves under it, which is the viewport rather than the flow.
+
+   It is primed in ink because ink is the only opaque ground this palette has.
+   Paper over paper with a hairline around it would vanish the moment a line of
+   type passed beneath, and the hairline is kept so the edge still reads as a
+   printed stop rather than a hole cut in the page. For the same reason its hover
+   inverts to paper rather than to transparent, which is the one place `.act`'s
+   own hover is overruled: a control that empties itself out over running text
+   cannot be read.
+
+   It arrives by INK — the smallest lift the eye can register — and never slides
+   in from off-sheet, because nothing in this world travels. The reveal is
+   authored on opacity and a short settle, so the reduced-motion rules at the
+   foot of this file flatten it to bare presence without having to know it is
+   here. `visibility` is in the transition on purpose: it holds the control on
+   the sheet for the length of the fade-out instead of cutting it off at once,
+   and a hidden control is out of the tab order and out of the tree. */
+.to-top {
+  transition:
+    opacity 240ms var(--ease-press),
+    transform 240ms var(--ease-press),
+    visibility 240ms var(--ease-press),
+    background-color 200ms var(--ease-press),
+    color 200ms var(--ease-press);
+}
+
+.to-top[data-shown='false'] {
+  opacity: 0;
+  transform: translateY(6px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.to-top:hover:not(:disabled),
+.to-top:focus-visible:not(:disabled) {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
 /* --- Fields -------------------------------------------------------------- */
 
 /* One hairline underneath, nothing else. Focus thickens that line to 2px and

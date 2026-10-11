@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 import { EchoCard } from '../components/features/echo';
 import { Measure, SheetHead, Notice, Placeholder, Coda, Failure } from '../components/editorial/Apparatus';
+import { BackToTop } from '../components/ui';
 import { impression, prefersCalm, useGSAP } from '../components/editorial/motion.js';
 import { useScrollStore } from '../store/useScrollStore';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
@@ -200,6 +201,11 @@ const HomePage = () => {
                     </div>
                 </div>
             </Measure>
+
+            {/* The way back to the head of a long Feed. It lives in the
+                document, not in the sheet: it holds still while the sheet
+                moves under it, so nothing about it may be re-impressed. */}
+            <BackToTop />
         </Layout>
     );
 };

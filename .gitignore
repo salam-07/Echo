@@ -29,3 +29,4 @@ dist-ssr
 .github/copilot-instructions.md
 PRODUCT.md
 backend/src/lib/tagSuggest.test.js
+ECHO_PORTFOLIO.md

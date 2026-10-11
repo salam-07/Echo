@@ -4,7 +4,7 @@ import HorizontalDrum from '../features/scroll/HorizontalDrum.jsx';
 import { useScrollStore } from '../../store/useScrollStore';
 
 /** Shared header: mobile menu, home link, Feed selector, and Search. */
-const Navbar = ({ onToggleSidebar }) => {
+const Navbar = ({ onToggleSidebar, sidebarOpen = false }) => {
     const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } =
         useScrollStore();
 
@@ -51,6 +51,9 @@ const Navbar = ({ onToggleSidebar }) => {
                     <button
                         type="button"
                         onClick={onToggleSidebar}
+                        aria-expanded={sidebarOpen}
+                        aria-controls="mobile-navigation"
+                        aria-haspopup="dialog"
                         className="t-label -ml-2 flex h-11 items-center px-2 text-ink underline decoration-rule-strong underline-offset-4 transition-colors hover:decoration-ink lg:hidden"
                     >
                         Menu
