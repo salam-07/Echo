@@ -171,10 +171,14 @@ const TOPICS = [
  *
  * `details` does the work, so the state is announced, the keyboard works, and
  * find-in-page can open a closed answer on its own.
+ *
+ * Hover is answered in the same material rather than with a filled band: the
+ * row's own hairline darkens to ink and the mark follows it. A grey block behind
+ * the question would be the one surface on this page not made of paper and rule.
  */
 const Query = ({ question, children }) => (
-    <details className="group border-b border-rule">
-        <summary className="flex cursor-pointer list-none items-start gap-6 py-5 transition-colors duration-200 hover:bg-paper-dim [&::-webkit-details-marker]:hidden">
+    <details className="group border-b border-rule transition-colors duration-200 hover:border-ink">
+        <summary className="flex cursor-pointer list-none items-start gap-6 py-5 [&::-webkit-details-marker]:hidden">
             <span className="min-w-0 flex-1 font-display text-[1.125rem] leading-[1.4] tracking-[-0.005em] text-ink sm:text-[1.25rem]">
                 {question}
             </span>
@@ -187,7 +191,10 @@ const Query = ({ question, children }) => (
                 className="relative h-[1.575rem] w-3.5 shrink-0 sm:h-[1.75rem]"
             >
                 <span className="absolute left-1/2 top-1/2 h-px w-3.5 -translate-x-1/2 -translate-y-1/2 bg-ink-quiet transition-colors duration-200 ease-[var(--ease-press)] group-hover:bg-ink group-open:bg-ink" />
-                <span className="absolute left-1/2 top-1/2 h-3.5 w-px -translate-x-1/2 -translate-y-1/2 origin-center bg-ink-quiet transition-[transform,background-color] duration-200 ease-[var(--ease-press)] group-hover:bg-ink group-open:scale-y-0" />
+                {/* Tailwind emits `scale-y-0` as the `scale` property, not
+                    `transform`, so the transition names `scale` — naming
+                    `transform` here would leave the stroke snapping shut. */}
+                <span className="absolute left-1/2 top-1/2 h-3.5 w-px -translate-x-1/2 -translate-y-1/2 bg-ink-quiet transition-[scale,background-color] duration-200 ease-[var(--ease-press)] group-hover:bg-ink group-open:scale-y-0" />
             </span>
         </summary>
 
@@ -215,7 +222,7 @@ const HelpBody = ({ signedIn = false }) => {
             <header className="pt-10 pb-4 sm:pt-12">
                 <h1 className="t-display max-w-[13ch]">How can we help?</h1>
 
-                <p className="t-body mt-6 text-ink-soft">
+                <p className="t-body mt-6 max-w-[54ch] text-ink-soft">
                     Echo is still in Beta. It works, but parts of it are unfinished and things can
                     change. Feedback of every kind is welcome, good and bad. Email <Mail />.
                 </p>
