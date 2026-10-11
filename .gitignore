@@ -30,3 +30,5 @@ dist-ssr
 PRODUCT.md
 backend/src/lib/tagSuggest.test.js
 ECHO_PORTFOLIO.md
+
+frontend/tests
