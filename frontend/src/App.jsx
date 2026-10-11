@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 
 import { useAuthStore } from "./store/useAuthStore";
 import SplashScreen from "./components/ui/SplashScreen";
+import InterfaceTour from "./components/onboarding/InterfaceTour";
 
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -121,6 +122,7 @@ const App = () => {
                 </Routes>
             )}
 
+            {authUser && <InterfaceTour key={authUser._id} userId={authUser._id} />}
             <Toaster position="bottom-center" toastOptions={NOTICE} />
         </>
     );

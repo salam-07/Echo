@@ -1,0 +1,51 @@
+.interface-tour {
+    position: fixed;
+    right: max(8px, calc((100vw - 1440px) / 2 + 8px));
+    bottom: 24px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: 232px;
+    max-height: calc(100dvh - 96px);
+    padding: 12px 14px;
+    border: 1px solid var(--color-rule-strong);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    animation: tour-enter 180ms var(--ease-press);
+}
+.interface-tour-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.interface-tour-topline button { min-height: 44px; flex-shrink: 0; text-decoration: underline; text-underline-offset: 4px; }
+.interface-tour-progress { height: 2px; background: var(--color-rule); margin: 0 0 12px; }
+.interface-tour-progress span { display: block; height: 100%; background: var(--color-ink); transform-origin: left; transition: transform 220ms var(--ease-press); }
+.interface-tour-content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; animation: tour-step 180ms var(--ease-press); }
+.interface-tour h2 { font-family: var(--font-display); font-size: 21px; line-height: 1.2; margin-bottom: 8px; text-wrap: balance; }
+.interface-tour p { font-size: 13px; line-height: 1.5; }
+.interface-tour-controls { display: flex; gap: 8px; margin-top: 12px; }
+.interface-tour-controls button { min-height: 44px; flex: 1; font-size: 11px; }
+.interface-tour-open { width: 100%; min-height: 44px; margin-top: 12px; font-size: 11px; }
+.interface-tour .interface-tour-hint { margin-top: 8px; font-size: 11px; color: var(--color-ink-soft); }
+.interface-tour-topline, .interface-tour-progress, .interface-tour-controls, .interface-tour-hint { flex-shrink: 0; }
+.interface-tour button:disabled { opacity: .45; cursor: not-allowed; }
+.interface-tour button:not(:disabled):hover { text-decoration: underline; text-underline-offset: 4px; }
+.interface-tour :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+.interface-tour h2:focus { outline: none; }
+@keyframes tour-enter { from { opacity: .7; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tour-step { from { opacity: .65; transform: translateX(3px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 1023px) {
+    .interface-tour { right: 12px; bottom: calc(64px + env(safe-area-inset-bottom)); width: min(320px, calc(100vw - 24px)); max-height: 44dvh; }
+    .interface-tour-active main {
+        max-height: calc(100dvh - var(--tour-height, 280px) - 144px - env(safe-area-inset-bottom));
+        overflow-y: auto;
+        padding-bottom: 24px;
+        margin-bottom: calc(var(--tour-height, 280px) + 32px);
+        scrollbar-gutter: stable;
+    }
+    html:has(.interface-tour-active) { scroll-padding-bottom: calc(var(--tour-height, 280px) + 88px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .interface-tour, .interface-tour-content { animation: none; }
+    .interface-tour-progress span { transition: none; }
+}
+[data-motion="reduce"] .interface-tour, [data-motion="reduce"] .interface-tour-content { animation: none; }
+[data-motion="reduce"] .interface-tour-progress span { transition: none; }

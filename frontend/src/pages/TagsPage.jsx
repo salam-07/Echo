@@ -1,3 +1,4 @@
+import NameHeading from '../components/editorial/NameHeading';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
@@ -36,9 +37,9 @@ const TagsPage = () => {
         <Layout>
             <Measure>
                 <header className="pt-10 pb-6 sm:pt-12">
-                    <h1 className="t-page-title text-ink">
+                    <NameHeading>
                         <span className="text-ink-quiet">#</span>{tagName}
-                    </h1>
+                    </NameHeading>
                     <div className="mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
                         <p className="t-readout text-ink-quiet" role="status">
                             {isLoadingEchos ? 'Loading Echos…' : `${echos?.length ?? 0} ${echos?.length === 1 ? 'Echo' : 'Echos'} shown`}

@@ -180,6 +180,15 @@
   overflow-wrap: anywhere;
 }
 
+/* Names scale with the viewport; NameHeading fits unusually long names to the column. */
+.t-name-title {
+  font-size: min(9vw, 6rem);
+  white-space: nowrap;
+  overflow-wrap: normal;
+  min-width: 0;
+}
+.t-name-title > span { display: inline-block; }
+
 .t-headline {
   font-family: var(--font-display);
   font-weight: 400;

@@ -246,8 +246,9 @@ const UserPage = () => {
         <Layout>
             <Measure>
                 <SheetHead
+                    fitSubject
                     display
-                    subject={<><span className="text-ink-quiet">@</span>{person.userName}</>}
+                    subject={<>@{person.userName}</>}
                     deck={person.bio || undefined}
                 >
                     {joined && <p className="t-readout mt-4 text-ink-quiet">Joined {joined}</p>}

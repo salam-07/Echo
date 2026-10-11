@@ -1,3 +1,4 @@
+import NameHeading from './NameHeading';
 import { Link, NavLink } from 'react-router-dom';
 
 /**
@@ -38,7 +39,7 @@ export const Measure = ({ wide = false, className = '', children }) => (
  * under it. Every other screen keeps the running head's left edge — a heading
  * that sits at the top of a form wants to line up with the form.
  */
-export const SheetHead = ({ label, subject, readout, deck, actions, children, masthead = false, display = false }) => (
+export const SheetHead = ({ label, subject, readout, deck, actions, children, masthead = false, display = false, fitSubject = false }) => (
     <header className={display ? 'pt-10 pb-6 sm:pt-12' : 'pt-8 pb-6'}>
         {(label || readout) && (
             <div className="flex items-baseline justify-between gap-6 border-b border-rule pb-3">
@@ -55,7 +56,7 @@ export const SheetHead = ({ label, subject, readout, deck, actions, children, ma
                         : 'mt-6 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-4'
                 }
             >
-                <h1 className={display ? 't-page-title text-ink' : masthead ? 't-headline text-center' : 't-subject'}>{subject}</h1>
+                {fitSubject ? <NameHeading>{subject}</NameHeading> : <h1 className={display ? 't-page-title text-ink' : masthead ? 't-headline text-center' : 't-subject'}>{subject}</h1>}
                 {actions && !display ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
             </div>
         ) : null}
