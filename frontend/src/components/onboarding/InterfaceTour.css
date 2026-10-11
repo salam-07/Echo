@@ -33,13 +33,23 @@
 @keyframes tour-enter { from { opacity: .7; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tour-step { from { opacity: .65; transform: translateX(3px); } to { opacity: 1; transform: translateX(0); } }
 @media (max-width: 1023px) {
-    .interface-tour { right: 12px; bottom: calc(64px + env(safe-area-inset-bottom)); width: min(320px, calc(100vw - 24px)); max-height: 44dvh; }
+    .interface-tour {
+        right: 12px;
+        bottom: calc(64px + env(safe-area-inset-bottom));
+        width: min(248px, calc(100vw - 24px));
+        max-height: 44dvh;
+        padding: 6px 10px 10px;
+    }
+    .interface-tour-progress { margin-bottom: 6px; }
+    .interface-tour h2 { font-size: 18px; margin-bottom: 6px; }
+    .interface-tour p { font-size: 12px; line-height: 1.4; }
+    .interface-tour-controls { gap: 6px; margin-top: 8px; }
+    .interface-tour-open { margin-top: 8px; }
+    .interface-tour .interface-tour-hint { margin-top: 6px; }
+    /* Keep the page visible behind the floating placard, with room to scroll
+       the final controls clear of it. */
     .interface-tour-active main {
-        max-height: calc(100dvh - var(--tour-height, 280px) - 144px - env(safe-area-inset-bottom));
-        overflow-y: auto;
-        padding-bottom: 24px;
-        margin-bottom: calc(var(--tour-height, 280px) + 32px);
-        scrollbar-gutter: stable;
+        padding-bottom: calc(var(--tour-height, 240px) + 88px + env(safe-area-inset-bottom));
     }
     html:has(.interface-tour-active) { scroll-padding-bottom: calc(var(--tour-height, 280px) + 88px); }
 }
