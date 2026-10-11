@@ -41,6 +41,9 @@ const Sidebar = ({ onNavigate }) => {
             </nav>
 
             <div className="border-t border-rule py-3">
+                <NavigationItem to="/help" onNavigate={onNavigate}>
+                    Help
+                </NavigationItem>
                 <NavigationItem to={`/user/${authUser?._id}`} onNavigate={onNavigate}>
                     @{authUser?.userName}
                 </NavigationItem>

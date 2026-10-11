@@ -12,6 +12,7 @@ import SignUpPage from "./pages/SignUpPage";
 
 import HomePage from "./pages/HomePage";
 import WelcomePage from "./pages/WelcomePage";
+import HelpPage from "./pages/HelpPage";
 import NewEcho from "./pages/NewEcho";
 import EchoView from "./pages/EchoView";
 import UserPage from "./pages/UserPage";
@@ -83,6 +84,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/welcome" element={<WelcomePage />} />
+                    <Route path="/help" element={<HelpPage />} />
                     <Route path="/signup" element={<Navigate to="/" />} />
                     <Route path="/login" element={<Navigate to="/" />} />
 
@@ -116,6 +118,7 @@ const App = () => {
             ) : (
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
+                    <Route path="/help" element={<HelpPage />} />
                     <Route path="/signup" element={<SignUpPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="*" element={<Navigate to="/" />} />

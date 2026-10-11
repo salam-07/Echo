@@ -56,6 +56,14 @@ const Colophon = () => {
                                 Sign in
                             </Link>
                         </div>
+
+                        <Link
+                            data-mark
+                            to="/help"
+                            className="t-label link-rule mt-8 inline-flex min-h-11 items-center transition-colors hover:text-ink"
+                        >
+                            Help
+                        </Link>
                     </div>
 
                     <div className="col-span-12 lg:col-span-7 lg:col-start-6">

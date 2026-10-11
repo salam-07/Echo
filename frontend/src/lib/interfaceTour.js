@@ -21,4 +21,11 @@ export function markTourSeen(userId) {
     seenThisSession.add(userId);
     try { localStorage.setItem(key(userId), 'done'); } catch { /* The tour still works without storage. */ }
 }
+/* Put the tour back on the shelf. Both stores are cleared, because the session
+   set is what answers first: clearing only storage would leave the tour marked
+   seen for the rest of this visit and the replay would appear to do nothing. */
+export function resetTour(userId) {
+    seenThisSession.delete(userId);
+    try { localStorage.removeItem(key(userId)); } catch { /* Nothing to clear. */ }
+}
 

@@ -82,7 +82,10 @@ export default function MobileNavigation({ open, onClose }) {
                         <Link to="/new" onClick={onClose} className="act">Post an Echo</Link>
                         <Link to="/scroll/new" onClick={onClose} className="act act-outline">Create a Scroll</Link>
                     </div>
-                    <Link to="/search" onClick={onClose} className="mobile-index__utility t-label">Search</Link>
+                    <div className="flex items-center">
+                        <Link to="/search" onClick={onClose} className="mobile-index__utility t-label">Search</Link>
+                        <Link to="/help" onClick={onClose} className="mobile-index__utility t-label">Help</Link>
+                    </div>
                 </div>
 
                 <footer className="mobile-index__footer">
