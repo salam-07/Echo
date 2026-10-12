@@ -1,3 +1,6 @@
+import BaithakPromo from '../components/baithak/BaithakPromo';
+import useBaithakPromo from '../hooks/useBaithakPromo';
+import useAuthStore from '../store/useAuthStore';
 import React, { useCallback, useState } from 'react';
 import { Sidebar, Navbar, RightSidebar } from '../components/layout';
 import MobileNavigation from '../components/layout/MobileNavigation';
@@ -14,7 +17,9 @@ import MobileNavigation from '../components/layout/MobileNavigation';
  * Below `lg` the index is a paper drawer opened from the running head, and
  * the margin is not printed at all.
  */
-const Layout = ({ children }) => {
+const Layout = ({ children, showBaithakPromo = true }) => {
+    const userId = useAuthStore((state) => state.authUser?._id);
+    const promo = useBaithakPromo(userId, showBaithakPromo);
     const [indexOpen, setIndexOpen] = useState(false);
 
     const closeIndex = useCallback(() => setIndexOpen(false), []);
@@ -29,10 +34,11 @@ const Layout = ({ children }) => {
                 </div>
 
                 <main className="min-w-0 flex-1 lg:border-x lg:border-rule">
+                    {showBaithakPromo && promo.visible && <BaithakPromo variant="mobile" onDismiss={promo.dismiss} />}
                     {children}
                 </main>
 
-                <RightSidebar />
+                <RightSidebar promo={showBaithakPromo ? promo : undefined} />
             </div>
 
             <MobileNavigation open={indexOpen} onClose={closeIndex} />

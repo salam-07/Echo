@@ -32,3 +32,4 @@ backend/src/lib/tagSuggest.test.js
 ECHO_PORTFOLIO.md
 
 frontend/tests
+frontend/tests/interfaceTour.browser.cjs

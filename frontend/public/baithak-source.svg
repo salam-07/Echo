@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="2400" viewBox="0 0 3000 2400">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 300px;
+        font-family: "AA Sameer Qamri";
+      }
+
+      .cls-2 {
+        font-size: 125px;
+        font-family: Inter;
+        font-weight: 300;
+      }
+
+      .cls-3 {
+        font-family: "Playfair Display";
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <text id="بیٹھک" class="cls-1" transform="translate(64.421 1467.744) scale(4.687)">بیٹھک</text>
+  <text id="A_Project_By_Echo" data-name="A Project By Echo" class="cls-2" transform="translate(246 1837.438) scale(1.3)">A Project By <tspan class="cls-3">Echo</tspan></text>
+</svg>

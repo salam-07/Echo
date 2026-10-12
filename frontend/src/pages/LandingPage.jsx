@@ -1,3 +1,4 @@
+import BaithakSection from '../components/baithak/BaithakSection';
 import {
     Colophon,
     CoverSheet,
@@ -28,6 +29,7 @@ const LandingPage = () => {
             <main>
                 <CoverSheet />
                 <TheObjection />
+                <BaithakSection />
                 <TwoModels />
                 <TheRule />
                 <Join />

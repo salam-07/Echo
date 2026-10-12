@@ -83,8 +83,13 @@ export const useScrollStore = create((set, get) => ({
     ...createLoadingStates('scroll', ['Loading', 'Creating', 'Deleting']),
     isLoadingScrollEchos: false,
 
+    // Local drum destination; never a synthetic Scroll or API identifier.
+    homeView: 'feed',
+    setHomeView: (homeView) => set({ homeView }),
+
     // Set selected scroll
     setSelectedScroll: (scroll) => {
+        if (get().homeView !== 'feed') set({ homeView: 'feed' });
         if (get().selectedScroll?._id === scroll?._id) return;
         const feeds = get().scrolls.filter(item => item.type === 'feed');
         const previous = feeds.findIndex(item => item._id === get().selectedScroll?._id);
@@ -156,7 +161,7 @@ export const useScrollStore = create((set, get) => ({
 
             // Restore selected scroll from localStorage
             const savedScrollId = localStorage.getItem('selectedScrollId');
-            if (savedScrollId && !get().selectedScroll) {
+            if (savedScrollId && !get().selectedScroll && get().homeView === 'feed') {
                 const savedScroll = res.data.scrolls.find(s => s._id === savedScrollId);
                 if (savedScroll && savedScroll.type === 'feed') {
                     get().setSelectedScroll(savedScroll);
@@ -378,7 +383,7 @@ export const useScrollStore = create((set, get) => ({
         requestVersion += 1;
         sessionVersion += 1;
         feedCache.clear();
-        set({ scrolls: [], hasLoadedScrolls: false, isLoadingScrolls: false, scrollsError: null, selectedScroll: null, scrollEchosId: null, scrollEchos: [],
+        set({ homeView: 'feed', scrolls: [], hasLoadedScrolls: false, isLoadingScrolls: false, scrollsError: null, selectedScroll: null, scrollEchosId: null, scrollEchos: [],
             scrollEchoPagination: emptyPagination(), scrollEchosError: null, isLoadingScrollEchos: false });
     },
 

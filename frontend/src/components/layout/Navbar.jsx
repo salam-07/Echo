@@ -1,12 +1,19 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HorizontalDrum from '../features/scroll/HorizontalDrum.jsx';
 import { useScrollStore } from '../../store/useScrollStore';
 
 /** Shared header: mobile menu, home link, Feed selector, and Search. */
 const Navbar = ({ onToggleSidebar, sidebarOpen = false }) => {
-    const { scrolls, selectedScroll, setSelectedScroll, getScrolls, isLoadingScrolls } =
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
+    const { scrolls, selectedScroll, setSelectedScroll, getScrolls, homeView, setHomeView } =
         useScrollStore();
+
+    // Leaving the introduction returns the selector to the reader's Feed.
+    useEffect(() => {
+        if (pathname !== '/') useScrollStore.getState().setHomeView('feed');
+    }, [pathname]);
 
     /* The running head owns the feed selector now, so it loads the rules itself
        rather than leaning on whichever sheet happens to be mounted beside it. */
@@ -19,29 +26,40 @@ const Navbar = ({ onToggleSidebar, sidebarOpen = false }) => {
 
     /* The drum is a pure instrument: hand it a strip of names, the one to stand at
        the centre, and a callback for when it arrests. */
-    const items = useMemo(() => feeds.map((feed) => ({ id: feed._id, name: feed.name })), [feeds]);
+    const items = useMemo(() => [
+        ...(feeds.length ? feeds.map((feed) => ({ id: feed._id, name: feed.name })) : [{ id: 'your-feed', name: 'Your Feed' }]),
+        { id: 'baithak-intro', name: 'Baithak' },
+    ], [feeds]);
 
     const centerIndex = useMemo(() => {
+        if (homeView === 'baithak') return items.length - 1;
         const found = feeds.findIndex((feed) => feed._id === selectedScroll?._id);
         return found < 0 ? 0 : found;
-    }, [feeds, selectedScroll?._id]);
+    }, [feeds, selectedScroll?._id, homeView, items.length]);
 
     /* A register should be found already set: when nothing is held, the first feed
        is, so the home sheet always has a rule to read. */
     useEffect(() => {
-        if (feeds.length === 0) return;
+        if (feeds.length === 0 || homeView === 'baithak') return;
         const held = feeds.some((feed) => feed._id === selectedScroll?._id);
         if (!held) setSelectedScroll(feeds[0]);
-    }, [feeds, selectedScroll?._id, setSelectedScroll]);
+    }, [feeds, selectedScroll?._id, setSelectedScroll, homeView]);
 
     /* The drum registers when it stops; this is where that choice is written back
        to the store, which the home sheet reads to know which rule to fetch. */
     const handleChange = useCallback(
-        (index) => {
+        (index, item) => {
+            if (item.id === 'baithak-intro') {
+                setHomeView('baithak');
+                navigate('/');
+                return;
+            }
+            setHomeView('feed');
             const feed = feeds[index];
             if (feed) setSelectedScroll(feed);
+            navigate('/');
         },
-        [feeds, setSelectedScroll],
+        [feeds, setSelectedScroll, setHomeView, navigate],
     );
 
     return (
@@ -74,28 +92,12 @@ const Navbar = ({ onToggleSidebar, sidebarOpen = false }) => {
                     where a thumb can reach it. */}
                 <div className="fixed inset-x-0 bottom-0 z-30 flex min-w-0 justify-center border-t border-rule bg-paper px-4 py-1 lg:static lg:inset-x-auto lg:bottom-auto lg:z-auto lg:flex-[3] lg:border-0 lg:bg-transparent lg:px-0 lg:py-0">
                     <div className="w-full max-w-[34rem]">
-                        {feeds.length > 0 ? (
-                            <HorizontalDrum
-                                items={items}
-                                centerIndex={centerIndex}
-                                onChange={handleChange}
-                            />
-                        ) : (
-                            /* Both states keep the band's own height (2.75rem) so the
-                               head never jumps as the rules arrive or run out. While
-                               they load, nothing; once they are known to be empty, the
-                               one thing there is to do about it. */
-                            <div className="flex h-11 items-center justify-center">
-                                {!isLoadingScrolls && (
-                                    <Link
-                                        to="/scroll/new"
-                                        className="t-label link-rule text-ink-quiet transition-colors hover:text-ink"
-                                    >
-                                        Write a feed
-                                    </Link>
-                                )}
-                            </div>
-                        )}
+                        <HorizontalDrum
+                            items={items}
+                            centerIndex={centerIndex}
+                            label="Your feeds and Baithak"
+                            onChange={handleChange}
+                        />
                     </div>
                 </div>
 

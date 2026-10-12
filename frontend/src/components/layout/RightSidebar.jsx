@@ -1,3 +1,4 @@
+import BaithakPromo from '../baithak/BaithakPromo';
 import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollStore } from '../../store/useScrollStore';
@@ -13,7 +14,7 @@ import { useScrollStore } from '../../store/useScrollStore';
  * Desktop only. Below `lg` there is no margin to write in, and everything here
  * is reachable from the index.
  */
-const RightSidebar = () => {
+const RightSidebar = ({ promo }) => {
     const { scrolls, getScrolls, isLoadingScrolls } = useScrollStore();
 
     useEffect(() => {
@@ -65,6 +66,7 @@ const RightSidebar = () => {
                 </p>
             )}
 
+        {promo?.visible && <BaithakPromo variant="desktop" onDismiss={promo.dismiss} />}
         </aside>
     );
 };

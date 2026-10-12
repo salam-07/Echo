@@ -1,3 +1,4 @@
+import BaithakIntro from '../components/baithak/BaithakIntro';
 import React, { useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
@@ -12,6 +13,8 @@ import useInfiniteScroll from '../hooks/useInfiniteScroll';
 const HomePage = () => {
     const {
         selectedScroll,
+        homeView,
+        setHomeView,
         scrollEchos,
         scrollEchosId,
         scrollEchosError,
@@ -33,7 +36,8 @@ const HomePage = () => {
     /* The sheet the impression is taken of. */
     const sheetRef = useRef(null);
 
-    const selectedScrollId = selectedScroll?._id;
+    const showingBaithak = homeView === 'baithak';
+    const selectedScrollId = showingBaithak ? null : selectedScroll?._id;
     const previousFeed = useRef(selectedScrollId);
 
     useLayoutEffect(() => {
@@ -69,9 +73,9 @@ const HomePage = () => {
     const feeds = useMemo(() => scrolls.filter((scroll) => scroll.type === 'feed'), [scrolls]);
 
     useEffect(() => {
-        if (!hasLoadedScrolls || scrollsError || feeds.length === 0) return;
+        if (showingBaithak || !hasLoadedScrolls || scrollsError || feeds.length === 0) return;
         prefetchFeeds(feeds);
-    }, [hasLoadedScrolls, scrollsError, feeds, prefetchFeeds]);
+    }, [hasLoadedScrolls, scrollsError, feeds, prefetchFeeds, showingBaithak]);
 
     /* An impression is two halves on two clocks. The choice — the sheet's
        settle, the title, the deck — is made once per turn. The contents land
@@ -115,7 +119,13 @@ const HomePage = () => {
         if (selectedScrollId) loadMoreScrollEchos(selectedScrollId);
     }, [selectedScrollId, loadMoreScrollEchos]);
 
-    const sentinelRef = useInfiniteScroll(handleLoadMore, pagination.hasMore && !error, isLoading);
+    const sentinelRef = useInfiniteScroll(handleLoadMore, !showingBaithak && pagination.hasMore && !error, isLoading);
+
+    if (showingBaithak) {
+        return <Layout showBaithakPromo={false}>
+            <BaithakIntro onReturn={() => { setHomeView('feed'); document.querySelector('.hdrum')?.focus(); }} />
+        </Layout>;
+    }
 
     if (hasNoRules) {
         return (

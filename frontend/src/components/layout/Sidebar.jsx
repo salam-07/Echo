@@ -1,3 +1,4 @@
+import { BaithakLink } from '../baithak/BaithakPromo';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { NavigationItem } from '../ui';
@@ -38,6 +39,10 @@ const Sidebar = ({ onNavigate }) => {
                 <NavigationItem to="/browse/tags" onNavigate={onNavigate}>
                     Tags
                 </NavigationItem>
+                <div className="baithak-nav">
+                    <BaithakLink onClick={onNavigate}>baithak</BaithakLink>
+                    <p>By Echo · Punjab’s folk stories</p>
+                </div>
             </nav>
 
             <div className="border-t border-rule py-3">

@@ -34,8 +34,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
     else {
      assert(bounds.height <= viewport.height*.44+1, 'Compact mobile tour');
      await page.locator('main').waitFor({state:'visible'});
-     const main=await page.locator('main').boundingBox();
-     assert(main.y+main.height <= bounds.y+1, 'Mobile content stays above tour');
+     assert(bounds.width <= 249, 'Mobile placard is compact');
+     const mainStyle = await page.locator('main').evaluate(el => ({maxHeight:getComputedStyle(el).maxHeight, paddingBottom:parseFloat(getComputedStyle(el).paddingBottom)}));
+     assert.equal(mainStyle.maxHeight, 'none', 'Page continues behind the placard');
+     assert(mainStyle.paddingBottom + 1 >= bounds.height + 88, 'Final page controls can scroll clear of the placard');
     }
    }
    await check('This is your feed');
