@@ -26,6 +26,7 @@ const Layout = ({ children, showBaithakPromo = true }) => {
 
     return (
         <div className="min-h-screen">
+            <a href="#main-content" className="skip-content act">Skip to content</a>
             <Navbar onToggleSidebar={() => setIndexOpen(true)} sidebarOpen={indexOpen} />
 
             <div className="mx-auto flex w-full max-w-[1440px]">
@@ -33,7 +34,7 @@ const Layout = ({ children, showBaithakPromo = true }) => {
                     <Sidebar />
                 </div>
 
-                <main className="min-w-0 flex-1 lg:border-x lg:border-rule">
+                <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 scroll-mt-16 lg:border-x lg:border-rule">
                     {showBaithakPromo && promo.visible && <BaithakPromo variant="mobile" onDismiss={promo.dismiss} />}
                     {children}
                 </main>

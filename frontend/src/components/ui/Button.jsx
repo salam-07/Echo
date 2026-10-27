@@ -24,7 +24,7 @@ const VARIANTS = {
    inline controls inside a row of type and is never the only way to do a thing. */
 const SIZES = {
     xs: 'h-8 px-3',
-    sm: 'h-10 px-4',
+    sm: 'min-h-11 px-4 py-2',
     default: 'h-11 px-6',
     lg: 'h-12 px-8',
 };

@@ -21,84 +21,54 @@ const SIZES = {
 const Modal = ({ isOpen, onClose, title, children, className, size = 'default', ...props }) => {
     const titleId = React.useId();
     const panelRef = useRef(null);
+    const dialogRef = useRef(null);
+    const backdropPress = useRef(false);
 
     useEffect(() => {
         if (!isOpen) return;
         const previouslyFocused = document.activeElement;
-        const panel = panelRef.current;
-
-        /* Only what a keyboard can actually reach, and only what is on screen — a
-           button in a collapsed branch is not a tab stop. */
-        const focusablesIn = () =>
-            Array.from(
-                panel?.querySelectorAll(
-                    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
-                ) ?? [],
-            ).filter((el) => el.offsetParent !== null);
-
-        const onKeyDown = (event) => {
-            if (event.key === 'Escape') {
-                onClose?.();
-                return;
-            }
-            /* Tab cannot leave the sheet: the document behind it is inert while it
-               is open, so focus wraps at the two ends rather than falling out. */
-            if (event.key !== 'Tab') return;
-            const focusables = focusablesIn();
-            if (focusables.length === 0) {
-                event.preventDefault();
-                panel?.focus();
-                return;
-            }
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault();
-                first.focus();
-            }
-        };
-
+        const dialog = dialogRef.current;
+        const previousOverflow = document.body.style.overflow;
+        // Native modal behavior makes the background inert, including to
+        // assistive technology, and keeps new/disabled controls out of its trap.
+        dialog.showModal();
         document.body.style.overflow = 'hidden';
-        document.addEventListener('keydown', onKeyDown);
-        /* Focus lands on the sheet itself, so a screen reader reads the dialog's
-           name before its contents, and Tab starts inside. */
-        panel?.focus();
+        panelRef.current?.focus({ preventScroll: true });
 
         return () => {
-            document.body.style.overflow = '';
-            document.removeEventListener('keydown', onKeyDown);
-            if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
+            dialog.close();
+            document.body.style.overflow = previousOverflow;
+            if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
+                previouslyFocused.focus({ preventScroll: true });
+            }
         };
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
-    /* Portalled to the document body: `position: fixed` is measured from the
-       viewport only when no ancestor carries a transform, and the app's feed
-       columns keep a settled `translateY(0)` from their entrance. Rendered inline
-       the sheet would pin to the top of that column instead of the screen; at the
-       body it cannot. */
+    // Keep sheets outside the feed's stacking contexts; showModal places them
+    // in the browser's top layer, above the document and its floating controls.
     return createPortal(
-        <div className="fixed inset-0 z-50 overflow-y-auto" {...props}>
-            <button
-                type="button"
-                aria-label="Close"
-                onClick={onClose}
-                className="modal-ground fixed inset-0 h-full w-full cursor-default bg-ink/25"
-            />
-
-            <div className="relative flex min-h-full items-center justify-center p-4 sm:p-8">
+        <dialog
+            {...props}
+            ref={dialogRef}
+            aria-labelledby={title ? titleId : undefined}
+            aria-label={title ? undefined : 'Dialog'}
+            className="modal-viewport"
+            onCancel={(event) => { event.preventDefault(); onClose?.(); }}
+            onPointerDown={(event) => { backdropPress.current = event.target === event.currentTarget; }}
+            onClick={(event) => {
+                // Selecting text inside and releasing outside must not dismiss.
+                if (backdropPress.current && event.target === event.currentTarget) onClose?.();
+                backdropPress.current = false;
+            }}
+        >
+            <div className="pointer-events-none relative flex min-h-full items-center justify-center p-4 sm:p-8">
                 <div
                     ref={panelRef}
                     tabIndex={-1}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby={title ? titleId : undefined}
                     className={cn(
-                        'modal-sheet w-full border border-ink bg-paper outline-none',
+                        'modal-sheet pointer-events-auto w-full border border-ink bg-paper outline-none',
                         SIZES[size] ?? SIZES.default,
                         className,
                     )}
@@ -111,7 +81,7 @@ const Modal = ({ isOpen, onClose, title, children, className, size = 'default', 
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="t-label -mr-2 shrink-0 px-2 py-2 transition-colors hover:text-ink"
+                                className="t-label -mr-2 min-h-11 shrink-0 px-2 py-2 transition-colors hover:text-ink"
                             >
                                 Close
                             </button>
@@ -120,7 +90,7 @@ const Modal = ({ isOpen, onClose, title, children, className, size = 'default', 
                     {children}
                 </div>
             </div>
-        </div>,
+        </dialog>,
         document.body,
     );
 };

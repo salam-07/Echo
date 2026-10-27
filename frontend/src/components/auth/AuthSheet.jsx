@@ -41,7 +41,9 @@ export const Field = ({
                         onClick={() => setShown((s) => !s)}
                         aria-label={shown ? 'Hide password' : 'Show password'}
                         aria-controls={id}
-                        className="t-label link-rule transition-colors hover:text-ink"
+                        aria-pressed={shown}
+                        disabled={disabled}
+                        className="t-label link-rule -my-3 -mr-2 inline-flex min-h-11 items-center px-2 transition-colors hover:text-ink disabled:opacity-50"
                     >
                         {shown ? 'Hide' : 'Show'}
                     </button>

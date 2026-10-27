@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -58,12 +58,9 @@ const NOTICE = {
 
 const App = () => {
     const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
-    const [showSplash, setShowSplash] = useState(true);
 
     useEffect(() => {
         checkAuth();
-        const timer = setTimeout(() => setShowSplash(false), 1500);
-        return () => clearTimeout(timer);
     }, [checkAuth]);
 
     /* The reader's motion preference, applied before any route paints. Settings
@@ -74,7 +71,7 @@ const App = () => {
         }
     }, []);
 
-    if ((isCheckingAuth && !authUser) || showSplash) {
+    if (isCheckingAuth && !authUser) {
         return <SplashScreen />;
     }
 

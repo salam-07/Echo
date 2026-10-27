@@ -76,19 +76,13 @@ const BackToTop = () => {
     return createPortal(
         <div className="pointer-events-none fixed inset-x-0 bottom-16 z-30 lg:bottom-6">
             <div className="mx-auto flex w-full max-w-[1440px] justify-end px-6 lg:px-0">
-                {/* Compact on a phone, where the control sits in the corner of the
-                    reader's own thumb and the sheet is the only thing worth looking
-                    at. It deliberately dips 8px under the 44px target that every
-                    `Button` size but `xs` keeps: this is the one action that is
-                    cheap and repeatable, it stands in dead space over the margin
-                    rather than in a row of type, and the full size is back from
-                    `sm` — where the corner has a mouse in it instead. */}
+                {/* Keep the compact label, with a full thumb-sized target. */}
                 <button
                     type="button"
                     onClick={toTop}
                     data-shown={shown ? 'true' : 'false'}
                     aria-label="Back to top"
-                    className="to-top act pointer-events-auto h-9 gap-1.5 px-3 text-[0.625rem] sm:h-11 sm:gap-2 sm:px-5 sm:text-xs lg:mr-6"
+                    className="to-top act pointer-events-auto h-11 gap-1.5 px-3 text-[0.625rem] sm:gap-2 sm:px-5 sm:text-xs lg:mr-6"
                 >
                     <span aria-hidden="true" className="text-[1.1em]">↑</span>
                     Top
