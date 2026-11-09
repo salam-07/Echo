@@ -33,3 +33,6 @@ ECHO_PORTFOLIO.md
 
 frontend/tests
 frontend/tests/interfaceTour.browser.cjs
+
+# Temporary database seed scripts, payloads, and reports
+/backend/scripts/
