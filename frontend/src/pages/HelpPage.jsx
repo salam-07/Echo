@@ -77,7 +77,7 @@ const TOPICS = [
             },
             {
                 q: 'Do you use cookies or tracking?',
-                a: 'One cookie keeps you signed in between visits. There are no advertising cookies, no analytics, and nothing that follows you to other sites.',
+                a: 'One cookie keeps you signed in between visits. We also load Google\'s tag to support usage analytics.',
             },
             {
                 q: 'Can I delete something I wrote?',
